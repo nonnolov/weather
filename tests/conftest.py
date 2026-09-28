@@ -98,11 +98,13 @@ class FakeWeatherProvider(BaseWeatherProvider):
         forecast_days: int = 7,
         timezone: str = "UTC",
     ) -> ProviderForecastResult:
-        now = datetime.now(timezone.utc) if isinstance(timezone, str) else datetime.now(__import__('datetime').timezone.utc)
-        # Build minimal hourly + daily records
+        # `timezone` parameter shadows datetime.timezone here too; use the
+        # module-level import directly via the `timezone` name captured before
+        # the method scope — simplest fix is to reference it via the module.
+        _utc = __import__("datetime").timezone.utc
         hourly = [
             NormalizedHourlyForecast(
-                valid_time=datetime(2024, 6, 1, h, 0, 0, tzinfo=__import__('datetime').timezone.utc),
+                valid_time=datetime(2024, 6, 1, h, 0, 0, tzinfo=_utc),
                 temperature_2m=20.0 + h * 0.1,
                 precipitation=0.0,
                 weather_code=0,
@@ -120,7 +122,7 @@ class FakeWeatherProvider(BaseWeatherProvider):
         ]
         return ProviderForecastResult(
             provider=self.name,
-            retrieved_at=datetime(2024, 6, 1, 0, 0, 0, tzinfo=__import__('datetime').timezone.utc),
+            retrieved_at=datetime(2024, 6, 1, 0, 0, 0, tzinfo=_utc),
             model_run_time=None,
             hourly=hourly,
             daily=daily,

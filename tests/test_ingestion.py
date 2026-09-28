@@ -12,10 +12,17 @@ from app.providers.base import ProviderForecastResult, NormalizedHourlyForecast,
 from tests.conftest import FakeWeatherProvider
 
 
+_slug_counter = 0
+
+
 async def _make_location(db: AsyncSession) -> Location:
+    """Create a location with a unique slug to avoid UNIQUE constraint errors
+    across tests that share the session-scoped in-memory SQLite database."""
+    global _slug_counter
+    _slug_counter += 1
     location = Location(
         name="Tokyo",
-        slug="tokyo-ingest-test",
+        slug=f"tokyo-ingest-test-{_slug_counter}",
         latitude=35.6762,
         longitude=139.6503,
         timezone="Asia/Tokyo",

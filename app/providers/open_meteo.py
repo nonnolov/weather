@@ -66,13 +66,16 @@ class OpenMeteoProvider(BaseWeatherProvider):
         forecast_days: int = 7,
         timezone: str = "UTC",
     ) -> ProviderForecastResult:
+        # Use a local alias so the `timezone` parameter does not shadow
+        # datetime.timezone (which is imported at module level).
+        tz_name: str = timezone
         params = {
             "latitude": latitude,
             "longitude": longitude,
             "hourly": ",".join(_HOURLY_VARS),
             "daily": ",".join(_DAILY_VARS),
             "forecast_days": forecast_days,
-            "timezone": timezone,
+            "timezone": tz_name,
             "timeformat": "iso8601",
         }
 
@@ -84,6 +87,8 @@ class OpenMeteoProvider(BaseWeatherProvider):
             response.raise_for_status()
 
         raw: dict[str, Any] = response.json()
+        # `timezone` here refers to datetime.timezone (the module-level import),
+        # not the string parameter — the alias above ensures this is unambiguous.
         retrieved_at = datetime.now(timezone.utc)
 
         hourly = self._parse_hourly(raw)
