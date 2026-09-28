@@ -1,93 +1,107 @@
-# Weather
+# Weather Forecasting System
 
+A real, modular, testable 7-day weather forecasting system.
 
-
-## Getting started
-
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
-
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
-
-## Add your files
-
-* [Create](https://docs.gitlab.com/user/project/repository/web_editor/#create-a-file) or [upload](https://docs.gitlab.com/user/project/repository/web_editor/#upload-a-file) files
-* [Add files using the command line](https://docs.gitlab.com/topics/git/add_files/#add-files-to-a-git-repository) or push an existing Git repository with the following command:
+## Architecture
 
 ```
-cd existing_repo
-git remote add origin https://gitlab.com/fynn-group/weather.git
-git branch -M main
-git push -uf origin main
+Weather API/NWP → Ingestion → Normalization → PostgreSQL → Forecast → FastAPI
 ```
 
-## Integrate with your tools
+## Stack
 
-* [Set up project integrations](https://gitlab.com/fynn-group/weather/-/settings/integrations)
+- **Backend**: Python 3.11+, FastAPI, SQLAlchemy 2, Pydantic v2, PostgreSQL, Alembic
+- **Testing**: pytest, pytest-asyncio, httpx
 
-## Collaborate with your team
+## Project Structure
 
-* [Invite team members and collaborators](https://docs.gitlab.com/user/project/members/)
-* [Create a new merge request](https://docs.gitlab.com/user/project/merge_requests/creating_merge_requests/)
-* [Automatically close issues from merge requests](https://docs.gitlab.com/user/project/issues/managing_issues/#closing-issues-automatically)
-* [Enable merge request approvals](https://docs.gitlab.com/user/project/merge_requests/approvals/)
-* [Set auto-merge](https://docs.gitlab.com/user/project/merge_requests/auto_merge/)
+```
+app/
+  api/          # FastAPI routers
+  core/         # Config, database session
+  models/       # SQLAlchemy ORM models
+  schemas/      # Pydantic schemas
+  providers/    # Weather provider abstraction + implementations
+  ingestion/    # Forecast ingestion service
+alembic/        # Database migrations
+tests/          # pytest test suite
+```
 
-## Test and Deploy
+## Quick Start
 
-Use the built-in continuous integration in GitLab.
+### 1. Prerequisites
 
-* [Get started with GitLab CI/CD](https://docs.gitlab.com/ci/quick_start/)
-* [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/user/application_security/sast/)
-* [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/topics/autodevops/requirements/)
-* [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/user/clusters/agent/)
-* [Set up protected environments](https://docs.gitlab.com/ci/environments/protected_environments/)
+- Python 3.11+
+- PostgreSQL 14+
 
-***
+### 2. Environment
 
-# Editing this README
+```bash
+cp .env.example .env
+# Edit .env with your database URL and provider API keys
+```
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
+### 3. Install dependencies
 
-## Suggestions for a good README
+```bash
+pip install -r requirements.txt
+```
 
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+### 4. Run migrations
 
-## Name
-Choose a self-explaining name for your project.
+```bash
+alembic upgrade head
+```
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+### 5. Start the API
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
+```bash
+uvicorn app.main:app --reload
+```
 
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+API docs available at: http://localhost:8000/docs
 
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+## API Endpoints
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | `/health` | Health check |
+| GET | `/api/v1/locations` | List all locations |
+| POST | `/api/v1/locations` | Create a location |
+| GET | `/api/v1/locations/{location_id}` | Get a location |
+| POST | `/api/v1/ingest/{location_id}` | Trigger forecast ingestion |
+| GET | `/api/v1/forecast/{location_id}` | Get latest forecast |
+| GET | `/api/v1/forecast/{location_id}/runs` | List forecast runs |
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+## Running Tests
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
+```bash
+pytest
+# With coverage:
+pytest --cov=app --cov-report=term-missing
+```
 
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
+## Weather Providers
 
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
+Providers are isolated behind a common abstraction (`BaseWeatherProvider`). Each provider normalises its raw API response into standard `NormalizedHourlyForecast` and `NormalizedDailyForecast` objects before storage.
 
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
+Currently implemented:
+- **Open-Meteo** — free, no API key required (default)
 
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
+To add a new provider, subclass `BaseWeatherProvider` in `app/providers/` and register it in `app/providers/registry.py`.
 
-## License
-For open source projects, say how it is licensed.
+## Design Principles
 
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+- Every forecast retrieval is stored as an immutable historical snapshot — forecasts are never overwritten.
+- Provider-specific logic is fully isolated behind the abstraction layer.
+- All secrets are loaded from environment variables; no secrets in code.
+- Chronological ordering is preserved throughout for future ML evaluation.
+
+## Development Phases
+
+- **Phase 1** ✅ Backend foundation, database, provider abstraction, ingestion, API, tests
+- **Phase 2** — Web dashboard (Next.js)
+- **Phase 3** — Historical evaluation + accuracy metrics (MAE, RMSE, Bias)
+- **Phase 4** — ML bias correction (Linear Regression → XGBoost)
+- **Phase 5** — LINE notification service
+- **Phase 6** — Testing, security, logging, deployment
