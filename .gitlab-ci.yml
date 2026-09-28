@@ -1,6 +1,6 @@
 # GitLab CI — Phase 1
-# job 1 ‘test’      — unit tests, in-memory SQLite, no network required
-# job 2 ‘integrate’ — real Open-Meteo API + PostgreSQL service
+# job 'test'      — unit tests, in-memory SQLite, no network required
+# job 'integrate' — real Open-Meteo API + PostgreSQL service container
 
 default:
   image: python:3.12-slim
@@ -17,57 +17,37 @@ cache:
   paths:
     - .cache/pip
 
-# ───────────────────────────────────────────────────────────────────────────────
+# ── Unit tests (SQLite in-memory, no network) ──────────────────────────────────────
 test:
   stage: test
   variables:
-    # Unit tests use aiosqlite in-memory SQLite — no real DB needed.
     DATABASE_URL: "sqlite+aiosqlite:///:memory:"
     DATABASE_URL_SYNC: "sqlite:///:memory:"
   before_script:
     - pip install --quiet --upgrade pip
     - pip install --quiet -r requirements.txt
   script:
-    # Exclude integration-marked tests; those run in the integrate job.
     - pytest -q -m "not integration"
   coverage: '/TOTAL.*\s+(\d+%)$/'
 
-# ───────────────────────────────────────────────────────────────────────────────
+# ── Integration tests (real PostgreSQL + real Open-Meteo API) ─────────────────────
 integrate:
   stage: integrate
   services:
     - name: postgres:16-alpine
       alias: postgres
   variables:
-    # PostgreSQL service credentials
     POSTGRES_DB: weather_test
     POSTGRES_USER: weather
     POSTGRES_PASSWORD: weather
     POSTGRES_HOST_AUTH_METHOD: trust
-    # Application DB URLs pointing at the service container
     DATABASE_URL: "postgresql+asyncpg://weather:weather@postgres:5432/weather_test"
     DATABASE_URL_SYNC: "postgresql+psycopg2://weather:weather@postgres:5432/weather_test"
-    # Suppress SQLAlchemy echo in CI logs
     DEBUG: "false"
   before_script:
     - pip install --quiet --upgrade pip
     - pip install --quiet -r requirements.txt
-    # Wait for PostgreSQL to be ready (the service may take a few seconds)
-    - |
-      echo "Waiting for PostgreSQL..."
-      for i in $(seq 1 30); do
-        python -c "
-import psycopg2, sys
-try:
-    psycopg2.connect(host='postgres', dbname='weather_test', user='weather', password='weather')
-    sys.exit(0)
-except Exception:
-    sys.exit(1)
-" && break || sleep 2
-      done
-    - echo "PostgreSQL is ready."
-    # Apply schema migrations
+    - python scripts/wait_for_postgres.py
     - alembic upgrade head
   script:
-    # Run only integration-marked tests; -s shows the ingestion summary table.
     - pytest -m integration -v -s tests/integration/
