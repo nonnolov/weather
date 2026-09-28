@@ -1,5 +1,5 @@
 """Open-Meteo provider — free, no API key required."""
-from datetime import datetime, timezone, date
+from datetime import datetime, timezone as dt_timezone, date
 from typing import Any
 import httpx
 
@@ -66,16 +66,13 @@ class OpenMeteoProvider(BaseWeatherProvider):
         forecast_days: int = 7,
         timezone: str = "UTC",
     ) -> ProviderForecastResult:
-        # Use a local alias so the `timezone` parameter does not shadow
-        # datetime.timezone (which is imported at module level).
-        tz_name: str = timezone
         params = {
             "latitude": latitude,
             "longitude": longitude,
             "hourly": ",".join(_HOURLY_VARS),
             "daily": ",".join(_DAILY_VARS),
             "forecast_days": forecast_days,
-            "timezone": tz_name,
+            "timezone": timezone,
             "timeformat": "iso8601",
         }
 
@@ -87,9 +84,7 @@ class OpenMeteoProvider(BaseWeatherProvider):
             response.raise_for_status()
 
         raw: dict[str, Any] = response.json()
-        # `timezone` here refers to datetime.timezone (the module-level import),
-        # not the string parameter — the alias above ensures this is unambiguous.
-        retrieved_at = datetime.now(timezone.utc)
+        retrieved_at = datetime.now(dt_timezone.utc)
 
         hourly = self._parse_hourly(raw)
         daily = self._parse_daily(raw)
@@ -188,5 +183,5 @@ class OpenMeteoProvider(BaseWeatherProvider):
             value = value[:-1] + "+00:00"
         dt = datetime.fromisoformat(value)
         if dt.tzinfo is None:
-            dt = dt.replace(tzinfo=timezone.utc)
+            dt = dt.replace(tzinfo=dt_timezone.utc)
         return dt
