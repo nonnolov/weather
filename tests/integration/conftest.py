@@ -5,6 +5,14 @@ These fixtures connect to a REAL PostgreSQL database (configured via
 DATABASE_URL env var) and run Alembic migrations before the test session.
 They are intentionally separate from the unit-test conftest so that the
 unit tests never require a live database.
+
+Event-loop note
+---------------
+pytest-asyncio (asyncio_mode="auto") gives each test function its own event
+loop. asyncpg connections are bound to the loop that created them, so the
+engine and session fixtures must be function-scoped to avoid the
+"Future attached to a different loop" RuntimeError.
+Migrations are run once per session via a synchronous psycopg2 call.
 """
 from __future__ import annotations
 
@@ -13,8 +21,6 @@ from collections.abc import AsyncGenerator
 
 import pytest
 import pytest_asyncio
-from alembic import command as alembic_command
-from alembic.config import Config as AlembicConfig
 from sqlalchemy.ext.asyncio import (
     AsyncSession,
     async_sessionmaker,
@@ -46,44 +52,39 @@ def _require_sync_postgres_url() -> str:
     return url
 
 
-@pytest.fixture(scope="session")
-def pg_database_url() -> str:
-    return _require_postgres_url()
+@pytest.fixture(scope="session", autouse=True)
+def run_migrations() -> None:
+    """
+    Apply Alembic migrations once per test session using a synchronous
+    psycopg2 connection (avoids event-loop lifetime issues).
+    """
+    from alembic import command as alembic_command
+    from alembic.config import Config as AlembicConfig
 
-
-@pytest.fixture(scope="session")
-def pg_database_url_sync() -> str:
-    return _require_sync_postgres_url()
-
-
-@pytest.fixture(scope="session")
-def run_migrations(pg_database_url_sync: str) -> None:
-    """Apply Alembic migrations once per test session."""
+    sync_url = _require_sync_postgres_url()
     cfg = AlembicConfig("alembic.ini")
-    cfg.set_main_option("sqlalchemy.url", pg_database_url_sync)
+    cfg.set_main_option("sqlalchemy.url", sync_url)
     alembic_command.upgrade(cfg, "head")
 
 
-@pytest_asyncio.fixture(scope="session")
-async def pg_engine(pg_database_url: str, run_migrations: None):
-    """Async engine connected to the real PostgreSQL database."""
-    engine = create_async_engine(pg_database_url, echo=False, pool_pre_ping=True)
-    yield engine
-    await engine.dispose()
-
-
 @pytest_asyncio.fixture
-async def pg_session(pg_engine) -> AsyncGenerator[AsyncSession, None]:
+async def pg_session() -> AsyncGenerator[AsyncSession, None]:
     """
-    Each integration test gets its own session that is rolled back after
-    the test, keeping the database clean between tests.
+    Each integration test gets its own async engine + session created in the
+    test's own event loop (function scope). Changes are rolled back after the
+    test to keep the database clean between tests.
     """
-    Session = async_sessionmaker(
-        bind=pg_engine,
-        class_=AsyncSession,
-        expire_on_commit=False,
-        autoflush=False,
-    )
-    async with Session() as session:
-        yield session
-        await session.rollback()
+    async_url = _require_postgres_url()
+    engine = create_async_engine(async_url, echo=False, pool_pre_ping=True)
+    try:
+        Session = async_sessionmaker(
+            bind=engine,
+            class_=AsyncSession,
+            expire_on_commit=False,
+            autoflush=False,
+        )
+        async with Session() as session:
+            yield session
+            await session.rollback()
+    finally:
+        await engine.dispose()
