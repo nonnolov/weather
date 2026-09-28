@@ -15,11 +15,6 @@ import app.models  # noqa: E402, F401  — registers all ORM models
 
 config = context.config
 
-# Override sqlalchemy.url from environment if set
-db_url = os.getenv("DATABASE_URL_SYNC")
-if db_url:
-    config.set_main_option("sqlalchemy.url", db_url)
-
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
@@ -27,7 +22,8 @@ target_metadata = Base.metadata
 
 
 def run_migrations_offline() -> None:
-    url = config.get_main_option("sqlalchemy.url")
+    # Offline mode uses the synchronous psycopg2 URL (no live DB connection).
+    url = os.getenv("DATABASE_URL_SYNC") or config.get_main_option("sqlalchemy.url")
     context.configure(
         url=url,
         target_metadata=target_metadata,
@@ -45,8 +41,20 @@ def do_run_migrations(connection: Connection) -> None:
 
 
 async def run_async_migrations() -> None:
+    # Online mode uses the async asyncpg URL.
+    async_url = os.getenv("DATABASE_URL") or config.get_main_option("sqlalchemy.url")
+    # Ensure the URL uses an async driver scheme.
+    if async_url and async_url.startswith("postgresql+psycopg2"):
+        async_url = async_url.replace("postgresql+psycopg2", "postgresql+asyncpg", 1)
+    elif async_url and async_url.startswith("postgresql://"):
+        async_url = async_url.replace("postgresql://", "postgresql+asyncpg://", 1)
+
+    # Build a minimal config section with the corrected async URL.
+    section = dict(config.get_section(config.config_ini_section, {}))
+    section["sqlalchemy.url"] = async_url
+
     connectable = async_engine_from_config(
-        config.get_section(config.config_ini_section, {}),
+        section,
         prefix="sqlalchemy.",
         poolclass=pool.NullPool,
     )
