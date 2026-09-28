@@ -1,6 +1,6 @@
 import pytest
 from datetime import datetime, timezone, date
-from unittest.mock import AsyncMock, patch
+from unittest.mock import AsyncMock, MagicMock, patch
 
 from app.providers.base import (
     BaseWeatherProvider,
@@ -78,14 +78,26 @@ OPEN_METEO_SAMPLE_RESPONSE = {
 }
 
 
+def _make_mock_response(data: dict) -> AsyncMock:
+    """
+    Build a mock httpx.Response where:
+    - .raise_for_status() is a plain synchronous no-op (httpx Response.raise_for_status is sync)
+    - .json() is a plain synchronous call returning the dict (httpx Response.json is sync)
+    Using MagicMock for these two attributes prevents AsyncMock from wrapping
+    them as coroutines, which would cause 'coroutine object has no attribute get'.
+    """
+    mock_response = MagicMock()
+    mock_response.json.return_value = data
+    mock_response.raise_for_status.return_value = None
+    return mock_response
+
+
 @pytest.mark.asyncio
 async def test_open_meteo_fetch_parses_hourly() -> None:
     provider = OpenMeteoProvider()
-    mock_response = AsyncMock()
-    mock_response.json.return_value = OPEN_METEO_SAMPLE_RESPONSE
-    mock_response.raise_for_status = AsyncMock()
+    mock_response = _make_mock_response(OPEN_METEO_SAMPLE_RESPONSE)
 
-    with patch("httpx.AsyncClient.get", return_value=mock_response):
+    with patch("httpx.AsyncClient.get", new_callable=AsyncMock, return_value=mock_response):
         result = await provider.fetch_forecast(35.68, 139.69, forecast_days=2)
 
     assert result.provider == "open_meteo"
@@ -98,11 +110,9 @@ async def test_open_meteo_fetch_parses_hourly() -> None:
 @pytest.mark.asyncio
 async def test_open_meteo_fetch_parses_daily() -> None:
     provider = OpenMeteoProvider()
-    mock_response = AsyncMock()
-    mock_response.json.return_value = OPEN_METEO_SAMPLE_RESPONSE
-    mock_response.raise_for_status = AsyncMock()
+    mock_response = _make_mock_response(OPEN_METEO_SAMPLE_RESPONSE)
 
-    with patch("httpx.AsyncClient.get", return_value=mock_response):
+    with patch("httpx.AsyncClient.get", new_callable=AsyncMock, return_value=mock_response):
         result = await provider.fetch_forecast(35.68, 139.69, forecast_days=2)
 
     assert len(result.daily) == 2
@@ -114,11 +124,9 @@ async def test_open_meteo_fetch_parses_daily() -> None:
 @pytest.mark.asyncio
 async def test_open_meteo_fetch_parses_sunrise_sunset() -> None:
     provider = OpenMeteoProvider()
-    mock_response = AsyncMock()
-    mock_response.json.return_value = OPEN_METEO_SAMPLE_RESPONSE
-    mock_response.raise_for_status = AsyncMock()
+    mock_response = _make_mock_response(OPEN_METEO_SAMPLE_RESPONSE)
 
-    with patch("httpx.AsyncClient.get", return_value=mock_response):
+    with patch("httpx.AsyncClient.get", new_callable=AsyncMock, return_value=mock_response):
         result = await provider.fetch_forecast(35.68, 139.69, forecast_days=2)
 
     assert result.daily[0].sunrise is not None
@@ -128,11 +136,9 @@ async def test_open_meteo_fetch_parses_sunrise_sunset() -> None:
 @pytest.mark.asyncio
 async def test_open_meteo_metadata() -> None:
     provider = OpenMeteoProvider()
-    mock_response = AsyncMock()
-    mock_response.json.return_value = OPEN_METEO_SAMPLE_RESPONSE
-    mock_response.raise_for_status = AsyncMock()
+    mock_response = _make_mock_response(OPEN_METEO_SAMPLE_RESPONSE)
 
-    with patch("httpx.AsyncClient.get", return_value=mock_response):
+    with patch("httpx.AsyncClient.get", new_callable=AsyncMock, return_value=mock_response):
         result = await provider.fetch_forecast(35.68, 139.69)
 
     assert result.metadata["elevation"] == 44.0

@@ -69,6 +69,7 @@ async def delete_location(
     """Delete a location and all its associated data."""
     location = await _get_or_404(db, location_id)
     await db.delete(location)
+    await db.flush()
 
 
 async def _get_or_404(db: AsyncSession, location_id: int) -> Location:
