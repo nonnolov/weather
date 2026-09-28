@@ -1,0 +1,30 @@
+# GitLab CI — Phase 1 test suite
+# Runs the existing pytest suite against an in-memory SQLite database.
+# No external services (PostgreSQL, etc.) are required.
+
+default:
+  image: python:3.12-slim
+
+stages:
+  - test
+
+variables:
+  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+  # Prevent SQLAlchemy from trying to connect to a real PostgreSQL instance.
+  # Tests use aiosqlite (in-memory SQLite) via conftest.py overrides.
+  DATABASE_URL: "sqlite+aiosqlite:///:memory:"
+  DATABASE_URL_SYNC: "sqlite:///:memory:"
+
+cache:
+  key: "pip-$CI_COMMIT_REF_SLUG"
+  paths:
+    - .cache/pip
+
+test:
+  stage: test
+  before_script:
+    - pip install --quiet --upgrade pip
+    - pip install --quiet -r requirements.txt
+  script:
+    - pytest -q
+  coverage: '/TOTAL.*\s+(\d+%)$/'
