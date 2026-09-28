@@ -73,7 +73,7 @@ async def get_latest_forecast(
             selectinload(ForecastRun.hourly_forecasts),
             selectinload(ForecastRun.daily_forecasts),
         )
-        .order_by(ForecastRun.retrieved_at.desc())
+        .order_by(ForecastRun.retrieved_at.desc(), ForecastRun.id.desc())
         .limit(1)
     )
     run = result.scalar_one_or_none()
@@ -112,7 +112,7 @@ async def list_forecast_runs(
     result = await db.execute(
         select(ForecastRun)
         .where(ForecastRun.location_id == location_id)
-        .order_by(ForecastRun.retrieved_at.desc())
+        .order_by(ForecastRun.retrieved_at.desc(), ForecastRun.id.desc())
         .limit(limit)
     )
     return list(result.scalars().all())
