@@ -2,6 +2,9 @@
 asyncio_mode = "auto"
 testpaths = ["tests"]
 addopts = "-v --tb=short"
+markers = [
+    "integration: marks tests that call real external APIs and require a live database (deselect with '-m not integration')",
+]
 
 [tool.coverage.run]
 source = ["app"]
