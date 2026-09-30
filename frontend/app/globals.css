@@ -1,0 +1,22 @@
+:root {
+  color: #172033;
+  background: #f6f8fb;
+  font-family: Arial, sans-serif;
+}
+
+body {
+  margin: 0;
+}
+
+main {
+  max-width: 48rem;
+  margin: 4rem auto;
+  padding: 0 1.5rem;
+}
+
+section {
+  padding: 1rem 1.25rem;
+  background: #fff;
+  border: 1px solid #dbe2ea;
+  border-radius: 0.5rem;
+}

@@ -25,6 +25,7 @@ app/
   ingestion/    # Forecast ingestion service
 alembic/        # Database migrations
 tests/          # pytest test suite
+frontend/       # Next.js dashboard
 ```
 
 ## Quick Start
@@ -60,6 +61,20 @@ uvicorn app.main:app --reload
 ```
 
 API docs available at: http://localhost:8000/docs
+
+## Frontend
+
+The frontend is a standalone Next.js application. Start the API first, then:
+
+```bash
+cd frontend
+cp .env.example .env.local
+npm install
+npm run dev
+```
+
+Open http://localhost:3000. Set `NEXT_PUBLIC_API_BASE_URL` in `frontend/.env.local`
+to the FastAPI base URL if it is not running at `http://localhost:8000`.
 
 ## API Endpoints
 
