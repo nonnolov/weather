@@ -1,22 +1,7 @@
-:root {
-  color: #172033;
-  background: #f6f8fb;
-  font-family: Arial, sans-serif;
-}
-
-body {
-  margin: 0;
-}
-
-main {
-  max-width: 48rem;
-  margin: 4rem auto;
-  padding: 0 1.5rem;
-}
-
-section {
-  padding: 1rem 1.25rem;
-  background: #fff;
-  border: 1px solid #dbe2ea;
-  border-radius: 0.5rem;
-}
+:root { color: #172033; background: #f3f6fa; font-family: Arial, sans-serif; } * { box-sizing: border-box; } body { margin: 0; } button, select { font: inherit; }
+.dashboard-shell { max-width: 74rem; margin: 0 auto; padding: 2.5rem 1.5rem 4rem; }.dashboard-header, .controls, .section-heading { display: flex; align-items: center; justify-content: space-between; gap: 1.25rem; }.dashboard-header { margin-bottom: 2rem; }h1, h2, p { margin: 0; }h1 { font-size: clamp(1.8rem, 4vw, 2.5rem); letter-spacing: -.04em; }h2 { font-size: 1.1rem; }.eyebrow { color: #5f6f82; font-size: .78rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }.card { background: #fff; border: 1px solid #dce4ed; border-radius: .85rem; box-shadow: 0 1px 2px #1720330a; }.connection { color: #5f6f82; font-size: .88rem; white-space: nowrap; }.connection span { display: inline-block; width: .55rem; height: .55rem; margin-right: .35rem; border-radius: 50%; background: #e1a11a; }.connection.online span { background: #178050; }.connection.offline span { background: #bd3c3c; }
+.controls { padding: 1.25rem; }.controls p, .section-heading p { color: #5f6f82; font-size: .9rem; margin-top: .3rem; }.select-label { display: grid; gap: .4rem; color: #425267; font-size: .84rem; font-weight: 700; min-width: 15rem; }select { width: 100%; padding: .65rem .75rem; color: #172033; background: #fff; border: 1px solid #aebdcb; border-radius: .45rem; }.location-meta { margin: .9rem 0 1.25rem; color: #5f6f82; font-size: .86rem; }
+.summary-grid { display: grid; grid-template-columns: 2fr repeat(3, 1fr); gap: 1rem; margin-bottom: 1rem; }.primary-summary, .metric { padding: 1.25rem; }.primary-summary strong { display: block; margin: .35rem 0; font-size: 2.45rem; letter-spacing: -.06em; }.primary-summary > p:last-child { color: #5f6f82; }.metric { display: grid; align-content: space-between; min-height: 8.2rem; }.metric span, .forecast-day span { color: #5f6f82; font-size: .82rem; }.metric strong { font-size: 1.35rem; }
+.forecast-card { overflow: hidden; }.section-heading { padding: 1.25rem; border-bottom: 1px solid #e4eaf0; }.forecast-list { padding: 0 1.25rem; }.forecast-day { display: grid; grid-template-columns: 2fr 1fr repeat(3, 1fr); gap: 1rem; padding: 1rem 0; border-bottom: 1px solid #e8edf2; }.forecast-day:last-child { border-bottom: 0; }.forecast-day > div { display: grid; gap: .2rem; }.temperatures { grid-template-columns: auto auto; gap: .45rem !important; }
+.loading-panel, .message { padding: 1.5rem; margin-top: 1rem; }.loading-panel { display: flex; align-items: center; gap: .75rem; }.spinner { width: 1.1rem; height: 1.1rem; border: 2px solid #cdd8e3; border-top-color: #2563a5; border-radius: 50%; animation: spin .8s linear infinite; }.loading { color: #5f6f82; }.message p { color: #5f6f82; margin-top: .45rem; }.message.error { border-color: #f0c9c9; background: #fffafa; }.error h2, .error p { color: #9d2d2d; }button { margin-top: .85rem; padding: .5rem .7rem; color: #fff; background: #235f9b; border: 0; border-radius: .4rem; cursor: pointer; }@keyframes spin { to { transform: rotate(360deg); } }
+@media (max-width: 760px) { .dashboard-shell { padding: 1.25rem 1rem 3rem; }.dashboard-header, .controls { align-items: flex-start; flex-direction: column; }.connection { margin-top: -.75rem; }.select-label { width: 100%; min-width: 0; }.summary-grid { grid-template-columns: repeat(2, 1fr); }.primary-summary { grid-column: span 2; }.forecast-list { padding: 0 1rem; }.forecast-day { grid-template-columns: 1.5fr 1fr 1fr; gap: .6rem; }.forecast-day > div:nth-child(4), .forecast-day > div:nth-child(5) { display: none; } }@media (max-width: 420px) { .summary-grid { grid-template-columns: 1fr; }.primary-summary { grid-column: auto; }.metric { min-height: 5.5rem; }.forecast-day { grid-template-columns: 1.4fr 1fr .8fr; }.forecast-day > div:nth-child(3) { display: none; } }

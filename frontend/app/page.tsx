@@ -1,43 +1,34 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { ApiError, getHealth, getLatestForecast, getLocations, type ForecastRun, type HourlyForecast, type Location } from "../lib/api";
 
-import { getHealth, type HealthResponse } from "../lib/api";
-
-type HealthState =
-  | { kind: "loading" }
-  | { kind: "success"; data: HealthResponse }
-  | { kind: "error"; message: string };
+type LocationsState = { kind: "loading" } | { kind: "success"; data: Location[] } | { kind: "error"; message: string };
+type ForecastState = { kind: "idle" } | { kind: "loading" } | { kind: "success"; data: ForecastRun } | { kind: "empty" } | { kind: "error"; message: string };
+const value = (n: number | null, unit = "") => n === null ? "—" : `${Math.round(n * 10) / 10}${unit}`;
+const weather = (code: number | null) => code === null ? "Conditions unavailable" : code === 0 ? "Clear sky" : [1, 2, 3].includes(code) ? "Partly cloudy" : [45, 48].includes(code) ? "Fog" : [51, 53, 55, 56, 57].includes(code) ? "Drizzle" : [61, 63, 65, 66, 67, 80, 81, 82].includes(code) ? "Rain" : [71, 73, 75, 77, 85, 86].includes(code) ? "Snow" : [95, 96, 99].includes(code) ? "Thunderstorm" : `Weather code ${code}`;
+const dateLabel = (date: string) => new Intl.DateTimeFormat("en-GB", { weekday: "short", day: "numeric", month: "short" }).format(new Date(`${date}T12:00:00`));
+const timeLabel = (date: string, timeZone: string) => new Intl.DateTimeFormat("en-GB", { hour: "2-digit", minute: "2-digit", timeZone }).format(new Date(date));
+const nearestHourly = (hourly: HourlyForecast[]) => hourly.find((hour) => new Date(hour.valid_time).getTime() >= Date.now()) ?? hourly[0];
 
 export default function Home() {
-  const [health, setHealth] = useState<HealthState>({ kind: "loading" });
-
-  useEffect(() => {
-    getHealth()
-      .then((data) => setHealth({ kind: "success", data }))
-      .catch((error: unknown) =>
-        setHealth({
-          kind: "error",
-          message: error instanceof Error ? error.message : "Unable to reach the backend.",
-        }),
-      );
-  }, []);
-
-  return (
-    <main>
-      <h1>Weather Forecasting System</h1>
-      <section aria-live="polite">
-        <h2>Backend health</h2>
-        {health.kind === "loading" && <p>Checking backend connection...</p>}
-        {health.kind === "success" && (
-          <p>
-            Status: {health.data.status} (version {health.data.version})
-          </p>
-        )}
-        {health.kind === "error" && <p role="alert">Connection error: {health.message}</p>}
-      </section>
-    </main>
-  );
+  const [locations, setLocations] = useState<LocationsState>({ kind: "loading" });
+  const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [forecast, setForecast] = useState<ForecastState>({ kind: "idle" });
+  const [health, setHealth] = useState<"loading" | "online" | "offline">("loading");
+  const [reloadKey, setReloadKey] = useState(0);
+  useEffect(() => { const controller = new AbortController(); getHealth(controller.signal).then(() => setHealth("online")).catch(() => setHealth("offline")); return () => controller.abort(); }, []);
+  useEffect(() => { const controller = new AbortController(); setLocations({ kind: "loading" }); getLocations(controller.signal).then((data) => { const active = data.filter((location) => location.is_active); setLocations({ kind: "success", data: active }); setSelectedId((current) => active.some((location) => location.id === current) ? current : (active[0]?.id ?? null)); }).catch((error: unknown) => { if (!(error instanceof DOMException && error.name === "AbortError")) setLocations({ kind: "error", message: "Locations could not be loaded. Check the backend connection and try again." }); }); return () => controller.abort(); }, [reloadKey]);
+  useEffect(() => { if (selectedId === null) return; const controller = new AbortController(); setForecast({ kind: "loading" }); getLatestForecast(selectedId, controller.signal).then((data) => setForecast(data.daily.length || data.hourly.length ? { kind: "success", data } : { kind: "empty" })).catch((error: unknown) => { if (error instanceof DOMException && error.name === "AbortError") return; if (error instanceof ApiError && error.status === 404) setForecast({ kind: "empty" }); else setForecast({ kind: "error", message: "Forecast data could not be retrieved. Please try again." }); }); return () => controller.abort(); }, [selectedId, reloadKey]);
+  const selectedLocation = useMemo(() => locations.kind === "success" ? locations.data.find((location) => location.id === selectedId) : undefined, [locations, selectedId]);
+  const summary = forecast.kind === "success" ? nearestHourly(forecast.data.hourly) : undefined;
+  const retry = () => setReloadKey((key) => key + 1);
+  return <main className="dashboard-shell">
+    <header className="dashboard-header"><div><p className="eyebrow">Weather monitoring</p><h1>Forecast dashboard</h1></div><p className={`connection ${health}`} aria-live="polite"><span aria-hidden="true" />Backend {health === "loading" ? "checking" : health}</p></header>
+    <section className="controls card" aria-labelledby="location-heading"><div><h2 id="location-heading">Location</h2><p>Choose a monitored area to view its latest stored forecast.</p></div>{locations.kind === "loading" && <p className="loading">Loading locations…</p>}{locations.kind === "error" && <div className="message error" role="alert"><p>{locations.message}</p><button onClick={retry}>Try again</button></div>}{locations.kind === "success" && (locations.data.length ? <label className="select-label">Monitored location<select value={selectedId ?? ""} onChange={(event) => setSelectedId(Number(event.target.value))}>{locations.data.map((location) => <option key={location.id} value={location.id}>{location.name}</option>)}</select></label> : <div className="message"><p>No active locations are available from the backend.</p></div>)}</section>
+    {selectedLocation && <p className="location-meta">{selectedLocation.name} · {selectedLocation.latitude.toFixed(3)}°, {selectedLocation.longitude.toFixed(3)}° · {selectedLocation.timezone}</p>}
+    {forecast.kind === "loading" && <section className="card loading-panel" aria-live="polite"><div className="spinner" /><p>Loading latest forecast…</p></section>}{forecast.kind === "error" && <section className="card message error" role="alert"><h2>Forecast unavailable</h2><p>{forecast.message}</p><button onClick={retry}>Retry</button></section>}{forecast.kind === "empty" && <section className="card message"><h2>No forecast available</h2><p>The backend has no forecast records for this location yet.</p></section>}
+    {forecast.kind === "success" && selectedLocation && <><section className="summary-grid" aria-label="Forecast summary"><article className="card primary-summary"><p className="eyebrow">Next forecast hour{summary ? ` · ${timeLabel(summary.valid_time, selectedLocation.timezone)}` : ""}</p>{summary ? <><strong>{value(summary.temperature_2m, "°C")}</strong><p>{weather(summary.weather_code)}</p></> : <p>Hourly summary is unavailable.</p>}</article><article className="card metric"><span>Rain chance</span><strong>{summary ? value(summary.precipitation_probability, "%") : "—"}</strong></article><article className="card metric"><span>Wind</span><strong>{summary ? value(summary.wind_speed_10m, " km/h") : "—"}</strong></article><article className="card metric"><span>Humidity</span><strong>{summary ? value(summary.relative_humidity_2m, "%") : "—"}</strong></article></section>
+      <section className="card forecast-card" aria-labelledby="forecast-heading"><div className="section-heading"><div><h2 id="forecast-heading">7-day forecast</h2><p>Latest forecast retrieved {timeLabel(forecast.data.retrieved_at, selectedLocation.timezone)} · {forecast.data.provider.replaceAll("_", " ")}</p></div></div>{forecast.data.daily.length ? <div className="forecast-list">{forecast.data.daily.slice(0, 7).map((day) => <article className="forecast-day" key={day.id}><div><strong>{dateLabel(day.forecast_date)}</strong><span>{weather(day.weather_code)}</span></div><div className="temperatures"><strong>{value(day.temperature_2m_max, "°")}</strong><span>{value(day.temperature_2m_min, "°")}</span></div><div><span>Rain</span><strong>{value(day.precipitation_probability_max, "%")}</strong></div><div><span>Precip.</span><strong>{value(day.precipitation_sum, " mm")}</strong></div><div><span>Wind</span><strong>{value(day.wind_speed_10m_max, " km/h")}</strong></div></article>)}</div> : <div className="message"><p>Daily forecast data is unavailable for this forecast run.</p></div>}</section></>}
+  </main>;
 }
-
-
