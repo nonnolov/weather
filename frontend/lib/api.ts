@@ -10,4 +10,4 @@ const apiUrl = (path: string) => `${apiBaseUrl.replace(/\/$/, "")}${path}`;
 async function request<T>(path: string, signal?: AbortSignal): Promise<T> { const response = await fetch(apiUrl(path), { signal }); if (!response.ok) throw new ApiError(`Request failed (${response.status})`, response.status); return response.json() as Promise<T>; }
 export function getHealth(signal?: AbortSignal): Promise<HealthResponse> { return request<HealthResponse>("/health", signal); }
 export function getLocations(signal?: AbortSignal): Promise<Location[]> { return request<Location[]>("/api/v1/locations", signal); }
-export function getLatestForecast(locationId: number, signal?: AbortSignal): Promise<ForecastRun> { return request<ForecastRun>(`/api/v1/forecasts/forecast/${locationId}`, signal); }
+export function getLatestForecast(locationId: number, signal?: AbortSignal): Promise<ForecastRun> { return request<ForecastRun>(`/api/v1/forecast/${locationId}`, signal); }
