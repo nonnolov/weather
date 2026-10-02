@@ -86,6 +86,7 @@ to the FastAPI base URL if it is not running at `http://localhost:8000`.
 | GET | `/api/v1/locations/{location_id}` | Get a location |
 | POST | `/api/v1/ingest/{location_id}` | Trigger forecast ingestion |
 | GET | `/api/v1/forecast/{location_id}` | Get latest forecast |
+| GET | `/api/v1/forecast/{location_id}/evaluation` | Evaluate stored hourly forecasts against matching observations |
 | GET | `/api/v1/forecast/{location_id}/runs` | List forecast runs |
 
 ## Running Tests

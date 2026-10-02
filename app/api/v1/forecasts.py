@@ -7,6 +7,8 @@ from app.core.database import get_db
 from app.models.location import Location
 from app.models.forecast import ForecastRun, HourlyForecast, DailyForecast
 from app.schemas.forecast import ForecastRunRead, ForecastRunDetail, IngestResponse
+from app.schemas.evaluation import ForecastEvaluationRead
+from app.evaluation.service import evaluate_location_forecasts
 from app.ingestion.service import ingest_forecast_for_location, IngestionError
 
 router = APIRouter()
@@ -93,6 +95,23 @@ async def get_latest_forecast(
         forecast_days=run.forecast_days,
         hourly=run.hourly_forecasts,
         daily=run.daily_forecasts,
+    )
+
+
+@router.get(
+    "/forecast/{location_id}/evaluation",
+    response_model=ForecastEvaluationRead,
+    tags=["forecasts"],
+)
+async def get_forecast_evaluation(
+    location_id: int,
+    db: AsyncSession = Depends(get_db),
+) -> ForecastEvaluationRead:
+    """Return accuracy metrics for stored forecasts matched to observations."""
+    await _get_location_or_404(db, location_id)
+    return ForecastEvaluationRead(
+        location_id=location_id,
+        metrics=await evaluate_location_forecasts(db, location_id),
     )
 
 
