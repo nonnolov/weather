@@ -9,7 +9,11 @@ from app.core.config import settings
 from app.core.database import AsyncSessionLocal
 from app.models.forecast import ForecastRun
 from app.models.location import Location
-from app.notifications.service import configured_recipient_ids, send_forecast_alert
+from app.notifications.service import (
+    configured_recipient_ids,
+    send_current_location_alerts,
+    send_forecast_alert,
+)
 from app.notifications.line_client import LineClient
 
 
@@ -45,10 +49,20 @@ async def send_seed_alerts() -> dict[str, int]:
     return counts
 
 
+async def send_user_alerts() -> dict[str, int]:
+    token = settings.LINE_CHANNEL_ACCESS_TOKEN
+    if not token:
+        raise RuntimeError("LINE_CHANNEL_ACCESS_TOKEN is not configured")
+    client = LineClient(token, settings.LINE_API_BASE_URL)
+    async with AsyncSessionLocal() as db:
+        counts = await send_current_location_alerts(db, client)
+        await db.commit()
+    return counts
+
+
 async def _main() -> None:
-    counts = await send_seed_alerts()
-    for slug, count in counts.items():
-        print(f"{slug}: {count} sent")
+    counts = await send_user_alerts()
+    print(f"{counts['sent']} sent, {counts['skipped']} skipped")
 
 
 if __name__ == "__main__":

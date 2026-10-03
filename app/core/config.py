@@ -24,12 +24,16 @@ class Settings(BaseSettings):
     # Providers
     DEFAULT_PROVIDER: str = "open_meteo"
     OPEN_METEO_BASE_URL: str = "https://api.open-meteo.com/v1"
+    GEOCODER_BASE_URL: str = "https://nominatim.openstreetmap.org"
+    GEOCODER_USER_AGENT: str = "weather-forecasting-system/1.0"
 
     # Ingestion
     FORECAST_DAYS: int = 7
 
     # LINE Messaging API
     LINE_CHANNEL_ACCESS_TOKEN: str | None = None
+    LINE_CHANNEL_SECRET: str | None = None
+    LINE_LOGIN_CHANNEL_ID: str | None = None
     LINE_USER_IDS: str = ""
     LINE_API_BASE_URL: str = "https://api.line.me"
 

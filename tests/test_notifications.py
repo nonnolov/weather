@@ -75,3 +75,26 @@ def test_formatter_includes_rain_warning() -> None:
     assert "25-32°C" in text
     assert "rain 80%" in text
     assert "Rain warning" in text
+
+@pytest.mark.asyncio
+async def test_current_location_alert_targets_each_user(db_session: AsyncSession) -> None:
+    from app.models.user import User
+    from app.notifications.service import send_current_location_alerts
+
+    location = Location(name="User Area", slug="user-area", latitude=12.9, longitude=100.8, timezone="UTC", provider="open_meteo")
+    db_session.add(location)
+    await db_session.flush()
+    user = User(external_id="U999", current_location_id=location.id)
+    db_session.add(user)
+    await db_session.flush()
+    run = ForecastRun(location_id=location.id, provider="open_meteo", retrieved_at=datetime(2024, 6, 1, tzinfo=UTC), forecast_days=7)
+    db_session.add(run)
+    await db_session.flush()
+    db_session.add(DailyForecast(forecast_run_id=run.id, forecast_date=date(2024, 6, 1), temperature_2m_min=25.0, temperature_2m_max=32.0))
+    await db_session.flush()
+
+    fake_client = AsyncMock()
+    result = await send_current_location_alerts(db_session, fake_client)
+    assert result == {"sent": 1, "skipped": 0}
+    fake_client.push_text.assert_awaited_once()
+    assert fake_client.push_text.await_args.args[0] == "U999"

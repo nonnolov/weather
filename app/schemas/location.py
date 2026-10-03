@@ -8,6 +8,9 @@ class LocationBase(BaseModel):
     slug: str = Field(..., min_length=1, max_length=100, pattern=r"^[a-z0-9-]+$")
     latitude: float = Field(..., ge=-90.0, le=90.0)
     longitude: float = Field(..., ge=-180.0, le=180.0)
+    province: str | None = Field(default=None, max_length=255)
+    district: str | None = Field(default=None, max_length=255)
+    subdistrict: str | None = Field(default=None, max_length=255)
     elevation_m: float | None = None
     timezone: str = Field(default="UTC", max_length=64)
     country_code: str | None = Field(default=None, max_length=2)
@@ -24,6 +27,9 @@ class LocationUpdate(BaseModel):
     name: str | None = Field(default=None, min_length=1, max_length=255)
     latitude: float | None = Field(default=None, ge=-90.0, le=90.0)
     longitude: float | None = Field(default=None, ge=-180.0, le=180.0)
+    province: str | None = Field(default=None, max_length=255)
+    district: str | None = Field(default=None, max_length=255)
+    subdistrict: str | None = Field(default=None, max_length=255)
     elevation_m: float | None = None
     timezone: str | None = Field(default=None, max_length=64)
     country_code: str | None = Field(default=None, max_length=2)
@@ -38,3 +44,8 @@ class LocationRead(LocationBase):
     updated_at: datetime
 
     model_config = {"from_attributes": True}
+
+
+class LocationFromGps(BaseModel):
+    latitude: float = Field(..., ge=-90.0, le=90.0, allow_inf_nan=False)
+    longitude: float = Field(..., ge=-180.0, le=180.0, allow_inf_nan=False)

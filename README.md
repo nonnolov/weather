@@ -151,3 +151,37 @@ docker compose up --build
 ```
 
 Production requires a non-default `SECRET_KEY`, `DEBUG=false`, and explicit `CORS_ORIGINS`.
+
+## Personalized GPS Forecast MVP
+
+Users can send browser GPS coordinates to `POST /api/v1/users/{external_user_id}/location/from-gps`. The API reverse-geocodes the coordinates into province, district, and subdistrict, stores the coordinates and administrative area, and binds the user to that Location.
+
+User-specific forecast endpoints:
+
+- `GET /api/v1/users/{external_user_id}/forecast` — latest forecast for the user's current Location.
+- `POST /api/v1/users/{external_user_id}/forecast/refresh` — fetch a fresh forecast using that Location's stored coordinates.
+
+For LINE delivery, `external_user_id` is intended to be the LINE user ID when LINE Login/webhook identity is used. `python -m app.notifications.cli` now targets each registered user's current Location instead of broadcasting one seed forecast to every recipient. The previous seed-alert implementation remains available as an internal test utility.
+
+The web dashboard's primary flow is `Use my location`: browser GPS ? reverse geocoding ? user/location binding ? personalized 7-day forecast. If GPS is unavailable, the four Chon Buri seed locations remain available as a test fallback.
+
+
+## LINE LIFF Identity
+
+The dashboard supports optional LIFF authentication. When NEXT_PUBLIC_LIFF_ID is configured, the browser initializes LIFF, obtains the raw ID token, and sends it to POST /api/v1/line/auth. The backend verifies the token with LINE and uses the verified `sub` as the user's `external_user_id`. A local browser ID remains available when LIFF is not configured.
+
+Required environment variables:
+
+    LINE_LOGIN_CHANNEL_ID=<LINE Login channel ID>
+    NEXT_PUBLIC_LIFF_ID=<LIFF ID>
+    NEXT_PUBLIC_API_BASE_URL=http://localhost:8000
+
+LINE setup:
+1. Create or use a LINE Login channel in the LINE Developers Console.
+2. Add a LIFF app to that channel.
+3. Set the LIFF Endpoint URL to the deployed frontend URL.
+4. Enable the `openid` scope for the LIFF app.
+5. Put the resulting LIFF ID in `NEXT_PUBLIC_LIFF_ID`.
+6. Put the LINE Login channel ID in `LINE_LOGIN_CHANNEL_ID`.
+
+The backend verifies the ID token with LINE; the frontend does not treat a browser-supplied user ID as authenticated identity.

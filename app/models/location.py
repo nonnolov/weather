@@ -15,6 +15,9 @@ class Location(Base):
     slug: Mapped[str] = mapped_column(String(100), unique=True, nullable=False, index=True)
     latitude: Mapped[float] = mapped_column(Float, nullable=False)
     longitude: Mapped[float] = mapped_column(Float, nullable=False)
+    province: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    district: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    subdistrict: Mapped[str | None] = mapped_column(String(255), nullable=True)
     elevation_m: Mapped[float | None] = mapped_column(Float, nullable=True)
     timezone: Mapped[str] = mapped_column(String(64), default="UTC", nullable=False)
     country_code: Mapped[str | None] = mapped_column(String(2), nullable=True)
@@ -39,6 +42,9 @@ class Location(Base):
     )
     observations: Mapped[list["Observation"]] = relationship(  # noqa: F821
         "Observation", back_populates="location", cascade="all, delete-orphan"
+    )
+    current_users: Mapped[list["User"]] = relationship(  # noqa: F821
+        "User", back_populates="current_location"
     )
 
     def __repr__(self) -> str:

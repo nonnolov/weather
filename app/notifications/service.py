@@ -7,6 +7,7 @@ from app.core.config import settings
 from app.models.forecast import DailyForecast, ForecastRun
 from app.models.notification import NotificationDelivery
 from app.models.location import Location
+from app.models.user import User
 from app.notifications.formatter import format_forecast_alert
 from app.notifications.line_client import LineClient
 
@@ -71,3 +72,19 @@ async def send_forecast_alert(
     )
     await db.flush()
     return True
+
+
+async def send_current_location_alerts(db: AsyncSession, client: LineClient) -> dict[str, int]:
+    users = list((await db.scalars(select(User).where(User.current_location_id.is_not(None)))).all())
+    sent = 0
+    skipped = 0
+    for user in users:
+        run = await db.scalar(select(ForecastRun).where(ForecastRun.location_id == user.current_location_id).order_by(ForecastRun.retrieved_at.desc(), ForecastRun.id.desc()).limit(1))
+        if run is None:
+            skipped += 1
+            continue
+        if await send_forecast_alert(db, run, user.external_id, client):
+            sent += 1
+        else:
+            skipped += 1
+    return {"sent": sent, "skipped": skipped}
