@@ -29,7 +29,7 @@ const nearestHourly = (hourly: ForecastRun["hourly"]) => hourly.find((hour) => n
 type LiffClient = {
   init: (options: { liffId: string }) => Promise<void>;
   isLoggedIn: () => boolean;
-  login: () => void;
+  login: (options?: { redirectUri?: string }) => void;
   getIDToken: () => string | null;
 };
 
@@ -50,15 +50,22 @@ export default function Home() {
   const [gpsState, setGpsState] = useState<"idle" | "locating" | "success" | "error">("idle");
   const [message, setMessage] = useState("");
   const [lineUserId, setLineUserId] = useState<string | null>(null);
-  const [language, setLanguage] = useState<Language>("th");
+  const [language, setLanguage] = useState<Language>(() => {
+    if (typeof window === "undefined") return "th";
+    const redirectLanguage = new URLSearchParams(window.location.search).get("weather_lang");
+    if (redirectLanguage === "th" || redirectLanguage === "en") return redirectLanguage;
+    const saved = window.localStorage.getItem("weather.language");
+    return saved === "th" || saved === "en" ? saved : "th";
+  });
   const t = translations[language];
 
   useEffect(() => {
-    const saved = window.localStorage.getItem("weather.language");
-    if (saved === "th" || saved === "en") setLanguage(saved);
-  }, []);
-
-  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.has("weather_lang")) {
+      params.delete("weather_lang");
+      const cleanUrl = window.location.pathname + (params.toString() ? "?" + params.toString() : "") + window.location.hash;
+      window.history.replaceState({}, "", cleanUrl);
+    }
     document.documentElement.lang = language;
     window.localStorage.setItem("weather.language", language);
   }, [language]);
@@ -88,7 +95,10 @@ export default function Home() {
     try {
       await window.liff.init({ liffId });
       if (!window.liff.isLoggedIn()) {
-        window.liff.login();
+        window.localStorage.setItem("weather.language", language);
+        const url = new URL(window.location.href);
+        url.searchParams.set("weather_lang", language);
+        window.liff.login({ redirectUri: url.toString() });
         return;
       }
       const token = window.liff.getIDToken();
