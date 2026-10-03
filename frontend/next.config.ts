@@ -5,6 +5,15 @@ const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
+
+  async rewrites() {
+    return [
+      {
+        source: "/api/backend/:path*",
+        destination: `${process.env.API_BASE_URL}/:path*`,
+      },
+    ];
+  },
 };
 
 export default nextConfig;
