@@ -1,142 +1,48 @@
 # Weather Forecasting System — Project Context
 
-## Project
-Weather forecasting system for Chon Buri Province.
-Backend: FastAPI + SQLAlchemy + PostgreSQL + Alembic.
-Frontend: Next.js + TypeScript + Tailwind CSS.
-Provider: Open-Meteo.
-Repository: fynn-group/weather
-Main working branch: phase-1-backend-foundation
+## Status
+- Phase 1 Backend Foundation: COMPLETE
+- Phase 2 Dashboard: COMPLETE
+- Phase 3 Evaluation + Observation Ingestion: COMPLETE
+- Phase 4 ML bias correction: COMPLETE
+- Phase 5 LINE notifications: COMPLETE
+- Phase 6 hardening + container deployment: COMPLETE
 
-## Current status
-Phase 1 — Backend Foundation: COMPLETE
-Phase 2 — Frontend Foundation + Dashboard: COMPLETE
-Phase 3 — Forecast Evaluation: IMPLEMENTED
-Phase 3 — Observation Ingestion: NEXT TASK
-Phase 4 — ML: NOT STARTED
-
-Latest commit:
-9bbde97 feat: add forecast evaluation
-
-Latest Phase 3 test result:
-3 passed, 2 warnings
+## Stack
+FastAPI, SQLAlchemy 2, PostgreSQL, Alembic, Pydantic v2, Next.js/TypeScript/Tailwind, Open-Meteo.
 
 ## Seed locations
-Initial forecast/evaluation locations only:
+1. Chon Buri City — `chon-buri-city` — 13.3611, 100.9847
+2. Pattaya — `pattaya` — 12.9236, 100.8825
+3. Si Racha — `si-racha` — 13.1736, 100.9170
+4. Bang Lamung — `bang-lamung` — 12.9500, 100.8833
+All use `Asia/Bangkok` and remain evaluation/alert seed locations.
 
-1. Chon Buri City
-   slug: chon-buri-city
-   latitude: 13.3611
-   longitude: 100.9847
-   timezone: Asia/Bangkok
+## Forecast/evaluation
+Forecast snapshots are immutable `ForecastRun` records. Evaluation matches exact location + valid/observed timestamp and calculates MAE, RMSE, Bias by horizon.
 
-2. Pattaya
-   slug: pattaya
-   latitude: 12.9236
-   longitude: 100.8825
-   timezone: Asia/Bangkok
+## Observation ingestion
+Historical Open-Meteo observations persist into `observations`. Ingestion is idempotent at `(location_id, observed_at)` in both service logic and DB constraint migration `0002`. CLI: `python -m app.ingestion.observations --start-date YYYY-MM-DD --end-date YYYY-MM-DD`.
 
-3. Si Racha
-   slug: si-racha
-   latitude: 13.1736
-   longitude: 100.9170
-   timezone: Asia/Bangkok
+## Phase 4 ML
+Local temperature bias correction only. Linear regression uses chronological train/test split. Future observations are excluded from training. Correction is selected only when held-out MAE improves baseline. Baseline remains fallback. XGBoost is optional and not required by current environment.
+API: `GET /api/v1/forecast/{location_id}/corrected?variable=temperature_2m`.
 
-4. Bang Lamung
-   slug: bang-lamung
-   latitude: 12.9500
-   longitude: 100.8833
-   timezone: Asia/Bangkok
+## Phase 5 LINE
+Uses LINE Messaging API push endpoint with Bearer channel access token. Credentials come only from environment variables. `NotificationDelivery` provides DB-backed deduplication. CLI: `python -m app.notifications.cli`.
+Required env: `LINE_CHANNEL_ACCESS_TOKEN`, `LINE_USER_IDS`. Optional `LINE_API_BASE_URL`.
+No webhook/chatbot implemented.
 
-These are seed/evaluation locations. Do not remove or replace them.
+## Phase 6
+- Production CORS from `CORS_ORIGINS`.
+- Production rejects default `SECRET_KEY` and `DEBUG=true`.
+- Request logging with `X-Request-ID`.
+- Dockerfile + Docker Compose + `.dockerignore`.
+- Alembic migrations through `0003`.
+- Secrets excluded from images and source.
 
-## Forecast architecture
-Open-Meteo forecast is the baseline provider.
-
-The system stores forecast snapshots instead of overwriting previous forecasts.
-
-Main flow:
-
-Weather provider
-→ ingestion
-→ PostgreSQL
-→ forecast snapshots
-→ evaluation against observations
-→ later ML bias correction
-
-ML must not replace the baseline blindly.
-Future ML should only improve local bias/correction and must be compared against the baseline.
-
-## Phase 3 Evaluation
-Implemented evaluation engine:
-
-- matches forecast and observation by location and exact valid/observed timestamp
-- calculates forecast horizon from retrieval time to valid time
-- MAE
-- RMSE
-- Bias
-- error definition: forecast - observation
-- groups results by variable and forecast horizon
-- ignores missing/non-finite values
-- deterministic/testable metric logic
-
-Evaluation API:
-
-GET /api/v1/forecast/{location_id}/evaluation
-
-Current limitation:
-There is not yet enough real historical observation data in the database, so production evaluation metrics may currently be empty.
-
-## Next task: Observation Ingestion
-Implement Observation Ingestion only.
-
-Requirements:
-
-- reuse the existing Observation model
-- reuse existing provider abstraction and Open-Meteo integration
-- ingest real observation data
-- support the four seeded locations
-- persist observations to PostgreSQL
-- make ingestion idempotent for the same location + observation timestamp
-- do not create duplicate observations
-- store values required by the existing evaluation engine
-- add focused tests with controlled mocks/fixtures
-- unit tests must not call the real external API
-
-Do NOT:
-- implement ML
-- implement LINE notifications
-- change forecast behavior
-- add authentication
-- start Phase 4
-- perform unrelated refactoring
-- create unnecessary dependencies
-- commit or push automatically
-
-## User-location forecasting
-Future feature idea:
-Allow a browser user to grant geolocation permission and request a forecast using the user's latitude/longitude.
-
-This is NOT part of the current Observation Ingestion task.
-
-Keep the four seeded locations for evaluation.
+## Verification
+Latest local full suite: 83 passed, 17 skipped, 2 warnings before Phase 6 hardening. Notification suite: 3 passed. Re-run full pytest after final hardening.
 
 ## Git rules
-Do not commit or push unless explicitly requested.
-
-Before any commit:
-1. run relevant tests
-2. inspect git diff
-3. inspect git status
-4. ensure .env, .venv, and __pycache__ are not committed
-
-## Agent workflow
-Use small focused tasks.
-Do not perform broad repository-wide analysis unless necessary.
-Do not modify unrelated files.
-Do not implement future phases.
-After completing a task, report:
-- files changed
-- tests run
-- test results
-- limitations
+Do not commit or push unless explicitly requested. Keep `.env`, `.venv`, caches, and credentials out of Git.

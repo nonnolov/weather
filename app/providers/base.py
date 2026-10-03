@@ -61,6 +61,14 @@ class ProviderForecastResult:
     metadata: dict[str, Any] = field(default_factory=dict)
 
 
+@dataclass
+class ProviderObservationResult:
+    """Provider-agnostic observed hourly weather records."""
+    provider: str
+    observations: list[NormalizedHourlyForecast] = field(default_factory=list)
+    metadata: dict[str, Any] = field(default_factory=dict)
+
+
 class BaseWeatherProvider(ABC):
     """
     All provider implementations must subclass this.
@@ -86,4 +94,16 @@ class BaseWeatherProvider(ABC):
         Fetch and normalise a forecast for the given coordinates.
         Must never return fabricated data — always call the real API.
         """
+        ...
+
+    @abstractmethod
+    async def fetch_observations(
+        self,
+        latitude: float,
+        longitude: float,
+        start_date: date,
+        end_date: date,
+        timezone: str = "UTC",
+    ) -> ProviderObservationResult:
+        """Fetch normalised observed hourly weather for an inclusive date range."""
         ...

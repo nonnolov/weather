@@ -1,5 +1,5 @@
 """Open-Meteo provider — free, no API key required."""
-from datetime import datetime, timezone as dt_timezone, date
+from datetime import datetime, timezone as dt_timezone, date, timedelta
 from typing import Any
 import httpx
 
@@ -9,6 +9,7 @@ from app.providers.base import (
     NormalizedHourlyForecast,
     NormalizedDailyForecast,
     ProviderForecastResult,
+    ProviderObservationResult,
 )
 
 # Variables requested from the Open-Meteo hourly endpoint
@@ -102,15 +103,50 @@ class OpenMeteoProvider(BaseWeatherProvider):
             },
         )
 
+    async def fetch_observations(
+        self,
+        latitude: float,
+        longitude: float,
+        start_date: date,
+        end_date: date,
+        timezone: str = "UTC",
+    ) -> ProviderObservationResult:
+        params = {
+            "latitude": latitude,
+            "longitude": longitude,
+            "hourly": ",".join(_HOURLY_VARS),
+            "start_date": start_date.isoformat(),
+            "end_date": end_date.isoformat(),
+            "timezone": timezone,
+            "timeformat": "iso8601",
+        }
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            response = await client.get(
+                "https://archive-api.open-meteo.com/v1/archive", params=params
+            )
+            response.raise_for_status()
+
+        raw: dict[str, Any] = response.json()
+        return ProviderObservationResult(
+            provider=self.name,
+            observations=self._parse_hourly(raw),
+            metadata={
+                "elevation": raw.get("elevation"),
+                "generationtime_ms": raw.get("generationtime_ms"),
+                "utc_offset_seconds": raw.get("utc_offset_seconds"),
+            },
+        )
+
     # ── Private helpers ───────────────────────────────────────────────────────
 
     def _parse_hourly(self, raw: dict[str, Any]) -> list[NormalizedHourlyForecast]:
         hourly_data = raw.get("hourly", {})
         times = hourly_data.get("time", [])
+        utc_offset_seconds = raw.get("utc_offset_seconds", 0)
         records: list[NormalizedHourlyForecast] = []
 
         for i, time_str in enumerate(times):
-            valid_time = self._parse_dt(time_str)
+            valid_time = self._parse_dt(time_str, utc_offset_seconds)
             records.append(
                 NormalizedHourlyForecast(
                     valid_time=valid_time,
@@ -139,6 +175,7 @@ class OpenMeteoProvider(BaseWeatherProvider):
     def _parse_daily(self, raw: dict[str, Any]) -> list[NormalizedDailyForecast]:
         daily_data = raw.get("daily", {})
         dates = daily_data.get("time", [])
+        utc_offset_seconds = raw.get("utc_offset_seconds", 0)
         records: list[NormalizedDailyForecast] = []
 
         for i, date_str in enumerate(dates):
@@ -161,8 +198,8 @@ class OpenMeteoProvider(BaseWeatherProvider):
                     wind_gusts_10m_max=self._get(daily_data, "wind_gusts_10m_max", i),
                     wind_direction_10m_dominant=self._get(daily_data, "wind_direction_10m_dominant", i),
                     uv_index_max=self._get(daily_data, "uv_index_max", i),
-                    sunrise=self._parse_dt(sunrise_raw) if sunrise_raw else None,
-                    sunset=self._parse_dt(sunset_raw) if sunset_raw else None,
+                    sunrise=self._parse_dt(sunrise_raw, utc_offset_seconds) if sunrise_raw else None,
+                    sunset=self._parse_dt(sunset_raw, utc_offset_seconds) if sunset_raw else None,
                 )
             )
         return records
@@ -175,7 +212,7 @@ class OpenMeteoProvider(BaseWeatherProvider):
         return values[index]
 
     @staticmethod
-    def _parse_dt(value: str | None) -> datetime:
+    def _parse_dt(value: str | None, utc_offset_seconds: int | float = 0) -> datetime:
         if value is None:
             raise ValueError("Cannot parse None as datetime")
         # Open-Meteo returns ISO 8601 strings; may or may not include offset
@@ -183,5 +220,5 @@ class OpenMeteoProvider(BaseWeatherProvider):
             value = value[:-1] + "+00:00"
         dt = datetime.fromisoformat(value)
         if dt.tzinfo is None:
-            dt = dt.replace(tzinfo=dt_timezone.utc)
-        return dt
+            dt = dt.replace(tzinfo=dt_timezone(timedelta(seconds=utc_offset_seconds)))
+        return dt.astimezone(dt_timezone.utc)

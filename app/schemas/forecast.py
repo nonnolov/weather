@@ -65,7 +65,7 @@ class ForecastRunRead(BaseModel):
     model_run_time: datetime | None
     forecast_days: int
 
-    model_config = {"from_attributes": True}
+    model_config = {"from_attributes": True, "protected_namespaces": ()}
 
 
 class ForecastRunDetail(ForecastRunRead):

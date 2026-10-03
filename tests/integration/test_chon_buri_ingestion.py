@@ -18,13 +18,16 @@ PostgreSQL and network access to api.open-meteo.com).
 """
 from __future__ import annotations
 
+from datetime import date
+
 import pytest
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.ingestion.service import ingest_forecast_for_location
+from app.ingestion.service import ingest_forecast_for_location, ingest_seed_observations
 from app.models.forecast import DailyForecast, ForecastRun, HourlyForecast
 from app.models.location import Location
+from app.models.observation import Observation
 from app.seeds.locations import CHON_BURI_LOCATIONS, seed_locations
 
 # ---------------------------------------------------------------------------
@@ -37,6 +40,7 @@ FORECAST_DAYS = 7
 # the time of day the request is made, but never less).
 MIN_HOURLY = FORECAST_DAYS * 24
 MIN_DAILY = FORECAST_DAYS
+OBSERVATION_DATE = date(2024, 6, 1)
 
 
 async def _seed(session: AsyncSession) -> list[Location]:
@@ -248,3 +252,26 @@ async def test_all_four_locations_ingested_successfully(
         assert info["daily"] >= MIN_DAILY, (
             f"{slug}: only {info['daily']} daily records"
         )
+
+
+@pytest.mark.integration
+async def test_real_observation_ingestion_is_idempotent_for_four_seed_locations(
+    pg_session: AsyncSession,
+) -> None:
+    await _seed(pg_session)
+
+    first = await ingest_seed_observations(
+        pg_session, OBSERVATION_DATE, OBSERVATION_DATE
+    )
+    second = await ingest_seed_observations(
+        pg_session, OBSERVATION_DATE, OBSERVATION_DATE
+    )
+    observations = (
+        await pg_session.execute(select(Observation).order_by(Observation.location_id))
+    ).scalars().all()
+
+    assert set(first) == {"chon-buri-city", "pattaya", "si-racha", "bang-lamung"}
+    assert all(count == 24 for count in first.values())
+    assert second == {slug: 0 for slug in first}
+    assert len(observations) == 96
+    assert len({(record.location_id, record.observed_at) for record in observations}) == 96

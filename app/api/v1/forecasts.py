@@ -7,9 +7,10 @@ from app.core.database import get_db
 from app.models.location import Location
 from app.models.forecast import ForecastRun, HourlyForecast, DailyForecast
 from app.schemas.forecast import ForecastRunRead, ForecastRunDetail, IngestResponse
-from app.schemas.evaluation import ForecastEvaluationRead
+from app.schemas.evaluation import CorrectedForecastRead, ForecastEvaluationRead
 from app.evaluation.service import evaluate_location_forecasts
 from app.ingestion.service import ingest_forecast_for_location, IngestionError
+from app.ml.service import correct_forecast_run
 
 router = APIRouter()
 
@@ -112,6 +113,40 @@ async def get_forecast_evaluation(
     return ForecastEvaluationRead(
         location_id=location_id,
         metrics=await evaluate_location_forecasts(db, location_id),
+    )
+
+
+@router.get(
+    "/forecast/{location_id}/corrected",
+    response_model=CorrectedForecastRead,
+    tags=["forecasts"],
+)
+async def get_corrected_forecast(
+    location_id: int,
+    variable: str | None = Query(default=None),
+    db: AsyncSession = Depends(get_db),
+) -> CorrectedForecastRead:
+    """Return latest stored forecast with local, held-out-validated corrections."""
+    await _get_location_or_404(db, location_id)
+    variables = ("temperature_2m",) if variable is None else (variable,)
+    if variable is not None and variable != "temperature_2m":
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="Unsupported correction variable.")
+    result = await db.execute(
+        select(ForecastRun)
+        .where(ForecastRun.location_id == location_id)
+        .options(selectinload(ForecastRun.hourly_forecasts))
+        .order_by(ForecastRun.retrieved_at.desc(), ForecastRun.id.desc())
+        .limit(1)
+    )
+    run = result.scalar_one_or_none()
+    if run is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"No forecast runs found for location {location_id}.")
+    corrected = await correct_forecast_run(db, run, variables)
+    return CorrectedForecastRead(
+        forecast_run_id=corrected.forecast_run_id,
+        location_id=corrected.location_id,
+        values=corrected.values,
+        evaluations=corrected.evaluations,
     )
 
 

@@ -62,6 +62,17 @@ uvicorn app.main:app --reload
 
 API docs available at: http://localhost:8000/docs
 
+## Observation Ingestion
+
+Historical Open-Meteo observations feed stored forecast evaluation. Seed locations once, then run the operational CLI for a completed date range:
+
+```bash
+python -m app.seeds.locations
+python -m app.ingestion.observations --start-date 2024-06-01 --end-date 2024-06-07
+```
+
+Without dates, it ingests previous local calendar day for each seeded Chon Buri location. Re-running same range inserts no duplicate `(location_id, observed_at)` rows.
+
 ## Frontend
 
 The frontend is a standalone Next.js application. Start the API first, then:
@@ -88,6 +99,7 @@ to the FastAPI base URL if it is not running at `http://localhost:8000`.
 | GET | `/api/v1/forecast/{location_id}` | Get latest forecast |
 | GET | `/api/v1/forecast/{location_id}/evaluation` | Evaluate stored hourly forecasts against matching observations |
 | GET | `/api/v1/forecast/{location_id}/runs` | List forecast runs |
+| GET | `/api/v1/forecast/{location_id}/corrected` | Get held-out-validated temperature correction |
 
 ## Running Tests
 
@@ -116,8 +128,26 @@ To add a new provider, subclass `BaseWeatherProvider` in `app/providers/` and re
 ## Development Phases
 
 - **Phase 1** ✅ Backend foundation, database, provider abstraction, ingestion, API, tests
-- **Phase 2** — Web dashboard (Next.js)
-- **Phase 3** — Historical evaluation + accuracy metrics (MAE, RMSE, Bias)
-- **Phase 4** — ML bias correction (Linear Regression → XGBoost)
-- **Phase 5** — LINE notification service
-- **Phase 6** — Testing, security, logging, deployment
+- **Phase 2** ✅ Web dashboard (Next.js)
+- **Phase 3** ✅ Historical evaluation + observation ingestion + accuracy metrics
+- **Phase 4** ✅ ML temperature bias correction with chronological holdout
+- **Phase 5** ✅ LINE notification service with DB deduplication
+- **Phase 6** ✅ Testing, security, logging, container deployment
+
+## LINE Notifications
+
+Set `LINE_CHANNEL_ACCESS_TOKEN` and comma-separated `LINE_USER_IDS`, then run:
+
+```bash
+python -m app.notifications.cli
+```
+
+Alerts use LINE Messaging API push messages and deduplicate by stored delivery key.
+
+## Docker Deployment
+
+```bash
+docker compose up --build
+```
+
+Production requires a non-default `SECRET_KEY`, `DEBUG=false`, and explicit `CORS_ORIGINS`.

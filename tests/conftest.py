@@ -27,6 +27,7 @@ from app.providers.base import (
     NormalizedHourlyForecast,
     NormalizedDailyForecast,
     ProviderForecastResult,
+    ProviderObservationResult,
 )
 
 # ── In-memory SQLite engine (no PostgreSQL needed) ────────────────────────────
@@ -126,6 +127,29 @@ class FakeWeatherProvider(BaseWeatherProvider):
             model_run_time=None,
             hourly=hourly,
             daily=daily,
+        )
+
+    async def fetch_observations(
+        self,
+        latitude: float,
+        longitude: float,
+        start_date: date,
+        end_date: date,
+        timezone: str = "UTC",
+    ) -> ProviderObservationResult:
+        _utc = __import__("datetime").timezone.utc
+        return ProviderObservationResult(
+            provider=self.name,
+            observations=[
+                NormalizedHourlyForecast(
+                    valid_time=datetime(2024, 6, 1, hour, tzinfo=_utc),
+                    temperature_2m=20.0 + hour,
+                    precipitation=0.1,
+                    weather_code=61,
+                    wind_speed_10m=7.0,
+                )
+                for hour in range(2)
+            ],
         )
 
 

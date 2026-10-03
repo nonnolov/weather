@@ -142,3 +142,21 @@ async def test_open_meteo_metadata() -> None:
         result = await provider.fetch_forecast(35.68, 139.69)
 
     assert result.metadata["elevation"] == 44.0
+
+
+@pytest.mark.asyncio
+async def test_open_meteo_fetch_observations_uses_archive_endpoint() -> None:
+    provider = OpenMeteoProvider()
+    mock_response = _make_mock_response(OPEN_METEO_SAMPLE_RESPONSE)
+
+    with patch("httpx.AsyncClient.get", new_callable=AsyncMock, return_value=mock_response) as get:
+        result = await provider.fetch_observations(
+            35.68, 139.69, date(2024, 6, 1), date(2024, 6, 1), "Asia/Tokyo"
+        )
+
+    assert result.provider == "open_meteo"
+    assert len(result.observations) == 2
+    assert result.observations[0].temperature_2m == 20.5
+    assert result.observations[0].valid_time == datetime(2024, 5, 31, 15, tzinfo=timezone.utc)
+    assert get.call_args.args[0] == "https://archive-api.open-meteo.com/v1/archive"
+    assert get.call_args.kwargs["params"]["start_date"] == "2024-06-01"

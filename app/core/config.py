@@ -1,5 +1,5 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from pydantic import field_validator
+from pydantic import field_validator, model_validator
 from typing import Optional
 
 
@@ -19,6 +19,7 @@ class Settings(BaseSettings):
     APP_ENV: str = "development"
     DEBUG: bool = True
     SECRET_KEY: str = "change-me"
+    CORS_ORIGINS: str = "http://localhost:3000"
 
     # Providers
     DEFAULT_PROVIDER: str = "open_meteo"
@@ -26,6 +27,19 @@ class Settings(BaseSettings):
 
     # Ingestion
     FORECAST_DAYS: int = 7
+
+    # LINE Messaging API
+    LINE_CHANNEL_ACCESS_TOKEN: str | None = None
+    LINE_USER_IDS: str = ""
+    LINE_API_BASE_URL: str = "https://api.line.me"
+
+    @model_validator(mode="after")
+    def production_security(self):
+        if self.APP_ENV == "production" and self.SECRET_KEY in {"change-me", "change-me-to-a-long-random-string"}:
+            raise ValueError("SECRET_KEY must be changed in production")
+        if self.APP_ENV == "production" and self.DEBUG:
+            raise ValueError("DEBUG must be false in production")
+        return self
 
     @field_validator("FORECAST_DAYS")
     @classmethod

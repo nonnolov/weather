@@ -1,5 +1,5 @@
 from datetime import datetime, timezone
-from sqlalchemy import String, Float, Integer, Boolean, DateTime, ForeignKey, Index
+from sqlalchemy import String, Float, Integer, Boolean, DateTime, ForeignKey, Index, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database import Base
@@ -13,6 +13,7 @@ class Observation(Base):
 
     __tablename__ = "observations"
     __table_args__ = (
+        UniqueConstraint("location_id", "observed_at", name="uq_observation_location_time"),
         Index("ix_obs_location_time", "location_id", "observed_at"),
     )
 
