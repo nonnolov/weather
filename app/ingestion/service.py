@@ -125,6 +125,11 @@ async def ingest_forecast_for_location(
     except Exception as exc:
         raise IngestionError(f"Provider fetch failed: {exc}") from exc
 
+    # Open-Meteo returns the resolved IANA timezone when timezone=auto was used.
+    resolved_timezone = result.metadata.get("timezone") if result.metadata else None
+    if isinstance(resolved_timezone, str) and resolved_timezone:
+        location.timezone = resolved_timezone
+
     # Persist the forecast run
     run = ForecastRun(
         location_id=location.id,

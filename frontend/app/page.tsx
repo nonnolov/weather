@@ -99,7 +99,8 @@ export default function Home() {
         try {
           const result = await setUserLocationFromGps(activeUserId, position.coords.latitude, position.coords.longitude);
           setLocation(result.location);
-          await refreshUserForecast(activeUserId);
+          const refresh = await refreshUserForecast(activeUserId);
+          setLocation((current) => current ? { ...current, timezone: refresh.timezone } : current);
           const data = await getUserForecast(activeUserId);
           setForecast(data);
           setGpsState("success");

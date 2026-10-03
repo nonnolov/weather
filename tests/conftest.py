@@ -127,6 +127,7 @@ class FakeWeatherProvider(BaseWeatherProvider):
             model_run_time=None,
             hourly=hourly,
             daily=daily,
+            metadata={"timezone": "Asia/Tokyo"},
         )
 
     async def fetch_observations(

@@ -4,6 +4,7 @@ export interface HourlyForecast { id: number; forecast_run_id: number; valid_tim
 export interface DailyForecast { id: number; forecast_run_id: number; forecast_date: string; temperature_2m_max: number | null; temperature_2m_min: number | null; apparent_temperature_max: number | null; apparent_temperature_min: number | null; precipitation_sum: number | null; precipitation_probability_max: number | null; rain_sum: number | null; snowfall_sum: number | null; weather_code: number | null; wind_speed_10m_max: number | null; wind_gusts_10m_max: number | null; wind_direction_10m_dominant: number | null; uv_index_max: number | null; sunrise: string | null; sunset: string | null; }
 export interface ForecastRun { id: number; location_id: number; provider: string; retrieved_at: string; model_run_time: string | null; forecast_days: number; hourly: HourlyForecast[]; daily: DailyForecast[]; }
 export interface UserLocationResponse { external_user_id: string; location: Location; }
+export interface IngestResponse { forecast_run_id: number; location_id: number; provider: string; hourly_records: number; daily_records: number; retrieved_at: string; timezone: string; }
 export interface LineAuthResponse { external_user_id: string; }
 
 export class ApiError extends Error { constructor(message: string, public readonly status: number) { super(message); this.name = "ApiError"; } }
@@ -14,5 +15,5 @@ export function getLocations(signal?: AbortSignal): Promise<Location[]> { return
 export function getLatestForecast(locationId: number, signal?: AbortSignal): Promise<ForecastRun> { return request<ForecastRun>("/api/v1/forecast/" + locationId, { signal }); }
 export function getUserForecast(userId: string, signal?: AbortSignal): Promise<ForecastRun> { return request<ForecastRun>("/api/v1/users/" + encodeURIComponent(userId) + "/forecast", { signal }); }
 export function setUserLocationFromGps(userId: string, latitude: number, longitude: number, signal?: AbortSignal): Promise<UserLocationResponse> { return request<UserLocationResponse>("/api/v1/users/" + encodeURIComponent(userId) + "/location/from-gps", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ latitude, longitude }), signal }); }
-export function refreshUserForecast(userId: string, signal?: AbortSignal): Promise<ForecastRun> { return request<ForecastRun>("/api/v1/users/" + encodeURIComponent(userId) + "/forecast/refresh", { method: "POST", signal }); }
+export function refreshUserForecast(userId: string, signal?: AbortSignal): Promise<IngestResponse> { return request<IngestResponse>("/api/v1/users/" + encodeURIComponent(userId) + "/forecast/refresh", { method: "POST", signal }); }
 export function authenticateLine(token: string, signal?: AbortSignal): Promise<LineAuthResponse> { return request<LineAuthResponse>("/api/v1/line/auth", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id_token: token }), signal }); }

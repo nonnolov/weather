@@ -130,6 +130,7 @@ async def refresh_user_forecast(
         hourly_records=len(hourly_count.scalars().all()),
         daily_records=len(daily_count.scalars().all()),
         retrieved_at=run.retrieved_at,
+        timezone=location.timezone,
     )
 
 

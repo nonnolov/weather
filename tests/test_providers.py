@@ -36,6 +36,8 @@ OPEN_METEO_SAMPLE_RESPONSE = {
     "elevation": 44.0,
     "generationtime_ms": 1.23,
     "utc_offset_seconds": 32400,
+    "timezone": "Asia/Tokyo",
+    "timezone_abbreviation": "JST",
     "hourly": {
         "time": ["2024-06-01T00:00", "2024-06-01T01:00"],
         "temperature_2m": [20.5, 21.0],
@@ -108,6 +110,17 @@ async def test_open_meteo_fetch_parses_hourly() -> None:
 
 
 @pytest.mark.asyncio
+async def test_open_meteo_uses_auto_timezone_for_default_utc() -> None:
+    provider = OpenMeteoProvider()
+    mock_response = _make_mock_response(OPEN_METEO_SAMPLE_RESPONSE)
+
+    with patch("httpx.AsyncClient.get", new_callable=AsyncMock, return_value=mock_response) as get:
+        await provider.fetch_forecast(35.68, 139.69, forecast_days=2, timezone="UTC")
+
+    assert get.call_args.kwargs["params"]["timezone"] == "auto"
+
+
+@pytest.mark.asyncio
 async def test_open_meteo_fetch_parses_daily() -> None:
     provider = OpenMeteoProvider()
     mock_response = _make_mock_response(OPEN_METEO_SAMPLE_RESPONSE)
@@ -142,6 +155,7 @@ async def test_open_meteo_metadata() -> None:
         result = await provider.fetch_forecast(35.68, 139.69)
 
     assert result.metadata["elevation"] == 44.0
+    assert result.metadata["timezone"] == "Asia/Tokyo"
 
 
 @pytest.mark.asyncio

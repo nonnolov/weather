@@ -73,7 +73,9 @@ class OpenMeteoProvider(BaseWeatherProvider):
             "hourly": ",".join(_HOURLY_VARS),
             "daily": ",".join(_DAILY_VARS),
             "forecast_days": forecast_days,
-            "timezone": timezone,
+            # Let Open-Meteo resolve the IANA timezone for locations that still
+            # use the model default UTC timezone.
+            "timezone": "auto" if timezone == "UTC" else timezone,
             "timeformat": "iso8601",
         }
 
@@ -100,6 +102,8 @@ class OpenMeteoProvider(BaseWeatherProvider):
                 "elevation": raw.get("elevation"),
                 "generationtime_ms": raw.get("generationtime_ms"),
                 "utc_offset_seconds": raw.get("utc_offset_seconds"),
+                "timezone": raw.get("timezone"),
+                "timezone_abbreviation": raw.get("timezone_abbreviation"),
             },
         )
 

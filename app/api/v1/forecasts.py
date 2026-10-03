@@ -51,6 +51,7 @@ async def trigger_ingestion(
         hourly_records=hourly_records,
         daily_records=daily_records,
         retrieved_at=run.retrieved_at,
+        timezone=location.timezone,
     )
 
 

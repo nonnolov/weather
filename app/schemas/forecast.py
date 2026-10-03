@@ -82,3 +82,4 @@ class IngestResponse(BaseModel):
     hourly_records: int
     daily_records: int
     retrieved_at: datetime
+    timezone: str
