@@ -96,9 +96,7 @@ export default function Home() {
       await window.liff.init({ liffId });
       if (!window.liff.isLoggedIn()) {
         window.localStorage.setItem("weather.language", language);
-        const url = new URL(window.location.href);
-        url.searchParams.set("weather_lang", language);
-        window.liff.login({ redirectUri: url.toString() });
+        window.liff.login();
         return;
       }
       const token = window.liff.getIDToken();
