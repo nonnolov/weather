@@ -9,6 +9,7 @@ import {
   getLatestForecast,
   getLocations,
   getUserForecast,
+  refreshUserForecast,
   setUserLocationFromGps,
   type ForecastRun,
   type Location,
@@ -98,6 +99,7 @@ export default function Home() {
         try {
           const result = await setUserLocationFromGps(activeUserId, position.coords.latitude, position.coords.longitude);
           setLocation(result.location);
+          await refreshUserForecast(activeUserId);
           const data = await getUserForecast(activeUserId);
           setForecast(data);
           setGpsState("success");
