@@ -11,27 +11,28 @@ from app.services.geocoding import ReverseGeocoder, get_reverse_geocoder
 
 FIRST_AREA = {
     "address": {
-        "state": "Bangkok",
-        "city_district": "Watthana",
-        "suburb": "Khlong Toei Nuea",
-        "country_code": "th",
+        "City": "ตำบลคลองเตยเหนือ",
+        "Subregion": "เขตวัฒนา",
+        "Region": "กรุงเทพมหานคร",
+        "CountryCode": "THA",
     }
 }
 SECOND_AREA = {
     "address": {
-        "state": "Chon Buri",
-        "county": "Mueang Chon Buri",
-        "suburb": "Saen Suk",
-        "country_code": "th",
+        "City": "ตำบลแสนสุข",
+        "Subregion": "อำเภอเมืองชลบุรี",
+        "Region": "จังหวัดชลบุรี",
+        "CountryCode": "THA",
     }
 }
 
 
 def _geocoder(response: httpx.Response) -> ReverseGeocoder:
     return ReverseGeocoder(
-        base_url="https://geocoder.test",
+        base_url="https://geocoder.test/arcgis/rest/services/World/GeocodeServer",
         user_agent="weather-tests/1.0",
         transport=httpx.MockTransport(lambda _: response),
+        provider="arcgis",
     )
 
 
@@ -50,7 +51,7 @@ async def test_create_user_and_location_from_gps(client: AsyncClient) -> None:
     data = response.json()
     assert data["external_user_id"] == "line-user-123"
     assert data["location"]["latitude"] == 13.7563
-    assert data["location"]["province"] == "Bangkok"
+    assert data["location"]["province"] == "กรุงเทพมหานคร"
 
 
 @pytest.mark.asyncio
@@ -75,7 +76,9 @@ async def test_existing_user_location_update_keeps_old_location(
     assert first.status_code == 200
     assert second.status_code == 200
     assert second.json()["location"]["id"] != first.json()["location"]["id"]
-    user = (await db_session.execute(select(User).where(User.external_id == "external-1"))).scalar_one()
+    user = (
+        await db_session.execute(select(User).where(User.external_id == "external-1"))
+    ).scalar_one()
     locations = list((await db_session.execute(select(Location))).scalars())
     assert user.current_location_id == second.json()["location"]["id"]
     assert len(locations) == 2

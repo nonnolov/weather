@@ -24,7 +24,8 @@ class Settings(BaseSettings):
     # Providers
     DEFAULT_PROVIDER: str = "open_meteo"
     OPEN_METEO_BASE_URL: str = "https://api.open-meteo.com/v1"
-    GEOCODER_BASE_URL: str = "https://nominatim.openstreetmap.org"
+    GEOCODER_PROVIDER: str = "arcgis"
+    GEOCODER_BASE_URL: str = "https://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer"
     GEOCODER_USER_AGENT: str = "weather-forecasting-system/1.0"
 
     # Ingestion
