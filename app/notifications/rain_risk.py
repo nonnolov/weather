@@ -9,6 +9,8 @@ from app.models.forecast import HourlyForecast
 
 PROBABILITY_THRESHOLD = 70.0
 RAINFALL_THRESHOLD_MM = 10.0
+DAILY_PEAK_PROBABILITY_THRESHOLD = 30.0
+DAILY_PEAK_RAINFALL_THRESHOLD_MM = 5.0
 MAX_RAIN_MM_FOR_SCORE = 30.0
 TOP_PERIODS = 2
 
@@ -79,3 +81,35 @@ def find_rain_risk_periods(
             )
         )
     return sorted(result, key=lambda period: period.score, reverse=True)[:TOP_PERIODS]
+
+
+def find_daily_peak_period(
+    hourly_rows: Sequence[HourlyForecast],
+    *,
+    target_date,
+) -> RainRiskPeriod | None:
+    """Return the single strongest fallback period when no risk alert qualifies."""
+    rows = sorted(
+        (row for row in hourly_rows if row.valid_time.date() == target_date),
+        key=lambda row: row.valid_time,
+    )
+    candidates = [
+        row
+        for row in rows
+        if (row.precipitation_probability or 0.0) >= DAILY_PEAK_PROBABILITY_THRESHOLD
+        or (row.precipitation or 0.0) >= DAILY_PEAK_RAINFALL_THRESHOLD_MM
+    ]
+    if not candidates:
+        return None
+
+    row = max(candidates, key=lambda item: _score([item]))
+    probability = row.precipitation_probability or 0.0
+    rainfall = row.precipitation or 0.0
+    return RainRiskPeriod(
+        start=row.valid_time,
+        end=row.valid_time + timedelta(hours=1),
+        max_probability=probability,
+        max_rainfall_mm=rainfall,
+        duration_hours=1,
+        score=_score([row]),
+    )

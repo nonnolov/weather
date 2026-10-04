@@ -13,7 +13,7 @@ from app.models.notification import NotificationDelivery
 from app.models.user import User
 from app.notifications.formatter import format_rain_alert
 from app.notifications.line_client import LineClient
-from app.notifications.rain_risk import find_rain_risk_periods
+from app.notifications.rain_risk import find_daily_peak_period, find_rain_risk_periods
 from app.notifications.service import _lock_dedupe_key
 
 
@@ -44,8 +44,13 @@ async def send_rain_alert(
         ).all()
     )
     periods = find_rain_risk_periods(hourly, target_date=alert_date)
+    daily_peak = False
     if not periods:
-        return False
+        peak = find_daily_peak_period(hourly, target_date=alert_date)
+        if peak is None:
+            return False
+        periods = [peak]
+        daily_peak = True
 
     dedupe_key = f"rain:{run.location_id}:{alert_date.isoformat()}"
     await _lock_dedupe_key(db, dedupe_key, recipient_id)
@@ -65,6 +70,7 @@ async def send_rain_alert(
         periods,
         alert_date=alert_date,
         location_name=_location_display_name(location),
+        daily_peak=daily_peak,
     )
     await client.push_text(recipient_id, message)
     db.add(

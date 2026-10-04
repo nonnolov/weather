@@ -13,6 +13,7 @@ def format_rain_alert(
     *,
     alert_date: date,
     location_name: str | None = None,
+    daily_peak: bool = False,
 ) -> str:
     """Format the highest-risk rain periods for a LINE alert."""
     timezone_name = getattr(run.location, "timezone", None) or "Asia/Bangkok"
@@ -26,6 +27,8 @@ def format_rain_alert(
         "🌧️ แจ้งเตือนฝนวันนี้",
         f"📍 {location}",
     ]
+    if daily_peak:
+        lines.append("ℹ️ ช่วงที่มีความเสี่ยงสูงสุดของวันนี้")
     for period in periods:
         start = period.start.astimezone(tz)
         end = period.end.astimezone(tz)
