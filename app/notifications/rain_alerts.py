@@ -43,10 +43,19 @@ async def send_rain_alert(
             )
         ).all()
     )
-    periods = find_rain_risk_periods(hourly, target_date=alert_date)
+    timezone_name = location.timezone or "Asia/Bangkok"
+    periods = find_rain_risk_periods(
+        hourly,
+        target_date=alert_date,
+        timezone_name=timezone_name,
+    )
     daily_peak = False
     if not periods:
-        peak = find_daily_peak_period(hourly, target_date=alert_date)
+        peak = find_daily_peak_period(
+            hourly,
+            target_date=alert_date,
+            timezone_name=timezone_name,
+        )
         if peak is None:
             return False
         periods = [peak]

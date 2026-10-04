@@ -67,3 +67,17 @@ def test_daily_peak_fallback_returns_none_when_day_is_below_minimum() -> None:
     )
 
     assert peak is None
+
+
+def test_daily_peak_uses_location_timezone_for_utc_forecast_rows() -> None:
+    row = _hour(0, 40, 3)
+    row.valid_time = datetime(2026, 10, 3, 17, tzinfo=timezone.utc)
+
+    peak = find_daily_peak_period(
+        [row],
+        target_date=datetime(2026, 10, 4).date(),
+        timezone_name="Asia/Bangkok",
+    )
+
+    assert peak is not None
+    assert peak.start == row.valid_time

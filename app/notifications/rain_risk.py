@@ -2,8 +2,9 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 from typing import Sequence
+from zoneinfo import ZoneInfo
 
 from app.models.forecast import HourlyForecast
 
@@ -43,13 +44,21 @@ def _score(rows: Sequence[HourlyForecast]) -> float:
     return probability_score + intensity_score + duration_score
 
 
+def _local_date(row: HourlyForecast, timezone_name: str) -> date:
+    value = row.valid_time
+    if value.tzinfo is None:
+        return value.date()
+    return value.astimezone(ZoneInfo(timezone_name)).date()
+
+
 def find_rain_risk_periods(
     hourly_rows: Sequence[HourlyForecast],
     *,
     target_date,
+    timezone_name: str = "UTC",
 ) -> list[RainRiskPeriod]:
     rows = sorted(
-        (row for row in hourly_rows if row.valid_time.date() == target_date),
+        (row for row in hourly_rows if _local_date(row, timezone_name) == target_date),
         key=lambda row: row.valid_time,
     )
     periods: list[list[HourlyForecast]] = []
@@ -87,10 +96,11 @@ def find_daily_peak_period(
     hourly_rows: Sequence[HourlyForecast],
     *,
     target_date,
+    timezone_name: str = "UTC",
 ) -> RainRiskPeriod | None:
     """Return the single strongest fallback period when no risk alert qualifies."""
     rows = sorted(
-        (row for row in hourly_rows if row.valid_time.date() == target_date),
+        (row for row in hourly_rows if _local_date(row, timezone_name) == target_date),
         key=lambda row: row.valid_time,
     )
     candidates = [
