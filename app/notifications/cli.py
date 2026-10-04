@@ -7,6 +7,7 @@ from sqlalchemy import select
 
 from app.core.config import settings
 from app.core.database import AsyncSessionLocal
+from app.ingestion.service import ingest_seed_observations
 from app.models.forecast import ForecastRun
 from app.models.location import Location
 from app.notifications.service import (
@@ -59,6 +60,10 @@ async def send_user_alerts() -> dict[str, int]:
 
 
 async def _main() -> None:
+    async with AsyncSessionLocal() as db:
+        observation_counts = await ingest_seed_observations(db)
+        await db.commit()
+    print(f"Observation ingestion: {sum(observation_counts.values())} created")
     counts = await send_user_alerts()
     print(f"{counts['sent']} sent, {counts['skipped']} skipped")
 

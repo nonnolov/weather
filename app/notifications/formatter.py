@@ -25,19 +25,28 @@ def format_rain_alert(
     location = location_name or run.location.name
     lines = [
         "🌧️ แจ้งเตือนฝนวันนี้",
+        "",
+        f"📅 ณ วันที่ {alert_date.day:02d}/{alert_date.month:02d}/{str(alert_date.year + 543)[-2:]}",
         f"📍 {location}",
     ]
+    lines.extend([
+        "",
+        "━━━━━━━━━━━━━━",
+        "🌦️ พยากรณ์ฝน",
+        "━━━━━━━━━━━━━━",
+        "",
+    ])
     if daily_peak:
-        lines.append("ℹ️ ช่วงที่มีความเสี่ยงสูงสุดของวันนี้")
+        lines.extend(["ℹ️ ช่วงเสี่ยงสูงสุดของวันนี้", ""])
     for period in periods:
         start = period.start.astimezone(tz)
         end = period.end.astimezone(tz)
         lines.append(
-            f"⚠️ {start:%H:%M}–{end:%H:%M} "
-            f"โอกาสฝนสูงสุด {period.max_probability:.0f}% "
-            f"ฝนสูงสุดประมาณ {period.max_rainfall_mm:.1f} mm/h"
+            f"⏰ {start:%H:%M}–{end:%H:%M} น.\n"
+            f"☔ โอกาสฝน {period.max_probability:.0f}%  💧 "
+            f"{period.max_rainfall_mm:.1f} mm/h"
         )
-    lines.append("แนะนำเตรียมร่มก่อนออกจากบ้าน")
+    lines.extend(["", "💡 เตรียมร่มก่อนออกจากบ้าน"])
     return "\n".join(lines)
 
 
