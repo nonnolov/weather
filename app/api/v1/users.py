@@ -58,10 +58,13 @@ async def set_user_location_from_gps(
             province=area.province,
             district=area.district,
             subdistrict=area.subdistrict,
+            timezone="Asia/Bangkok" if (area.country_code or "").upper() == "TH" else "UTC",
             country_code=area.country_code.upper() if area.country_code else None,
         )
         db.add(location)
         await db.flush()
+    elif (area.country_code or "").upper() == "TH" and location.timezone == "UTC":
+        location.timezone = "Asia/Bangkok"
 
     result = await db.execute(select(User).where(User.external_id == external_user_id))
     user = result.scalar_one_or_none()

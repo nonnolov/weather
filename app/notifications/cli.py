@@ -11,10 +11,10 @@ from app.models.forecast import ForecastRun
 from app.models.location import Location
 from app.notifications.service import (
     configured_recipient_ids,
-    send_current_location_alerts,
     send_forecast_alert,
 )
 from app.notifications.line_client import LineClient
+from app.notifications.rain_alerts import refresh_and_send_rain_alerts
 
 
 async def send_seed_alerts() -> dict[str, int]:
@@ -55,9 +55,7 @@ async def send_user_alerts() -> dict[str, int]:
         raise RuntimeError("LINE_CHANNEL_ACCESS_TOKEN is not configured")
     client = LineClient(token, settings.LINE_API_BASE_URL)
     async with AsyncSessionLocal() as db:
-        counts = await send_current_location_alerts(db, client)
-        await db.commit()
-    return counts
+        return await refresh_and_send_rain_alerts(db, client)
 
 
 async def _main() -> None:

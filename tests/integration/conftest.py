@@ -52,7 +52,7 @@ def _require_sync_postgres_url() -> str:
     return url
 
 
-@pytest.fixture(scope="session", autouse=True)
+@pytest.fixture(scope="session")
 def run_migrations() -> None:
     """
     Apply Alembic migrations once per test session using a synchronous
@@ -68,7 +68,7 @@ def run_migrations() -> None:
 
 
 @pytest_asyncio.fixture
-async def pg_session() -> AsyncGenerator[AsyncSession, None]:
+async def pg_session(run_migrations: None) -> AsyncGenerator[AsyncSession, None]:
     """
     Each integration test gets its own async engine + session created in the
     test's own event loop (function scope). Changes are rolled back after the

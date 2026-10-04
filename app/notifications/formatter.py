@@ -1,8 +1,41 @@
 from __future__ import annotations
 
 from datetime import date
+from zoneinfo import ZoneInfo
 
-from app.models.forecast import ForecastRun
+from app.models.forecast import ForecastRun, HourlyForecast
+from app.notifications.rain_risk import RainRiskPeriod
+
+
+def format_rain_alert(
+    run: ForecastRun,
+    periods: list[RainRiskPeriod],
+    *,
+    alert_date: date,
+    location_name: str | None = None,
+) -> str:
+    """Format the highest-risk rain periods for a LINE alert."""
+    timezone_name = getattr(run.location, "timezone", None) or "Asia/Bangkok"
+    try:
+        tz = ZoneInfo(timezone_name)
+    except Exception:
+        tz = ZoneInfo("Asia/Bangkok")
+
+    location = location_name or run.location.name
+    lines = [
+        "🌧️ แจ้งเตือนฝนวันนี้",
+        f"📍 {location}",
+    ]
+    for period in periods:
+        start = period.start.astimezone(tz)
+        end = period.end.astimezone(tz)
+        lines.append(
+            f"⚠️ {start:%H:%M}–{end:%H:%M} "
+            f"โอกาสฝนสูงสุด {period.max_probability:.0f}% "
+            f"ฝนสูงสุดประมาณ {period.max_rainfall_mm:.1f} mm/h"
+        )
+    lines.append("แนะนำเตรียมร่มก่อนออกจากบ้าน")
+    return "\n".join(lines)
 
 
 def format_forecast_alert(
