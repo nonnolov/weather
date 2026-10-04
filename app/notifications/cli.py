@@ -1,9 +1,7 @@
 """CLI for sending deduplicated forecast alerts to LINE."""
 from __future__ import annotations
 
-import argparse
 import asyncio
-from datetime import date
 
 from sqlalchemy import select
 
@@ -11,13 +9,12 @@ from app.core.config import settings
 from app.core.database import AsyncSessionLocal
 from app.models.forecast import ForecastRun
 from app.models.location import Location
-from app.models.user import User
 from app.notifications.service import (
     configured_recipient_ids,
     send_forecast_alert,
 )
 from app.notifications.line_client import LineClient
-from app.notifications.rain_alerts import refresh_and_send_rain_alerts, send_rain_alert
+from app.notifications.rain_alerts import refresh_and_send_rain_alerts
 
 
 async def send_seed_alerts() -> dict[str, int]:
@@ -61,47 +58,7 @@ async def send_user_alerts() -> dict[str, int]:
         return await refresh_and_send_rain_alerts(db, client)
 
 
-async def send_daily_peak_test(alert_date: date) -> bool:
-    token = settings.LINE_CHANNEL_ACCESS_TOKEN
-    if not token:
-        raise RuntimeError("LINE_CHANNEL_ACCESS_TOKEN is not configured")
-    client = LineClient(token, settings.LINE_API_BASE_URL)
-    async with AsyncSessionLocal() as db:
-        user = await db.scalar(
-            select(User)
-            .where(User.current_location_id.is_not(None))
-            .order_by(User.id)
-            .limit(1)
-        )
-        if user is None:
-            raise RuntimeError("No user with a current location is configured")
-        run = await db.scalar(
-            select(ForecastRun)
-            .where(ForecastRun.location_id == user.current_location_id)
-            .order_by(ForecastRun.retrieved_at.desc(), ForecastRun.id.desc())
-            .limit(1)
-        )
-        if run is None:
-            raise RuntimeError("No forecast run exists for the test user's location")
-        sent = await send_rain_alert(
-            db,
-            run,
-            user.external_id,
-            client,
-            alert_date_override=alert_date,
-        )
-        await db.commit()
-        return sent
-
-
 async def _main() -> None:
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--test-daily-peak-date", type=date.fromisoformat)
-    args = parser.parse_args()
-    if args.test_daily_peak_date is not None:
-        sent = await send_daily_peak_test(args.test_daily_peak_date)
-        print(f"daily_peak_test sent={sent}")
-        return
     counts = await send_user_alerts()
     print(f"{counts['sent']} sent, {counts['skipped']} skipped")
 
