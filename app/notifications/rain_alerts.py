@@ -22,6 +22,7 @@ async def send_rain_alert(
     run: ForecastRun,
     recipient_id: str,
     client: LineClient,
+    alert_date_override=None,
 ) -> bool:
     """Send one deduplicated rain-risk alert when a qualifying period exists."""
     location = await db.scalar(select(Location).where(Location.id == run.location_id))
@@ -32,7 +33,7 @@ async def send_rain_alert(
         tz = ZoneInfo(location.timezone)
     except Exception:
         tz = ZoneInfo("Asia/Bangkok")
-    alert_date = datetime.now(tz).date()
+    alert_date = alert_date_override or datetime.now(tz).date()
 
     hourly = list(
         (
