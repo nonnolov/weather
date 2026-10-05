@@ -1,4 +1,8 @@
 FROM nousresearch/hermes-agent:latest
 
-# Preserve the upstream ENTRYPOINT so Hermes can initialize and own /opt/data.
+# Run after upstream volume setup and before profile reconciliation.
+COPY bootstrap.sh /etc/cont-init.d/010-weather-bootstrap
+RUN chmod 0755 /etc/cont-init.d/010-weather-bootstrap
+
+# Preserve the upstream ENTRYPOINT/s6 lifecycle.
 CMD ["gateway", "run"]
