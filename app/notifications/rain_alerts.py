@@ -12,7 +12,7 @@ from app.models.location import Location
 from app.models.notification import NotificationDelivery
 from app.models.user import User
 from app.notifications.formatter import format_rain_alert
-from app.notifications.line_client import LineClient
+from app.notifications.line_client import LineApiError, LineClient
 from app.notifications.rain_risk import find_daily_peak_period, find_rain_risk_periods
 from app.notifications.service import _lock_dedupe_key
 
@@ -133,28 +133,41 @@ async def refresh_and_send_rain_alerts(db: AsyncSession, client: LineClient) -> 
 async def send_current_rain_alerts(db: AsyncSession, client: LineClient) -> dict[str, int]:
     users = list(
         (
-            await db.scalars(
-                select(User).where(User.current_location_id.is_not(None))
+            await db.execute(
+                select(User.external_id, User.current_location_id).where(
+                    User.current_location_id.is_not(None)
+                )
             )
         ).all()
     )
     sent = 0
     skipped = 0
-    for user in users:
+    failed = 0
+    for external_id, current_location_id in users:
+        # Browser fallback identities are valid application users, but they are
+        # not LINE Messaging API recipient IDs. LINE user IDs start with "U".
+        if not external_id.startswith("U"):
+            skipped += 1
+            continue
+
         run = await db.scalar(
             select(ForecastRun)
-            .where(ForecastRun.location_id == user.current_location_id)
+            .where(ForecastRun.location_id == current_location_id)
             .order_by(ForecastRun.retrieved_at.desc(), ForecastRun.id.desc())
             .limit(1)
         )
         if run is None:
             skipped += 1
             continue
-        if await send_rain_alert(db, run, user.external_id, client):
-            sent += 1
-        else:
-            skipped += 1
-    return {"sent": sent, "skipped": skipped}
+        try:
+            if await send_rain_alert(db, run, external_id, client):
+                sent += 1
+            else:
+                skipped += 1
+        except LineApiError:
+            # A bad/expired recipient must not abort alerts for every user.
+            failed += 1
+    return {"sent": sent, "skipped": skipped, "failed": failed}
 
 
 def _location_display_name(location: Location) -> str:
