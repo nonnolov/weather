@@ -1,7 +1,720 @@
-:root { color: #172033; background: #f3f6fa; font-family: Arial, sans-serif; } * { box-sizing: border-box; } body { margin: 0; } button, select { font: inherit; }
-.dashboard-shell { max-width: 74rem; margin: 0 auto; padding: 2.5rem 1.5rem 4rem; }.dashboard-header, .controls, .section-heading { display: flex; align-items: center; justify-content: space-between; gap: 1.25rem; }.dashboard-header { margin-bottom: 2rem; }h1, h2, p { margin: 0; }h1 { font-size: clamp(1.8rem, 4vw, 2.5rem); letter-spacing: -.04em; }h2 { font-size: 1.1rem; }.eyebrow { color: #5f6f82; font-size: .78rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }.card { background: #fff; border: 1px solid #dce4ed; border-radius: .85rem; box-shadow: 0 1px 2px #1720330a; }.connection { color: #5f6f82; font-size: .88rem; white-space: nowrap; }.connection span { display: inline-block; width: .55rem; height: .55rem; margin-right: .35rem; border-radius: 50%; background: #e1a11a; }.connection.online span { background: #178050; }.connection.offline span { background: #bd3c3c; }
-.controls { padding: 1.25rem; }.controls p, .section-heading p { color: #5f6f82; font-size: .9rem; margin-top: .3rem; }.select-label { display: grid; gap: .4rem; color: #425267; font-size: .84rem; font-weight: 700; min-width: 15rem; }select { width: 100%; padding: .65rem .75rem; color: #172033; background: #fff; border: 1px solid #aebdcb; border-radius: .45rem; }.location-meta { margin: .9rem 0 1.25rem; color: #5f6f82; font-size: .86rem; }
-.summary-grid { display: grid; grid-template-columns: 2fr repeat(3, 1fr); gap: 1rem; margin-bottom: 1rem; }.primary-summary, .metric { padding: 1.25rem; }.primary-summary strong { display: block; margin: .35rem 0; font-size: 2.45rem; letter-spacing: -.06em; }.primary-summary > p:last-child { color: #5f6f82; }.metric { display: grid; align-content: space-between; min-height: 8.2rem; }.metric span, .forecast-day span { color: #5f6f82; font-size: .82rem; }.metric strong { font-size: 1.35rem; }
-.forecast-card { overflow: hidden; }.section-heading { padding: 1.25rem; border-bottom: 1px solid #e4eaf0; }.forecast-list { padding: 0 1.25rem; }.forecast-day { display: grid; grid-template-columns: 2fr 1fr repeat(3, 1fr); gap: 1rem; padding: 1rem 0; border-bottom: 1px solid #e8edf2; }.forecast-day:last-child { border-bottom: 0; }.forecast-day > div { display: grid; gap: .2rem; }.temperatures { grid-template-columns: auto auto; gap: .45rem !important; }
-.loading-panel, .message { padding: 1.5rem; margin-top: 1rem; }.loading-panel { display: flex; align-items: center; gap: .75rem; }.spinner { width: 1.1rem; height: 1.1rem; border: 2px solid #cdd8e3; border-top-color: #2563a5; border-radius: 50%; animation: spin .8s linear infinite; }.loading { color: #5f6f82; }.message p { color: #5f6f82; margin-top: .45rem; }.message.error { border-color: #f0c9c9; background: #fffafa; }.error h2, .error p { color: #9d2d2d; }button { margin-top: .85rem; padding: .5rem .7rem; color: #fff; background: #235f9b; border: 0; border-radius: .4rem; cursor: pointer; }@keyframes spin { to { transform: rotate(360deg); } }
-@media (max-width: 760px) { .dashboard-shell { padding: 1.25rem 1rem 3rem; }.dashboard-header, .controls { align-items: flex-start; flex-direction: column; }.connection { margin-top: -.75rem; }.select-label { width: 100%; min-width: 0; }.summary-grid { grid-template-columns: repeat(2, 1fr); }.primary-summary { grid-column: span 2; }.forecast-list { padding: 0 1rem; }.forecast-day { grid-template-columns: 1.5fr 1fr 1fr; gap: .6rem; }.forecast-day > div:nth-child(4), .forecast-day > div:nth-child(5) { display: none; } }@media (max-width: 420px) { .summary-grid { grid-template-columns: 1fr; }.primary-summary { grid-column: auto; }.metric { min-height: 5.5rem; }.forecast-day { grid-template-columns: 1.4fr 1fr .8fr; }.forecast-day > div:nth-child(3) { display: none; } }
+/* ============================================================================
+   DESIGN SYSTEM: Liwan-inspired, modern weather dashboard
+   =========================================================================== */
+
+:root {
+  /* Color Palette - Restrained, professional */
+  --color-bg-primary: #eef0f9;
+  --color-bg-secondary: #ffffff;
+  --color-text-primary: #172033;
+  --color-text-secondary: #5f6f82;
+  --color-text-muted: #8a94a6;
+  --color-text-label: #425267;
+  --color-border: #d5dce8;
+  --color-border-light: #e4eaf0;
+  --color-border-focus: #aab4c5;
+
+  /* Semantic Colors */
+  --color-primary: #4a5873;
+  --color-primary-hover: #37445c;
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  --color-danger: #ef4444;
+
+  /* Shadows - Subtle depth */
+  --shadow-xs: 0px 1px 3px rgba(21, 35, 54, 0.08);
+  --shadow-sm: 0px 2px 6px rgba(21, 35, 54, 0.12);
+  --shadow-md: 0px 4px 12px rgba(21, 35, 54, 0.15);
+  --shadow-lg: 0px 8px 24px rgba(21, 35, 54, 0.18);
+
+  /* Typography */
+  --font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+  --font-mono: "Monaco", "Courier New", monospace;
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+
+  /* Spacing System */
+  --spacing-xs: 0.375rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 0.75rem;
+  --spacing-lg: 1rem;
+  --spacing-xl: 1.5rem;
+  --spacing-2xl: 2rem;
+  --spacing-3xl: 2.5rem;
+
+  /* Border Radius */
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+
+  /* Z-Index */
+  --z-base: 0;
+  --z-dropdown: 100;
+  --z-sticky: 200;
+}
+
+/* Dark Mode Support (optional future enhancement) */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-bg-primary: #0a0c10;
+    --color-bg-secondary: #0f1419;
+    --color-text-primary: #ffffff;
+    --color-text-secondary: #9aa4b5;
+    --color-text-muted: #6b7684;
+    --color-text-label: #8a94a6;
+    --color-border: #1a2033;
+    --color-border-light: #252d3d;
+    --color-border-focus: #4a5873;
+  }
+}
+
+/* ============================================================================
+   RESET & BASE STYLES
+   =========================================================================== */
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  font-family: var(--font-family);
+  line-height: 1.5;
+}
+
+/* ============================================================================
+   TYPOGRAPHY
+   =========================================================================== */
+
+h1, h2, h3, h4, h5, h6 {
+  margin: 0;
+  font-weight: var(--font-weight-semibold);
+  line-height: 1.2;
+}
+
+h1 {
+  font-size: 1.875rem;
+  letter-spacing: -0.02em;
+}
+
+h2 {
+  font-size: 1.25rem;
+  letter-spacing: -0.01em;
+}
+
+h3 {
+  font-size: 1rem;
+}
+
+p {
+  margin: 0;
+  font-size: 0.9375rem;
+  color: var(--color-text-secondary);
+}
+
+/* Eyebrow/Label Text */
+.eyebrow {
+  font-size: 0.75rem;
+  font-weight: var(--font-weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-muted);
+  margin-bottom: var(--spacing-sm);
+}
+
+/* ============================================================================
+   FORM ELEMENTS
+   =========================================================================== */
+
+button, select, input, textarea {
+  font-family: inherit;
+  font-size: inherit;
+}
+
+button, [type="button"], [type="reset"], [type="submit"] {
+  cursor: pointer;
+  padding: var(--spacing-sm) var(--spacing-lg);
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  background-color: var(--color-primary);
+  color: #ffffff;
+  font-weight: var(--font-weight-medium);
+  font-size: 0.875rem;
+  transition: all 0.2s ease;
+}
+
+button:hover:not(:disabled),
+[type="button"]:hover:not(:disabled),
+[type="reset"]:hover:not(:disabled),
+[type="submit"]:hover:not(:disabled) {
+  background-color: var(--color-primary-hover);
+}
+
+button:disabled,
+[type="button"]:disabled,
+[type="reset"]:disabled,
+[type="submit"]:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+select {
+  padding: var(--spacing-sm) var(--spacing-md);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background-color: var(--color-bg-secondary);
+  color: var(--color-text-primary);
+  transition: border-color 0.2s ease;
+}
+
+select:hover {
+  border-color: var(--color-border-focus);
+}
+
+select:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px rgba(74, 88, 115, 0.1);
+}
+
+/* ============================================================================
+   LAYOUT
+   =========================================================================== */
+
+.dashboard-shell {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--spacing-3xl) var(--spacing-xl) 4rem;
+}
+
+/* Header */
+.dashboard-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--spacing-2xl);
+  margin-bottom: var(--spacing-2xl);
+}
+
+.dashboard-header > div:first-child {
+  flex: 1;
+}
+
+.dashboard-header h1 {
+  margin-top: var(--spacing-sm);
+}
+
+.dashboard-header > div:last-child {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-lg);
+}
+
+/* Connection Status Indicator */
+.connection {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  font-size: 0.8125rem;
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-secondary);
+}
+
+.connection > span {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.connection.online > span {
+  background-color: var(--color-success);
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+}
+
+.connection.offline > span {
+  background-color: var(--color-danger);
+}
+
+.connection.loading > span {
+  background-color: var(--color-warning);
+}
+
+/* ============================================================================
+   CARDS & CONTAINERS
+   =========================================================================== */
+
+.card {
+  background-color: var(--color-bg-secondary);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-xs);
+  transition: all 0.2s ease;
+}
+
+.card:hover {
+  border-color: var(--color-border);
+  box-shadow: var(--shadow-sm);
+}
+
+/* ============================================================================
+   SECTIONS & CONTROLS
+   =========================================================================== */
+
+.controls {
+  padding: var(--spacing-lg) var(--spacing-xl);
+  margin-bottom: var(--spacing-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+.controls > div {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.controls h2 {
+  margin-bottom: 0;
+}
+
+.controls p {
+  margin: 0;
+}
+
+.controls button {
+  align-self: flex-start;
+}
+
+.select-label {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  color: var(--color-text-label);
+  font-size: 0.8125rem;
+  font-weight: var(--font-weight-medium);
+}
+
+.select-label select {
+  width: 100%;
+  max-width: 300px;
+}
+
+.location-meta {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+  margin-top: var(--spacing-md);
+}
+
+/* Message/Status Text */
+.message {
+  padding: var(--spacing-xl);
+  background: linear-gradient(135deg, var(--color-bg-secondary) 0%, rgba(74, 88, 115, 0.02) 100%);
+  border-left: 3px solid var(--color-primary);
+}
+
+.message h2 {
+  color: var(--color-text-primary);
+  margin-bottom: var(--spacing-sm);
+}
+
+.message p {
+  margin: 0;
+}
+
+/* ============================================================================
+   FORECAST SUMMARY GRID
+   =========================================================================== */
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: 2fr repeat(3, 1fr);
+  gap: var(--spacing-lg);
+  margin-bottom: var(--spacing-lg);
+}
+
+/* Primary Temperature Card */
+.primary-summary {
+  padding: var(--spacing-xl);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 200px;
+  background: linear-gradient(135deg, var(--color-bg-secondary) 0%, rgba(74, 88, 115, 0.03) 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.primary-summary::before {
+  content: "";
+  position: absolute;
+  top: -50%;
+  right: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(74, 88, 115, 0.05) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.primary-summary > * {
+  position: relative;
+  z-index: 1;
+}
+
+.primary-summary .eyebrow {
+  margin-bottom: var(--spacing-md);
+}
+
+.primary-summary strong {
+  display: block;
+  font-size: 3rem;
+  font-weight: 600;
+  line-height: 1;
+  color: var(--color-text-primary);
+  margin-bottom: var(--spacing-sm);
+}
+
+/* Metric Cards */
+.metric {
+  padding: var(--spacing-xl);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 150px;
+  text-align: center;
+}
+
+.metric span {
+  font-size: 0.8125rem;
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  margin-bottom: var(--spacing-md);
+}
+
+.metric strong {
+  display: block;
+  font-size: 1.875rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+/* ============================================================================
+   FORECAST CARD
+   =========================================================================== */
+
+.forecast-card {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 0;
+}
+
+.section-heading {
+  padding: var(--spacing-xl);
+  border-bottom: 1px solid var(--color-border-light);
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.section-heading > div:first-child {
+  flex: 1;
+}
+
+.section-heading h2 {
+  margin-bottom: var(--spacing-sm);
+}
+
+.section-heading p {
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+/* Forecast List */
+.forecast-list {
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.forecast-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.forecast-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.forecast-list::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 3px;
+}
+
+.forecast-list::-webkit-scrollbar-thumb:hover {
+  background: var(--color-border-focus);
+}
+
+/* Forecast Day Item */
+.forecast-day {
+  padding: var(--spacing-lg) var(--spacing-xl);
+  border-bottom: 1px solid var(--color-border-light);
+  display: grid;
+  grid-template-columns: 120px 1fr 1fr;
+  gap: var(--spacing-lg);
+  align-items: center;
+  transition: background-color 0.2s ease;
+}
+
+.forecast-day:last-child {
+  border-bottom: none;
+}
+
+.forecast-day:hover {
+  background-color: rgba(74, 88, 115, 0.02);
+}
+
+/* Forecast Day Date Column */
+.forecast-day > div:first-child {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  border-right: 1px solid var(--color-border-light);
+  padding-right: var(--spacing-lg);
+}
+
+.forecast-day > div:first-child strong {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+}
+
+.forecast-day > div:first-child span {
+  display: block;
+  font-size: 0.8125rem;
+  color: var(--color-text-secondary);
+}
+
+/* Temperatures */
+.temperatures {
+  display: flex;
+  gap: var(--spacing-md);
+  align-items: center;
+}
+
+.temperatures strong {
+  display: block;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.temperatures span {
+  display: block;
+  font-size: 0.9rem;
+  color: var(--color-text-secondary);
+}
+
+/* Forecast Details Grid */
+.forecast-day > div:nth-child(2),
+.forecast-day > div:nth-child(3) {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-md) var(--spacing-lg);
+  font-size: 0.875rem;
+}
+
+.forecast-day > div span {
+  color: var(--color-text-secondary);
+  font-weight: var(--font-weight-regular);
+}
+
+.forecast-day > div strong {
+  color: var(--color-text-primary);
+  font-weight: var(--font-weight-semibold);
+  display: block;
+}
+
+/* ============================================================================
+   UTILITY CLASSES
+   =========================================================================== */
+
+.loading-panel {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-lg);
+  padding: var(--spacing-xl);
+  background-color: rgba(74, 88, 115, 0.05);
+  border-radius: var(--radius-lg);
+}
+
+.spinner {
+  width: 1.25rem;
+  height: 1.25rem;
+  border: 2px solid var(--color-border);
+  border-top-color: var(--color-primary);
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ============================================================================
+   RESPONSIVE DESIGN
+   =========================================================================== */
+
+@media (max-width: 900px) {
+  .summary-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: var(--spacing-md);
+  }
+
+  .primary-summary {
+    grid-column: 1 / -1;
+  }
+
+  .forecast-day {
+    grid-template-columns: 100px 1fr 1fr;
+    gap: var(--spacing-md);
+  }
+}
+
+@media (max-width: 760px) {
+  .dashboard-shell {
+    padding: var(--spacing-2xl) var(--spacing-lg) 3rem;
+  }
+
+  .dashboard-header {
+    flex-direction: column;
+    gap: var(--spacing-lg);
+    align-items: stretch;
+  }
+
+  .dashboard-header > div:last-child {
+    flex-direction: column-reverse;
+    align-items: flex-start;
+  }
+
+  .dashboard-header button {
+    align-self: flex-start;
+  }
+
+  h1 {
+    font-size: 1.5rem;
+  }
+
+  .controls {
+    gap: var(--spacing-lg);
+  }
+
+  .select-label select {
+    max-width: 100%;
+  }
+
+  .summary-grid {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-md);
+  }
+
+  .primary-summary {
+    min-height: auto;
+    padding: var(--spacing-lg);
+  }
+
+  .primary-summary strong {
+    font-size: 2.5rem;
+  }
+
+  .metric {
+    min-height: auto;
+    padding: var(--spacing-lg);
+  }
+
+  .metric strong {
+    font-size: 1.5rem;
+  }
+
+  .section-heading {
+    flex-direction: column;
+    gap: var(--spacing-md);
+    padding: var(--spacing-lg);
+  }
+
+  .forecast-day {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-md);
+    padding: var(--spacing-lg);
+  }
+
+  .forecast-day > div:first-child {
+    border-right: none;
+    border-bottom: 1px solid var(--color-border-light);
+    padding-right: 0;
+    padding-bottom: var(--spacing-md);
+    display: flex;
+    flex-direction: row;
+    gap: var(--spacing-lg);
+  }
+
+  .forecast-day > div:first-child strong {
+    min-width: 60px;
+  }
+
+  .forecast-day > div:nth-child(2),
+  .forecast-day > div:nth-child(3) {
+    grid-template-columns: auto 1fr;
+    gap: var(--spacing-sm) var(--spacing-md);
+  }
+
+  .temperatures {
+    flex-direction: row;
+  }
+
+  .forecast-list {
+    max-height: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .dashboard-shell {
+    padding: var(--spacing-xl) var(--spacing-md) 2rem;
+  }
+
+  h1 {
+    font-size: 1.25rem;
+  }
+
+  h2 {
+    font-size: 1.125rem;
+  }
+
+  .primary-summary strong {
+    font-size: 2rem;
+  }
+
+  .metric strong {
+    font-size: 1.25rem;
+  }
+
+  .forecast-day > div:first-child strong {
+    font-size: 0.8125rem;
+  }
+}
