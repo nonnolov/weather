@@ -157,3 +157,5 @@ The user explicitly authorized deploying the new frontend to Production.
 ## Frontend Thai heading update (2026-10-07)
 
 User requested changing the Thai heading to “อากาศวันนี้ ใกล้คุณ”. Updated only that title in `frontend/app/page.tsx`; English heading and application logic are unchanged. Releasing the tracked frontend-only source to Vercel Production using the established isolated export workflow. Deployment verification follows below.
+
+Heading release verified: source commit `d4623d9`; Production deployment `dpl_8upPfzYLB59Gu49WYEnWWHsKEMbs` passed build/typecheck/lint and was promoted. Stable frontend returned HTTP 200, with the requested new Thai heading present and the previous heading absent.
