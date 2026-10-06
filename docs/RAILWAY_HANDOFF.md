@@ -177,3 +177,8 @@ User authorized finishing automatic historical collection for user locations.
 - Executed reviewed ingestion source through private API SSH without changing container files or sending notifications: first pass created 672, second created 0; 672 user observations with rain values; zero duplicate groups. Existing 96 seed rows retained. No schema change, public proxy or secret output.
 - Source commit dffb1f5 pushed to feature/frontend-ux. Preparing a tracked-backend-only cron release. Record deployment outcome below before claiming automatic production collection ready.
 - Active branch remains feature/frontend-ux; do not release the older phase-1 branch without merging current work. Historical data are provider model/reanalysis output, not station truth. Matching forecast/observation timestamps and future scheduled execution remain necessary for accuracy validation.
+
+
+Production release verified: cron deployment `7a02bf46-eb46-40f3-babc-5af18a00a1bf` is SUCCESS/Ready, no pending work and zero recent failures. Uploaded only tracked backend files from source commit dffb1f5 (release snapshot HEAD 0fa714f); no frontend, Hermes workspace or local secret files. Start command and daily 06:00 Bangkok schedule retained. There are no runtime logs yet: actual scheduled execution is still pending and will be checked by the existing 06:10 verification automation.
+
+Post-release HTTP checks: API /health, /api/v1/locations and /api/v1/forecast/1, plus frontend /api/backend/health, all returned 200. API/frontend were not redeployed by this task. README encoding/line endings were repaired in 36bf7b7; final documentation now describes user history and explicit seed-only backfill.

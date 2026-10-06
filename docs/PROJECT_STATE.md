@@ -531,3 +531,15 @@ When a new AI agent starts working on this repository:
 **Most important rule:**
 
 > Inspect first. Do not assume. Do not discard existing work.
+
+
+## Latest operational update — 2026-10-07
+
+See `docs/RAILWAY_HANDOFF.md` for current production deployment details; older snapshots above may describe superseded accounts or releases.
+
+- Active work branch: `feature/frontend-ux`; source `dffb1f5` adds automatic historical collection for distinct active user current locations.
+- Cron Production deployment `7a02bf46-eb46-40f3-babc-5af18a00a1bf`: SUCCESS/Ready; daily 06:00 Asia/Bangkok.
+- Morning order: user-location observations (rolling seven completed days), commit, user-location forecast refresh, qualifying LINE alerts.
+- Initial private backfill: 4 locations, 672 records with precipitation values; repeat creates zero records; no duplicate groups. Existing seed history retained; seed backfill requires explicit `--scope seeds`.
+- Relevant tests: 30 passed, 1 existing warning. API/frontend health checks returned 200.
+- Actual new cron execution and LINE delivery remain pending verification. This collection does not automatically train or apply ML.
