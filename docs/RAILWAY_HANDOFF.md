@@ -107,3 +107,5 @@ The user requested an elegant frontend with illustrations and authorized impleme
 - Previous preview access remains blocked by Vercel SSO errors. Do not claim live browser or mobile verification until those checks succeed.
 
 Verification for the illustrated design: `npm.cmd run typecheck`, `npm.cmd run lint`, `next build` and `git diff --check` all passed. Build route `/` is 10.8 kB with 113 kB first-load JS. This confirms compilation, not live visual behavior.
+
+Illustrated UI implementation commit: `c148b93`, pushed. Vercel deployment `dpl_3JxgFbjtKxQovPPPjycMDhB5jD8e` is Ready after a 41-second build. Review URL: https://weather-badl5l0pc-weather-9c1f.vercel.app . Production is unchanged; visual review remains pending Vercel preview access.
