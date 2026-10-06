@@ -195,3 +195,6 @@ User approved both previously proposed templates and requested exact below-thres
 - Expanded cron logs show send/skip/failure and forecast refresh/failure counts without sensitive recipient or coordinate values.
 - Validation: 30 relevant tests passed with 1 existing python_multipart warning. Covers both templates, original daily-peak fallback, daily deduplication, stale/missing/partial data, failed-push retry, location-local dates and actual update time, alongside existing rain risk and user-observation pipeline tests.
 - Preparing a backend-only deployment to weather-alert-cron; no manual real LINE push was invoked. Record source/deployment verification below.
+
+
+Daily-message release verified: source `70eccf9` pushed to `feature/frontend-ux`; backend-only cron deployment `174bdfbc-b1e1-465a-945f-ceabd8d630e0` is SUCCESS. Start command remains `python -m app.notifications.cli` and schedule `0 23 * * *` UTC (06:00 Bangkok). API health returned 200. No real LINE test message was sent; first scheduled use of these templates remains pending 06:00 execution.
