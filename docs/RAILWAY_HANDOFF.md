@@ -68,4 +68,4 @@ The production frontend's `/api/backend/health` and `/api/backend/api/v1/locatio
 - Preserved the GPS flow: save the user's GPS location, refresh that user's forecast, then retrieve it. No cron logic changed.
 - Ignored Vercel local metadata, environment files, and TypeScript build cache; kept `.env.example` available as a tracked template.
 - Local verification: `npm.cmd run typecheck` and `node node_modules/next/dist/bin/next build` both exited 0.
-- Production proxy verification: pending after deployment of this fix.
+- Production verification: Vercel deployment `dpl_EpHggStPB6VNAmce7kNaEn883fvz` was Ready. Through the stable frontend URL, `/api/backend/health`, `/api/backend/api/v1/locations`, and `/api/backend/api/v1/forecast/1` all returned 200. The GPS POST route was checked using an empty invalid body (expected 422), without creating a test user or location. Real browser GPS/LINE flow still requires a user retry.
