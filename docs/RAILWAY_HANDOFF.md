@@ -182,3 +182,16 @@ User authorized finishing automatic historical collection for user locations.
 Production release verified: cron deployment `7a02bf46-eb46-40f3-babc-5af18a00a1bf` is SUCCESS/Ready, no pending work and zero recent failures. Uploaded only tracked backend files from source commit dffb1f5 (release snapshot HEAD 0fa714f); no frontend, Hermes workspace or local secret files. Start command and daily 06:00 Bangkok schedule retained. There are no runtime logs yet: actual scheduled execution is still pending and will be checked by the existing 06:10 verification automation.
 
 Post-release HTTP checks: API /health, /api/v1/locations and /api/v1/forecast/1, plus frontend /api/backend/health, all returned 200. API/frontend were not redeployed by this task. README encoding/line endings were repaired in 36bf7b7; final documentation now describes user history and explicit seed-only backfill.
+
+
+## Daily LINE rain messages — 2026-10-07
+
+User approved both previously proposed templates and requested exact below-threshold wording “พยากรณ์ฝนยังไม่ถึงเกณฑ์” without “แจ้งเตือน”.
+
+- Cron now sends a rain warning when existing strong-risk or daily-peak fallback criteria qualify; otherwise it sends a daily rain summary. Existing thresholds and user-location targets are retained.
+- Rain heading: “🌧️ แจ้งเตือนฝนวันนี้”; qualifying line: “มีโอกาสฝนถึงเกณฑ์แจ้งเตือน”; below-threshold heading: “🌤️ สรุปฝนวันนี้”; exact line: “พยากรณ์ฝนยังไม่ถึงเกณฑ์”.
+- Both include location display name, Thai calendar date, available maximum rain probability, full-day precipitation total, advice, actual stored forecast retrieval time, and the production frontend link. Risk time windows appear only for qualifying rain. Full-day totals use today's daily record, or a complete 24-hour sum; missing values are omitted.
+- Stale forecasts, absent rain data and incomplete below-threshold evidence are skipped, never presented as a clear-day result. Existing recipient/location/day rain dedupe key is shared across both templates. Failed LINE pushes do not create a success record.
+- Expanded cron logs show send/skip/failure and forecast refresh/failure counts without sensitive recipient or coordinate values.
+- Validation: 30 relevant tests passed with 1 existing python_multipart warning. Covers both templates, original daily-peak fallback, daily deduplication, stale/missing/partial data, failed-push retry, location-local dates and actual update time, alongside existing rain risk and user-observation pipeline tests.
+- Preparing a backend-only deployment to weather-alert-cron; no manual real LINE push was invoked. Record source/deployment verification below.

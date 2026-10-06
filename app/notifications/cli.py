@@ -26,7 +26,8 @@ async def _main() -> None:
     print(f"User observation ingestion: {observation_counts['locations']} locations, "
           f"{observation_counts['created']} created, {observation_counts['failed']} failed")
     counts = await send_user_alerts()
-    print(f"{counts['sent']} sent, {counts['skipped']} skipped")
+    print(f"{counts['sent']} sent, {counts['skipped']} skipped, {counts['failed']} failed; "
+          f"{counts['refreshed']} locations refreshed, {counts['refresh_failed']} refresh failed")
 
 
 if __name__ == "__main__":

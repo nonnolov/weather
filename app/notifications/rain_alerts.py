@@ -1,13 +1,13 @@
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, timezone
 from zoneinfo import ZoneInfo
 
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models.forecast import ForecastRun, HourlyForecast
+from app.models.forecast import DailyForecast, ForecastRun, HourlyForecast
 from app.models.location import Location
 from app.models.notification import NotificationDelivery
 from app.models.user import User
@@ -23,7 +23,7 @@ async def send_rain_alert(
     recipient_id: str,
     client: LineClient,
 ) -> bool:
-    """Send one deduplicated rain-risk alert when a qualifying period exists."""
+    """Send one daily rain alert or below-threshold summary per recipient/location."""
     location = await db.scalar(select(Location).where(Location.id == run.location_id))
     if location is None:
         return False
@@ -33,6 +33,11 @@ async def send_rain_alert(
     except Exception:
         tz = ZoneInfo("Asia/Bangkok")
     alert_date = datetime.now(tz).date()
+    retrieved = run.retrieved_at
+    if retrieved.tzinfo is None:
+        retrieved = retrieved.replace(tzinfo=timezone.utc)
+    if retrieved.astimezone(tz).date() != alert_date:
+        return False  # Never present a stale forecast as today's fresh summary.
 
     hourly = list(
         (
@@ -43,7 +48,23 @@ async def send_rain_alert(
             )
         ).all()
     )
-    timezone_name = location.timezone or "Asia/Bangkok"
+    daily = list((await db.scalars(
+        select(DailyForecast).where(
+            DailyForecast.forecast_run_id == run.id,
+            DailyForecast.forecast_date == alert_date,
+        )
+    )).all())
+    today_hours = [
+        row for row in hourly
+        if (row.valid_time if row.valid_time.tzinfo else row.valid_time.replace(tzinfo=timezone.utc))
+        .astimezone(tz).date() == alert_date
+    ]
+    if not any(
+        row.precipitation is not None or row.precipitation_probability is not None
+        for row in today_hours
+    ):
+        return False  # Missing data must not be described as below threshold.
+    timezone_name = tz.key
     periods = find_rain_risk_periods(
         hourly,
         target_date=alert_date,
@@ -56,10 +77,15 @@ async def send_rain_alert(
             target_date=alert_date,
             timezone_name=timezone_name,
         )
-        if peak is None:
-            return False
-        periods = [peak]
-        daily_peak = True
+        if peak is not None:
+            periods = [peak]
+            daily_peak = True
+
+    if not periods and (
+        len(today_hours) < 24
+        or any(row.precipitation is None or row.precipitation_probability is None for row in today_hours)
+    ):
+        return False  # Incomplete rain data cannot support a below-threshold claim.
 
     dedupe_key = f"rain:{run.location_id}:{alert_date.isoformat()}"
     await _lock_dedupe_key(db, dedupe_key, recipient_id)
@@ -80,6 +106,8 @@ async def send_rain_alert(
         alert_date=alert_date,
         location_name=_location_display_name(location),
         daily_peak=daily_peak,
+        hourly_rows=hourly,
+        daily_rows=daily,
     )
     await client.push_text(recipient_id, message)
     db.add(
@@ -95,7 +123,7 @@ async def send_rain_alert(
 
 
 async def refresh_and_send_rain_alerts(db: AsyncSession, client: LineClient) -> dict[str, int]:
-    """Refresh each active user location once, then send qualifying rain alerts."""
+    """Refresh each user location once, then send daily rain summaries."""
     from app.ingestion.service import IngestionError, ingest_forecast_for_location
 
     location_ids = list(

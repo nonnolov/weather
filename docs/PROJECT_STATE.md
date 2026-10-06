@@ -543,3 +543,8 @@ See `docs/RAILWAY_HANDOFF.md` for current production deployment details; older s
 - Initial private backfill: 4 locations, 672 records with precipitation values; repeat creates zero records; no duplicate groups. Existing seed history retained; seed backfill requires explicit `--scope seeds`.
 - Relevant tests: 30 passed, 1 existing warning. API/frontend health checks returned 200.
 - Actual new cron execution and LINE delivery remain pending verification. This collection does not automatically train or apply ML.
+
+
+## Daily LINE summaries — 2026-10-07 (latest)
+
+User approved a daily 06:00 LINE message for both qualifying rain and below-threshold days. The latter uses “🌤️ สรุปฝนวันนี้” and exact wording “พยากรณ์ฝนยังไม่ถึงเกณฑ์”. Both templates use location-specific current-day data and actual forecast update time. Existing rain criteria and daily deduplication are preserved. Stale or insufficient data is skipped rather than described as below threshold. Relevant tests: 30 passed, 1 existing warning. See RAILWAY_HANDOFF for production release verification.

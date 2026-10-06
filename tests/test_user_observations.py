@@ -100,7 +100,7 @@ async def test_morning_pipeline_commits_observations_before_alerts():
 
     async def alerts():
         events.append("alerts")
-        return {"sent": 0, "skipped": 1}
+        return {"sent": 0, "skipped": 1, "failed": 0, "refreshed": 2, "refresh_failed": 0}
 
     db.commit = AsyncMock(side_effect=commit)
     context = MagicMock()
