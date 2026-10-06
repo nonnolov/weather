@@ -198,3 +198,8 @@ User approved both previously proposed templates and requested exact below-thres
 
 
 Daily-message release verified: source `70eccf9` pushed to `feature/frontend-ux`; backend-only cron deployment `174bdfbc-b1e1-465a-945f-ceabd8d630e0` is SUCCESS. Start command remains `python -m app.notifications.cli` and schedule `0 23 * * *` UTC (06:00 Bangkok). API health returned 200. No real LINE test message was sent; first scheduled use of these templates remains pending 06:00 execution.
+
+
+## Authorized real LINE template test — 2026-10-07
+
+User explicitly requested sending both message conditions to registered logged-in users. A private read-only user/location query found 1 active bound LINE recipient. Sent two clearly labeled test messages using the production formatter from source 70eccf9: qualifying rain (sample 80%, 12 mm, 14:00–17:00) and below threshold (sample 20%, 0.5 mm). Both begin “🧪 ข้อความทดสอบ — ข้อมูลฝนตัวอย่าง ไม่ใช่พยากรณ์จริง”. LINE Messaging API accepted both requests with HTTP 200; zero failures. API acceptance does not prove handset receipt or reading. No notification delivery/dedupe record, forecast write or cron invocation was made, preserving the scheduled 06:00 delivery. Credentials stayed in process memory and were not printed or stored in source. Recipient identifiers and coordinates were not exposed.
