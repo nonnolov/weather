@@ -84,3 +84,12 @@ The user confirmed the production GPS forecast works after the API proxy fix.
 - ESLint excludes generated `next-env.d.ts` and uses a named config export.
 - Verification: TypeScript and production build passed. ESLint passed after excluding the generated file. Live preview verification follows after pushing this feature branch.
 - Production rollout remains pending review of this frontend change.
+
+### UI preview verification
+
+- Feature implementation commit: `848bd3c`; pushed to `origin/feature/frontend-ux`.
+- Final TypeScript and ESLint checks passed. Vercel preview build is Ready (`dpl_DYoobBGyFnJPbqPtBf9SZTcbJvoi`, 41 seconds), confirming the final source builds on Vercel.
+- Preview: https://weather-ckmsetfyz-weather-9c1f.vercel.app
+- Branch alias: https://weather-git-feature-frontend-ux-weather-9c1f.vercel.app
+- Browser inspection reached Vercel SSO, which returned `FUNCTION_INVOCATION_FAILED`. Visual, live sample-loading, language/theme and mobile browser checks remain unverified. Deployment protection was not changed.
+- Next step: review the preview using an authorized Vercel session, then approve merging the UI branch into the production branch. Production frontend has not been updated with these UI changes.
