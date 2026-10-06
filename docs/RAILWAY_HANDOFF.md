@@ -126,3 +126,17 @@ Illustrated UI implementation commit: `c148b93`, pushed. Vercel deployment `dpl_
 The user completed Railway CLI browser login to the new account. `railway list --json` now exposes project `weather` (`71e0e499-6a9d-46c5-a552-b9a9da0e1928`) and Production. The Windows repository was linked to this project/environment and `weather-api`.
 
 Aggregate DB audit still cannot run: Postgres has no public DATABASE_PUBLIC_URL, and private `railway connect --tunnel-only` requires a local SSH key, which is absent. No TCP proxy, SSH key, schema change or production deploy was created. The staged LINE Login Channel ID change remains pending. Next database check should use private SSH/tunnel access, with only aggregate counts returned and no recipient IDs or coordinates in logs.
+
+## LINE configuration deployed and private readiness verified (2026-10-07, shortly after midnight)
+
+The user explicitly authorized completing the LINE deploy, SSH setup and post-06:00 verification.
+
+- Applied ONLY the staged API LINE_LOGIN_CHANNEL_ID change. Deployment `600785e7-98bc-4e6e-ab48-59a813d75497` is SUCCESS/Online. An invalid-token auth probe now returns expected 401 instead of 503. This proves the missing configuration is resolved, not a real user's LINE login.
+- Created a dedicated Ed25519 SSH key on Windows at `C:\Users\Nutchanon\.ssh\weather_railway_ed25519`, restricted the private file ACL to Nutchanon, and registered its public key as `weather-railway-PC`. No key contents are in this repository.
+- Native Windows OpenSSH binaries failed; Git's OpenSSH client works. Generated the dedicated config at `C:\Users\Nutchanon\.ssh\weather_railway_config` with alias `weather-api-railway`. Railway host key was accepted on the first connection and recorded; changed known host keys remain rejected.
+- Private SSH into the API container executed an aggregate DB query in a READ ONLY transaction. No public TCP proxy or DB tunnel was needed; no data was modified.
+- Verified counts: 3 users, all 3 with current locations; 3 distinct user locations; 0 LINE recipient candidates (the application's U-prefix criterion); 0 LINE candidates with forecasts; 0 notification deliveries.
+- Observations: 96 rows; latest timestamp 2026-10-05 16:00 UTC; 0 observations for the user current locations.
+- User action required for real delivery: open the production LIFF frontend via the intended LINE account, finish normal LINE sign-in, then use GPS again to bind that verified identity to a location. Browser fallback accounts do not receive LINE pushes. Do not fabricate recipient IDs, transfer browser identities blindly, or send unsolicited test messages.
+- Created a one-time ChatGPT automation to check the cron execution/logs on 2026-10-07 at 06:10 Asia/Bangkok and report the outcome in Thai without sensitive values. Scheduled execution is pending; no 06:00 success is claimed yet.
+- Cron logic and frontend production deployment were not changed. Accuracy for GPS still needs an explicitly scoped observation-ingestion extension.
