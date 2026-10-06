@@ -153,3 +153,7 @@ The user explicitly authorized deploying the new frontend to Production.
 - Post-promotion verification: stable root, `/api/backend/health`, `/api/backend/api/v1/locations`, `/api/backend/api/v1/forecast/1` all HTTP 200. Root HTML contains the new welcome UI and weather artwork. This is HTTP/source verification; real GPS/LINE browser and mobile visual checks are still user verification.
 - No backend deployment, schema change, LINE message or cron change was part of this frontend release.
 - Active development remains `feature/frontend-ux`. The older `phase-1-backend-foundation` branch has not yet incorporated this UI branch; do not release its older frontend without deliberately merging the new UI first.
+
+## Frontend Thai heading update (2026-10-07)
+
+User requested changing the Thai heading to “อากาศวันนี้ ใกล้คุณ”. Updated only that title in `frontend/app/page.tsx`; English heading and application logic are unchanged. Releasing the tracked frontend-only source to Vercel Production using the established isolated export workflow. Deployment verification follows below.
