@@ -159,3 +159,7 @@ The user explicitly authorized deploying the new frontend to Production.
 User requested changing the Thai heading to “อากาศวันนี้ ใกล้คุณ”. Updated only that title in `frontend/app/page.tsx`; English heading and application logic are unchanged. Releasing the tracked frontend-only source to Vercel Production using the established isolated export workflow. Deployment verification follows below.
 
 Heading release verified: source commit `d4623d9`; Production deployment `dpl_8upPfzYLB59Gu49WYEnWWHsKEMbs` passed build/typecheck/lint and was promoted. Stable frontend returned HTTP 200, with the requested new Thai heading present and the previous heading absent.
+
+## LINE recipient registration verified (2026-10-07, 00:36 Asia/Bangkok)
+
+Following the user's mobile LINE login/GPS retry, a private read-only aggregate DB audit found 5 users, 5 with current locations, 4 distinct current locations, and **1 LINE recipient candidate with a stored forecast**. This is up from zero before the retry. No LINE ID or coordinates were retrieved or recorded. Notification delivery count remains zero; no test push was sent. Data prerequisites for one LINE recipient are now present; actual delivery still depends on OA friendship/unblocked status, valid Messaging API credentials, qualifying rain conditions and the scheduled cron execution. User-location observation rows remain zero (seed observations total 96).
