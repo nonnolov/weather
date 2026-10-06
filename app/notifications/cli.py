@@ -5,7 +5,7 @@ import asyncio
 
 from app.core.config import settings
 from app.core.database import AsyncSessionLocal
-from app.ingestion.service import ingest_seed_observations
+from app.ingestion.service import ingest_user_observations
 from app.notifications.line_client import LineClient
 from app.notifications.rain_alerts import refresh_and_send_rain_alerts
 
@@ -21,9 +21,10 @@ async def send_user_alerts():
 
 async def _main() -> None:
     async with AsyncSessionLocal() as db:
-        observation_counts = await ingest_seed_observations(db)
+        observation_counts = await ingest_user_observations(db)
         await db.commit()
-    print(f"Observation ingestion: {sum(observation_counts.values())} created")
+    print(f"User observation ingestion: {observation_counts['locations']} locations, "
+          f"{observation_counts['created']} created, {observation_counts['failed']} failed")
     counts = await send_user_alerts()
     print(f"{counts['sent']} sent, {counts['skipped']} skipped")
 

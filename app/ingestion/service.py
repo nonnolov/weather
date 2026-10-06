@@ -99,6 +99,38 @@ async def ingest_seed_observations(
     }
 
 
+async def ingest_user_observations(
+    db: AsyncSession,
+    start_date: date | None = None,
+    end_date: date | None = None,
+) -> dict[str, int]:
+    """Collect each active current user location once, retrying a rolling week.
+
+    Keep seed ingestion available separately. Provider failures occur before
+    inserts and are counted so one unavailable area does not block alerts.
+    """
+    from app.models.user import User
+
+    end = end_date or (datetime.now(ZoneInfo("Asia/Bangkok")).date() - timedelta(days=1))
+    start = start_date or (end - timedelta(days=6))
+    if start > end:
+        raise IngestionError("start_date must be on or before end_date")
+    location_ids = select(User.current_location_id).where(User.current_location_id.is_not(None))
+    locations = list((await db.scalars(
+        select(Location).where(
+            Location.id.in_(location_ids), Location.is_active.is_(True)
+        ).order_by(Location.id)
+    )).all())
+    counts = {"locations": len(locations), "created": 0, "failed": 0}
+    for location in locations:
+        try:
+            created = await ingest_observations_for_location(db, location, start, end)
+            counts["created"] += created
+        except IngestionError:
+            counts["failed"] += 1
+    return counts
+
+
 async def ingest_forecast_for_location(
     db: AsyncSession,
     location: Location,
