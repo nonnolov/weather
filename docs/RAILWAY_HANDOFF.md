@@ -163,3 +163,17 @@ Heading release verified: source commit `d4623d9`; Production deployment `dpl_8u
 ## LINE recipient registration verified (2026-10-07, 00:36 Asia/Bangkok)
 
 Following the user's mobile LINE login/GPS retry, a private read-only aggregate DB audit found 5 users, 5 with current locations, 4 distinct current locations, and **1 LINE recipient candidate with a stored forecast**. This is up from zero before the retry. No LINE ID or coordinates were retrieved or recorded. Notification delivery count remains zero; no test push was sent. Data prerequisites for one LINE recipient are now present; actual delivery still depends on OA friendship/unblocked status, valid Messaging API credentials, qualifying rain conditions and the scheduled cron execution. User-location observation rows remain zero (seed observations total 96).
+
+
+## Automatic user-location history (2026-10-07)
+
+User authorized finishing automatic historical collection for user locations.
+
+- Added ingest_user_observations: distinct active User.current_location_id values, shared locations fetched once; unused seeds are not automatically collected. Retry seven completed Bangkok dates through yesterday; retain existing history and insert unique location/timestamp rows.
+- Provider errors and invalid timestamps are counted per location. Other locations and subsequent forecast/alerts continue. Database errors remain fatal. Forecast targets, rain thresholds and LINE deduplication are unchanged.
+- Alert CLI collects this scope and commits before refresh/send. Manual observations CLI defaults to users; --scope seeds remains available.
+- Regression validation: 30 passed, 1 existing python_multipart warning. Covers unique/active locations, idempotency, provider failure, rolling dates, empty scope, invalid dates and commit-before-alert ordering, plus existing ingestion/evaluation/correction/notification tests.
+- Private provider probe: 4 distinct current user locations, 672 hourly records; all have precipitation and temperature values; no empty hours or provider failures.
+- Executed reviewed ingestion source through private API SSH without changing container files or sending notifications: first pass created 672, second created 0; 672 user observations with rain values; zero duplicate groups. Existing 96 seed rows retained. No schema change, public proxy or secret output.
+- Source commit dffb1f5 pushed to feature/frontend-ux. Preparing a tracked-backend-only cron release. Record deployment outcome below before claiming automatic production collection ready.
+- Active branch remains feature/frontend-ux; do not release the older phase-1 branch without merging current work. Historical data are provider model/reanalysis output, not station truth. Matching forecast/observation timestamps and future scheduled execution remain necessary for accuracy validation.
