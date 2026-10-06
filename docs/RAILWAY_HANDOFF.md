@@ -109,3 +109,14 @@ The user requested an elegant frontend with illustrations and authorized impleme
 Verification for the illustrated design: `npm.cmd run typecheck`, `npm.cmd run lint`, `next build` and `git diff --check` all passed. Build route `/` is 10.8 kB with 113 kB first-load JS. This confirms compilation, not live visual behavior.
 
 Illustrated UI implementation commit: `c148b93`, pushed. Vercel deployment `dpl_3JxgFbjtKxQovPPPjycMDhB5jD8e` is Ready after a 41-second build. Review URL: https://weather-badl5l0pc-weather-9c1f.vercel.app . Production is unchanged; visual review remains pending Vercel preview access.
+
+## Pre-cron readiness audit (2026-10-06, before midnight)
+
+- Railway plugin verified new Production: API, Postgres and Hermes Online; cron Ready with schedule `0 23 * * *`; no recent failures. No successful scheduled delivery has yet been demonstrated.
+- API service lacks `LINE_LOGIN_CHANNEL_ID`. A deliberate invalid-token request returned HTTP 503, "LINE Login channel is not configured." This is a confirmed blocker to LIFF identity verification, even though browser GPS forecasts work.
+- Prepared a staged API-only addition of `LINE_LOGIN_CHANNEL_ID` using the non-secret channel ID `2011847040` recorded in PROJECT_STATE. This has NOT been applied or deployed. Confirm it is the current LINE Login channel before applying; applying requires explicit production deploy authorization.
+- Recipient count and current-location bindings remain unknown. Windows Railway CLI is logged into the OLD account and lists only `victorious-learning`; attempts to query new-project DB variables were denied. SSH also lacks a local key. Do not query the old database or create public access to work around this.
+- Source inspection: observations CLI and alert CLI call `ingest_seed_observations`, which ingests ONLY the four active seed locations. GPS user locations do not automatically receive observations through this path. User-only forecast refresh/send behavior remains unchanged.
+- Read-only archive probe for seed Chon Buri, 2026-10-05, with the current requested variables returned HTTP 200 and 24 hourly timestamps. Timestamp count does NOT prove every weather variable is non-null. Historical data are provider model/reanalysis output, not local station truth.
+- Protected UI preview `weather-badl5l0pc-weather-9c1f.vercel.app`: authenticated `vercel curl` verified health and forecast/1 HTTP 200. CLI generated its protection access credential internally; its value was not displayed or committed. Deployment protection remains enabled. Browser/mobile visual checks remain pending.
+- Next: apply the reviewed API LINE Login configuration after deploy approval; log Windows CLI into the new Railway account outside chat; run aggregate read-only recipient/observation checks. Then decide explicitly whether to extend observation ingestion to user locations without changing the ordered 06:00 workflow.
