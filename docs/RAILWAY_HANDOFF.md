@@ -140,3 +140,16 @@ The user explicitly authorized completing the LINE deploy, SSH setup and post-06
 - User action required for real delivery: open the production LIFF frontend via the intended LINE account, finish normal LINE sign-in, then use GPS again to bind that verified identity to a location. Browser fallback accounts do not receive LINE pushes. Do not fabricate recipient IDs, transfer browser identities blindly, or send unsolicited test messages.
 - Created a one-time ChatGPT automation to check the cron execution/logs on 2026-10-07 at 06:10 Asia/Bangkok and report the outcome in Thai without sensitive values. Scheduled execution is pending; no 06:00 success is claimed yet.
 - Cron logic and frontend production deployment were not changed. Accuracy for GPS still needs an explicitly scoped observation-ingestion extension.
+
+## Illustrated frontend released to Production (2026-10-07)
+
+The user explicitly authorized deploying the new frontend to Production.
+
+- Released frontend source from commit `1f4b0ed` on `feature/frontend-ux` (illustrated UI implementation `c148b93`).
+- Target: Vercel team `weather-9c1f`, project `weather` (`prj_K6LybtzdJhZhL4ajYrD0755JRJGV`), Production environment.
+- First direct frontend-directory CLI build failed because the project expects Root Directory `frontend`. Automatic approval review rejected uploading the entire repository root because that could include unrelated backend files. Resolved safely by exporting ONLY tracked `frontend/` files into an isolated release directory; no backend, local secrets, node_modules or local .next outputs were uploaded.
+- Production build passed TypeScript, lint and Next.js compilation. Staged deployment `dpl_9WRFsLA3XhcG5HGWk5uzUYQQ2pmH`, https://weather-eyw5u4hg3-weather-9c1f.vercel.app , was promoted after root/health/forecast checks returned HTTP 200.
+- Stable production URL: https://weather-iota-five-83.vercel.app
+- Post-promotion verification: stable root, `/api/backend/health`, `/api/backend/api/v1/locations`, `/api/backend/api/v1/forecast/1` all HTTP 200. Root HTML contains the new welcome UI and weather artwork. This is HTTP/source verification; real GPS/LINE browser and mobile visual checks are still user verification.
+- No backend deployment, schema change, LINE message or cron change was part of this frontend release.
+- Active development remains `feature/frontend-ux`. The older `phase-1-backend-foundation` branch has not yet incorporated this UI branch; do not release its older frontend without deliberately merging the new UI first.
