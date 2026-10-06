@@ -210,8 +210,9 @@ export default function Home() {
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [forecast, setForecast] = useState<ForecastRun | null>(null);
   const [location, setLocation] = useState<Location | null>(null);
-  const [gpsState, setGpsState] = useState<"idle" | "locating" | "success" | "error">("idle");
+  const [gpsState, setGpsState] = useState<"idle" | "locating" | "saving" | "forecasting" | "success" | "error">("idle");
   const [message, setMessage] = useState("");
+  const [seedLoading, setSeedLoading] = useState(false);
   const [lineUserId, setLineUserId] = useState<string | null>(null);
   const [theme, setTheme] = useState<"light" | "dark">("light");
   const [language, setLanguage] = useState<Language>(() => {
@@ -222,6 +223,33 @@ export default function Home() {
     return saved === "th" || saved === "en" ? saved : "th";
   });
   const t = translations[language];
+  const ux = language === "th" ? {
+    title: "อากาศรอบตัวคุณ", intro: "เตรียมพร้อมก่อนออกจากบ้าน",
+    start: "วันนี้อากาศเป็นอย่างไร?", description: "ดูอุณหภูมิ โอกาสฝน และพยากรณ์ 7 วันสำหรับพื้นที่ที่คุณอยู่",
+    privacy: "เบราว์เซอร์จะขออนุญาตใช้ตำแหน่งของคุณ", sample: "หรือดูตัวอย่างพยากรณ์",
+    choose: "เลือกพื้นที่ตัวอย่าง", locating: "กำลังหาตำแหน่ง", saving: "กำลังระบุพื้นที่",
+    forecasting: "กำลังโหลดพยากรณ์", retry: "ลองอีกครั้ง", update: "อัปเดตตำแหน่ง",
+    hourly: "6 ชั่วโมงข้างหน้า", source: "ข้อมูลจาก Open-Meteo", error: "โหลดไม่สำเร็จ",
+    timeout: "หาตำแหน่งไม่ทันเวลา ลองอีกครั้งในพื้นที่ที่รับสัญญาณ GPS ได้",
+    unavailable: "ยังหาตำแหน่งไม่ได้ กรุณาเปิดบริการตำแหน่งแล้วลองอีกครั้ง",
+    lineHint: "เปิดผ่าน LINE เพื่อเชื่อมบัญชีสำหรับการแจ้งเตือน", sampleHint: "กำลังดูพื้นที่ตัวอย่าง ไม่ได้เปลี่ยนตำแหน่งของคุณ",
+    low: "ต่ำสุด", high: "สูงสุด", loadingSample: "กำลังโหลดพื้นที่ตัวอย่าง"
+  } : {
+    title: "Weather around you", intro: "Ready for the day ahead",
+    start: "What does today look like?", description: "Temperature, rain chances and a 7-day outlook for wherever you are.",
+    privacy: "Your browser will ask for permission to use your location.", sample: "Or explore a sample forecast",
+    choose: "Choose a sample area", locating: "Finding your location", saving: "Identifying your area",
+    forecasting: "Loading your forecast", retry: "Try again", update: "Update location",
+    hourly: "Next 6 hours", source: "Data from Open-Meteo", error: "Could not load",
+    timeout: "Location search timed out. Try again where GPS reception is available.",
+    unavailable: "Location is unavailable. Enable location services and try again.",
+    lineHint: "Open in LINE to connect your account for alerts.", sampleHint: "Sample area; your saved location has not changed.",
+    low: "Low", high: "High", loadingSample: "Loading sample forecast"
+  };
+  const isGpsBusy = ["locating", "saving", "forecasting"].includes(gpsState);
+  const busy = isGpsBusy || seedLoading;
+  const progress = gpsState === "locating" ? ux.locating : gpsState === "saving" ? ux.saving : ux.forecasting;
+  const sampleLocations = locations.filter((item) => ["chon-buri-city", "pattaya", "si-racha", "bang-lamung"].includes(item.slug));
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -263,7 +291,7 @@ export default function Home() {
     getLocations().then((data) => {
       const active = data.filter((item) => item.is_active);
       setLocations(active);
-      if (active[0]) setSelectedId(active[0].id);
+      // A placeholder lets the first sample be selected without a second change.
     }).catch(() => setLocations([]));
   }, []);
 
@@ -288,7 +316,8 @@ export default function Home() {
 
   const activeUserId = lineUserId ?? userId;
 
-  const useGps = () => {
+  const handleGps = () => {
+    setSelectedId(null);
     if (!navigator.geolocation) {
       setGpsState("error");
       setMessage(t.gpsUnsupported);
@@ -299,11 +328,13 @@ export default function Home() {
     navigator.geolocation.getCurrentPosition(
       async (position) => {
         try {
+          setGpsState("saving");
           const result = await setUserLocationFromGps(activeUserId, position.coords.latitude, position.coords.longitude);
-          setLocation(result.location);
+          setGpsState("forecasting");
           const refresh = await refreshUserForecast(activeUserId);
-          setLocation((current) => current ? { ...current, timezone: refresh.timezone } : current);
           const data = await getUserForecast(activeUserId);
+          // Publish location and forecast together so old weather never labels a new place.
+          setLocation({ ...result.location, timezone: refresh.timezone });
           setForecast(data);
           setGpsState("success");
           setMessage(t.loaded);
@@ -312,9 +343,9 @@ export default function Home() {
           setMessage(error instanceof ApiError && error.status === 502 ? t.locationUnavailable : t.forecastError);
         }
       },
-      () => {
+      (error) => {
         setGpsState("error");
-        setMessage(t.permissionDenied);
+        setMessage(error.code === 1 ? t.permissionDenied : error.code === 3 ? ux.timeout : ux.unavailable);
       },
       { enableHighAccuracy: true, timeout: 10000, maximumAge: 300000 },
     );
@@ -322,13 +353,19 @@ export default function Home() {
 
   const selectSeedLocation = async (id: number) => {
     setSelectedId(id);
-    setForecast(null);
+    setSeedLoading(true);
+    setMessage("");
     try {
       const data = await getLatestForecast(id);
       setForecast(data);
       setLocation(locations.find((item) => item.id === id) ?? null);
+      setGpsState("idle");
+      setMessage(ux.sampleHint);
     } catch {
+      setGpsState("error");
       setMessage(t.noStored);
+    } finally {
+      setSeedLoading(false);
     }
   };
 
@@ -339,40 +376,48 @@ export default function Home() {
 
   return <>
     {liffId && <Script src="https://static.line-scdn.net/liff/edge/2/sdk.js" strategy="afterInteractive" onLoad={initializeLiff} />}
-    <main className={"dashboard-shell" + (forecast && location ? " has-forecast" : "")}>
+    <main className={"dashboard-shell" + (forecast && location ? " has-forecast" : "")} aria-busy={busy}>
     <header className="dashboard-header">
-      <div><p className="eyebrow">{t.monitoring}</p><h1>{t.dashboard}</h1></div>
+      <div><p className="eyebrow">WEATHER · {ux.intro}</p><h1>{ux.title}</h1></div>
       <div>
-        {location && <div className="header-location"><div><span aria-hidden="true">⌖</span><strong>{location.subdistrict ?? location.name} · {location.district ?? "—"} · {location.province ?? "—"}</strong><small>{t.retrieved} {forecast ? timeLabel(forecast.retrieved_at, location.timezone) : "—"} · {location.timezone}</small></div><button className="header-location-action" type="button" onClick={useGps} disabled={gpsState === "locating"}>{gpsState === "locating" ? "…" : "GPS"}</button></div>}
+        {location && <div className="header-location"><div><span aria-hidden="true">⌖</span><strong>{location.subdistrict ?? location.name} · {location.district ?? "—"} · {location.province ?? "—"}</strong><small>{t.retrieved} {forecast ? timeLabel(forecast.retrieved_at, location.timezone) : "—"} · {location.timezone}</small></div><button className="header-location-action" type="button" onClick={handleGps} disabled={busy}>{isGpsBusy ? "…" : ux.update}</button></div>}
         <div className="header-actions"><button className="utility-button" type="button" onClick={() => setTheme(theme === "light" ? "dark" : "light")} aria-label={theme === "light" ? "Switch to dark theme" : "Switch to light theme"}>{theme === "light" ? "Dark" : "Light"}</button><button className="utility-button" type="button" onClick={() => setLanguage(language === "th" ? "en" : "th")} aria-label={t.lang}>{language === "th" ? "English" : "ไทย"}</button></div>
-        <p className={"connection " + health}><span aria-hidden="true" />Backend {health === "loading" ? t.checking : health === "online" ? t.online : t.offline}</p>
+        {health !== "online" && <p className={"connection " + health}><span aria-hidden="true" />{health === "loading" ? t.checking : t.offline}</p>}
       </div>
     </header>
 
-    <section className="card controls location-controls" aria-labelledby="location-heading">
-      <div>
-        <h2 id="location-heading">{t.yourLocation}</h2>
-        <p>{t.gpsDescription}</p>
-      </div>
-      <button onClick={useGps} disabled={gpsState === "locating"}>
-        {gpsState === "locating" ? t.detecting : t.useLocation}
+    {!forecast && <section className="card welcome-card" aria-labelledby="location-heading">
+      <div className="welcome-illustration" aria-hidden="true"><svg viewBox="0 0 120 100" fill="none"><circle cx="77" cy="31" r="22" fill="currentColor" opacity=".3" /><path d="M24 73h65a16 16 0 0 0 1-32 26 26 0 0 0-50-2 18 18 0 0 0-16 34Z" stroke="currentColor" strokeWidth="3" /><path d="m44 84-3 7m20-7-3 7m20-7-3 7" stroke="currentColor" strokeWidth="3" strokeLinecap="round" /></svg></div>
+      <p className="eyebrow">{t.yourLocation}</p>
+      <h2 id="location-heading">{ux.start}</h2>
+      <p className="welcome-description">{ux.description}</p>
+      <button className="gps-primary" type="button" onClick={handleGps} disabled={busy}>
+        {isGpsBusy ? <span className="spinner" aria-hidden="true" /> : <span aria-hidden="true">⌖</span>}
+        {isGpsBusy ? progress : t.useLocation}
       </button>
-      {location && <p className="location-meta">{location.subdistrict ?? location.name} · {location.district ?? "—"} · {location.province ?? "—"} · {location.latitude.toFixed(4)}°, {location.longitude.toFixed(4)}°</p>}
-    </section>
-
-    {message && <p className="status-message" aria-live="polite">{message}</p>}
-
-    {!location && locations.length > 0 && <section className="card controls">
-      <div><h2>{t.seedLocations}</h2><p>{t.seedDescription}</p></div>
-      <label className="select-label">{t.monitoredLocation}
-        <select value={selectedId ?? ""} onChange={(event) => selectSeedLocation(Number(event.target.value))}>
-          {locations.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}
-        </select>
-      </label>
+      <p className="permission-note">{ux.privacy}</p>
     </section>}
 
-    {forecast && location && <p className="location-meta forecast-meta">{location.name} · {location.timezone}</p>}
-    {!forecast && <section className="card message"><h2>{t.noForecast}</h2><p>{t.allowGps}</p></section>}
+    {busy ? <section className="status-panel" role="status" aria-live="polite">
+      <span className="spinner" aria-hidden="true" />
+      <div><strong>{seedLoading ? ux.loadingSample : progress}</strong>
+      {isGpsBusy && <ol className="progress-steps" aria-label={progress}>
+        {[ux.locating, ux.saving, ux.forecasting].map((step, index) => <li key={step} className={index <= ["locating", "saving", "forecasting"].indexOf(gpsState) ? "active" : ""}>{step}</li>)}
+      </ol>}</div>
+    </section> : message && <div className={"status-panel" + (gpsState === "error" ? " status-error" : "")} role={gpsState === "error" ? "alert" : "status"}>
+      <p>{message === t.lineUnavailable ? ux.lineHint : message}</p>
+      {gpsState === "error" && <button type="button" className="retry-button" onClick={() => selectedId !== null ? selectSeedLocation(selectedId) : handleGps()}>{ux.retry}</button>}
+    </div>}
+
+    {sampleLocations.length > 0 && <details className="sample-picker">
+      <summary>{ux.sample}</summary>
+      <label className="select-label">{ux.choose}
+        <select value={selectedId ?? ""} disabled={busy} onChange={(event) => selectSeedLocation(Number(event.target.value))}>
+          <option value="" disabled>{ux.choose}</option>
+          {sampleLocations.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}
+        </select>
+      </label>
+    </details>}
 
     {forecast && location && <div className="forecast-layout"><section className="summary-grid" aria-label={t.forecast7}>
       <article className="card primary-summary"><p className="eyebrow">{t.nextHour}{summary ? " · " + timeLabel(summary.valid_time, location.timezone) : ""}</p><strong>{summary ? value(summary.temperature_2m, "°C") : "—"}</strong><p>{weather(summary?.weather_code ?? null, language)}</p></article>
@@ -383,6 +428,15 @@ export default function Home() {
     </section>
     <TemperatureTrend hourly={forecast.hourly} timeZone={location.timezone} language={language} />
     <RainTrend hourly={forecast.hourly} timeZone={location.timezone} language={language} />
+    <section className="card hourly-card" aria-labelledby="hourly-heading">
+      <div className="section-heading"><h2 id="hourly-heading">{ux.hourly}</h2></div>
+      <div className="hourly-list">{next24Hours(forecast.hourly).slice(0, 6).map((hour) => <article key={hour.id}>
+        <time dateTime={hour.valid_time}>{timeLabel(hour.valid_time, location.timezone)}</time>
+        <strong>{value(hour.temperature_2m, "°")}</strong>
+        <span>{value(hour.precipitation_probability, "%")}</span>
+        <small>{t.rainChance}</small>
+      </article>)}</div>
+    </section>
     <section className="forecast-card" aria-labelledby="forecast-heading">
       <div className="section-heading"><div><h2 id="forecast-heading">{t.forecast7}</h2><p>{t.retrieved} {timeLabel(forecast.retrieved_at, location.timezone)} · {forecast.provider.replaceAll("_", " ")}</p></div></div>
       <div className="forecast-list">{forecast.daily.slice(0, 7).map((day) => {
@@ -399,6 +453,7 @@ export default function Home() {
         </article>;
       })}</div>
     </section></div>}
+    <footer className="dashboard-footer"><span>{ux.source}</span><span>{lineUserId ? t.connectedLine : ux.lineHint}</span></footer>
     </main>
   </>;
 }

@@ -69,3 +69,18 @@ The production frontend's `/api/backend/health` and `/api/backend/api/v1/locatio
 - Ignored Vercel local metadata, environment files, and TypeScript build cache; kept `.env.example` available as a tracked template.
 - Local verification: `npm.cmd run typecheck` and `node node_modules/next/dist/bin/next build` both exited 0.
 - Production verification: Vercel deployment `dpl_EpHggStPB6VNAmce7kNaEn883fvz` was Ready. Through the stable frontend URL, `/api/backend/health`, `/api/backend/api/v1/locations`, and `/api/backend/api/v1/forecast/1` all returned 200. The GPS POST route was checked using an empty invalid body (expected 422), without creating a test user or location. Real browser GPS/LINE flow still requires a user retry.
+
+
+## Frontend UI/UX improvement (2026-10-06)
+
+The user confirmed the production GPS forecast works after the API proxy fix.
+
+- Work branch: `feature/frontend-ux`, based on `1af361a`.
+- Added a focused welcome screen and prominent GPS action, permission explanation, three loading phases, specific GPS errors and retries.
+- Location and forecast are displayed together only after successful loading, preventing stale data from being labelled with a new location.
+- Sample forecasts are available in a collapsible selector containing only the four seed areas. Selecting a sample does not update the user's saved location.
+- Added a six-hour temperature/rain outlook; improved responsive seven-day rows, long location labels, focus targets and reduced-motion support. Thai/English and light/dark controls remain available.
+- API, LINE authentication and the user-location-only alert cron logic are unchanged.
+- ESLint excludes generated `next-env.d.ts` and uses a named config export.
+- Verification: TypeScript and production build passed. ESLint passed after excluding the generated file. Live preview verification follows after pushing this feature branch.
+- Production rollout remains pending review of this frontend change.
