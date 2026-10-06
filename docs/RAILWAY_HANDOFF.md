@@ -120,3 +120,9 @@ Illustrated UI implementation commit: `c148b93`, pushed. Vercel deployment `dpl_
 - Read-only archive probe for seed Chon Buri, 2026-10-05, with the current requested variables returned HTTP 200 and 24 hourly timestamps. Timestamp count does NOT prove every weather variable is non-null. Historical data are provider model/reanalysis output, not local station truth.
 - Protected UI preview `weather-badl5l0pc-weather-9c1f.vercel.app`: authenticated `vercel curl` verified health and forecast/1 HTTP 200. CLI generated its protection access credential internally; its value was not displayed or committed. Deployment protection remains enabled. Browser/mobile visual checks remain pending.
 - Next: apply the reviewed API LINE Login configuration after deploy approval; log Windows CLI into the new Railway account outside chat; run aggregate read-only recipient/observation checks. Then decide explicitly whether to extend observation ingestion to user locations without changing the ordered 06:00 workflow.
+
+## Windows Railway CLI account corrected (2026-10-06, late evening)
+
+The user completed Railway CLI browser login to the new account. `railway list --json` now exposes project `weather` (`71e0e499-6a9d-46c5-a552-b9a9da0e1928`) and Production. The Windows repository was linked to this project/environment and `weather-api`.
+
+Aggregate DB audit still cannot run: Postgres has no public DATABASE_PUBLIC_URL, and private `railway connect --tunnel-only` requires a local SSH key, which is absent. No TCP proxy, SSH key, schema change or production deploy was created. The staged LINE Login Channel ID change remains pending. Next database check should use private SSH/tunnel access, with only aggregate counts returned and no recipient IDs or coordinates in logs.
