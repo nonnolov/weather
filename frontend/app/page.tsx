@@ -1,6 +1,7 @@
 "use client";
 
 import Script from "next/script";
+import { WeatherArtwork } from "./WeatherArtwork";
 import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import {
   ApiError,
@@ -387,7 +388,7 @@ export default function Home() {
     </header>
 
     {!forecast && <section className="card welcome-card" aria-labelledby="location-heading">
-      <div className="welcome-illustration" aria-hidden="true"><svg viewBox="0 0 120 100" fill="none"><circle cx="77" cy="31" r="22" fill="currentColor" opacity=".3" /><path d="M24 73h65a16 16 0 0 0 1-32 26 26 0 0 0-50-2 18 18 0 0 0-16 34Z" stroke="currentColor" strokeWidth="3" /><path d="m44 84-3 7m20-7-3 7m20-7-3 7" stroke="currentColor" strokeWidth="3" strokeLinecap="round" /></svg></div>
+      <div className="welcome-illustration"><WeatherArtwork code={2} /></div>
       <p className="eyebrow">{t.yourLocation}</p>
       <h2 id="location-heading">{ux.start}</h2>
       <p className="welcome-description">{ux.description}</p>
@@ -420,7 +421,15 @@ export default function Home() {
     </details>}
 
     {forecast && location && <div className="forecast-layout"><section className="summary-grid" aria-label={t.forecast7}>
-      <article className="card primary-summary"><p className="eyebrow">{t.nextHour}{summary ? " · " + timeLabel(summary.valid_time, location.timezone) : ""}</p><strong>{summary ? value(summary.temperature_2m, "°C") : "—"}</strong><p>{weather(summary?.weather_code ?? null, language)}</p></article>
+      <article className="card primary-summary">
+        <div className="weather-hero-copy">
+          <p className="eyebrow">{t.nextHour}{summary ? " · " + timeLabel(summary.valid_time, location.timezone) : ""}</p>
+          <strong className="hero-temperature">{summary ? value(summary.temperature_2m, "°") : "—"}</strong>
+          <p className="hero-condition">{weather(summary?.weather_code ?? null, language)}</p>
+          <p className="hero-outlook">{language === "th" ? "โอกาสฝน " : "Rain chance "}{summary ? value(summary.precipitation_probability, "%") : "—"} · {language === "th" ? "พยากรณ์สำหรับพื้นที่ของคุณ" : "Your local outlook"}</p>
+        </div>
+        <div className="hero-art"><WeatherArtwork code={summary?.weather_code ?? null} /></div>
+      </article>
       <article className="card metric rain-probability"><span>{t.rainChance}</span><strong>{summary ? value(summary.precipitation_probability, "%") : "—"}</strong></article>
       <article className="card metric rainfall"><span>{t.precip}</span><strong>{summary ? value(summary.precipitation, " mm") : "—"}</strong></article>
       <article className="card metric"><span>{t.wind}</span><strong>{summary ? value(summary.wind_speed_10m, " km/h") : "—"}</strong></article>
@@ -432,7 +441,7 @@ export default function Home() {
       <div className="section-heading"><h2 id="hourly-heading">{ux.hourly}</h2></div>
       <div className="hourly-list">{next24Hours(forecast.hourly).slice(0, 6).map((hour) => <article key={hour.id}>
         <time dateTime={hour.valid_time}>{timeLabel(hour.valid_time, location.timezone)}</time>
-        <strong>{value(hour.temperature_2m, "°")}</strong>
+        <WeatherArtwork code={hour.weather_code} compact /><strong>{value(hour.temperature_2m, "°")}</strong>
         <span>{value(hour.precipitation_probability, "%")}</span>
         <small>{t.rainChance}</small>
       </article>)}</div>
@@ -444,7 +453,7 @@ export default function Home() {
         const rangeStart = day.temperature_2m_min === null ? 0 : ((day.temperature_2m_min - dailyMin) / Math.max(dailyMax - dailyMin, 1)) * 100;
         const rangeWidth = day.temperature_2m_min === null || day.temperature_2m_max === null ? 0 : ((day.temperature_2m_max - day.temperature_2m_min) / Math.max(dailyMax - dailyMin, 1)) * 100;
         return <article className="forecast-day" key={day.id}>
-          <div><strong>{dateLabel(day.forecast_date, language)}</strong><span>{weather(day.weather_code, language)}</span></div>
+          <div className="daily-condition"><WeatherArtwork code={day.weather_code} compact /><strong>{dateLabel(day.forecast_date, language)}</strong><span>{weather(day.weather_code, language)}</span></div>
           <div className="temperatures"><span>{value(day.temperature_2m_min, "°")}</span><div className="temperature-range" style={{ "--range-start": `${rangeStart}%`, "--range-width": `${rangeWidth}%` } as CSSProperties} aria-label={`${value(day.temperature_2m_min, "°")} to ${value(day.temperature_2m_max, "°")}`} /><strong>{value(day.temperature_2m_max, "°")}</strong></div>
           <div className="daily-rain-probability"><span>{t.maxRainChance}</span><strong>{value(rainRisk.maxProbability, "%")}</strong></div>
           <div><span>{t.rainRiskPeriod}</span><strong>{rainRisk.period ?? "—"}</strong></div>

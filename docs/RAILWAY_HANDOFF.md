@@ -93,3 +93,17 @@ The user confirmed the production GPS forecast works after the API proxy fix.
 - Branch alias: https://weather-git-feature-frontend-ux-weather-9c1f.vercel.app
 - Browser inspection reached Vercel SSO, which returned `FUNCTION_INVOCATION_FAILED`. Visual, live sample-loading, language/theme and mobile browser checks remain unverified. Deployment protection was not changed.
 - Next step: review the preview using an authorized Vercel session, then approve merging the UI branch into the production branch. Production frontend has not been updated with these UI changes.
+
+## Illustrated frontend design (2026-10-06, evening)
+
+The user requested an elegant frontend with illustrations and authorized implementation.
+
+- Continued on `feature/frontend-ux`.
+- Added `frontend/app/WeatherArtwork.tsx`: lightweight decorative SVG illustrations for clear, cloudy, rainy, stormy, snowy and foggy forecasts. Text remains the accessible weather description; no new image service or dependency.
+- Reworked the welcome composition, forecast hero, hourly strip and daily cards with a cream/navy palette, subtle borders/shadows, larger rounded corners and dark-theme colors.
+- Mobile uses a horizontally scrollable hourly strip, two-column metrics and stacked charts/daily rows. Safe-area spacing remains supported.
+- Preserved GPS/API/LINE flows and existing user-location-only cron logic.
+- No production deployment is authorized by this design change; preview review is still required.
+- Previous preview access remains blocked by Vercel SSO errors. Do not claim live browser or mobile verification until those checks succeed.
+
+Verification for the illustrated design: `npm.cmd run typecheck`, `npm.cmd run lint`, `next build` and `git diff --check` all passed. Build route `/` is 10.8 kB with 113 kB first-load JS. This confirms compilation, not live visual behavior.
