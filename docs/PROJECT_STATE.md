@@ -23,46 +23,15 @@ Build a weather forecasting system that provides location-based forecasts, weath
 
 **Current HEAD:**
 
-`f15c9ed refactor: remove seed alert scheduler path`
+`202f278 docs: record Railway production handoff`
 
-**Remote tracking:**
+The branch is synchronized with `origin/phase-1-backend-foundation`. The working tree was clean after the handoff commit was pushed on 2026-10-06.
 
-`origin/phase-1-backend-foundation`
-
-Current branch is synchronized with the remote branch.
-
-**Current working tree is dirty.**
-
-Known uncommitted changes:
-
-```text
-frontend/app/globals.css
-frontend/app/page.tsx
-```
-
-These files contain local work that must NOT be discarded.
-
-There are currently no known untracked files other than this project-state documentation while it is being added.
+For current Railway production state and next operational checks, read [RAILWAY_HANDOFF.md](RAILWAY_HANDOFF.md).
 
 ### Important Git rule
 
-Never discard the existing uncommitted frontend work unless explicitly instructed.
-
-Do not run:
-
-```text
-git reset --hard
-git clean -fd
-git restore frontend/app/page.tsx
-git restore frontend/app/globals.css
-```
-
-unless explicitly requested.
-
-Do not assume the working tree is clean.
-
----
-
+Preserve any uncommitted user work found in a future session. Inspect `git status` before editing. Do not run destructive cleanup or discard user changes unless explicitly requested.
 ## 3. Repository / Development Direction
 
 The project is currently developed from GitHub.
@@ -263,35 +232,9 @@ Frontend changes should remain scoped to the requested UI task.
 
 ## 9. Current Frontend Work
 
-The current working tree contains uncommitted changes in:
+The last verified repository inspection on 2026-10-06 found a clean working tree; there were no pending edits to `frontend/app/page.tsx` or `frontend/app/globals.css`.
 
-```text
-frontend/app/page.tsx
-frontend/app/globals.css
-```
-
-These changes are local work and have not been committed yet.
-
-Do not overwrite or discard them.
-
-A previous frontend redesign was associated with:
-
-`refactor: Redesign frontend with Liwan-inspired visual system`
-
-However, an earlier commit:
-
-`c20c489243f09454b59f7758f5f457206717bdc8`
-
-is NOT the current HEAD.
-
-Current HEAD is:
-
-`f15c9ed refactor: remove seed alert scheduler path`
-
-Therefore, do not describe `c20c489` as the current repository state.
-
----
-
+The earlier frontend redesign and its visual direction remain useful historical context. Verify the live repository before treating any frontend change as pending.
 ## 10. UI Design Direction
 
 The frontend has been moving toward a distinctive visual system rather than generic AI-generated UI.
@@ -350,27 +293,16 @@ A Daily Peak Alert test was previously confirmed working after troubleshooting.
 
 ## 12. Alert / Scheduler
 
-Railway is used for scheduled backend jobs.
+The current Railway alert service is documented in [RAILWAY_HANDOFF.md](RAILWAY_HANDOFF.md).
 
-Known intended schedule:
+Latest verified configuration on 2026-10-06:
+- Schedule: `0 23 * * *` UTC (06:00 Asia/Bangkok).
+- Start command: `python -m app.notifications.cli`.
+- `LINE_CHANNEL_ACCESS_TOKEN` was added to the production cron service without recording its value in Git or chat.
+- Deployment `199bc48e-66fc-4237-81ef-96ea2925a2f2` succeeded.
+- A successful scheduled alert run has not yet been verified; check the logs after the next scheduled run.
 
-`06:00 Asia/Bangkok`
-
-Known Railway services have included:
-
-```text
-weather-api
-weather-alert-cron
-```
-
-The seed alert scheduler path was recently removed in:
-
-`f15c9ed refactor: remove seed alert scheduler path`
-
-The exact current production scheduler behavior must still be verified against the repository and Railway deployment state before making assumptions.
-
----
-
+The workflow remains user-location-based. Do not change its logic unless requested.
 ## 13. Accuracy Pipeline
 
 The project has an Accuracy pipeline for evaluating forecast quality.
@@ -459,19 +391,7 @@ A passing local test does not automatically prove production deployment is worki
 
 ### Railway
 
-Used for:
-
-* FastAPI backend
-* scheduled alert processing
-
-Known services:
-
-```text
-weather-api
-weather-alert-cron
-```
-
-Exact current deployment state must be verified before making claims about production behavior.
+Railway hosts the FastAPI backend, Postgres, and scheduled alert service. Current project/service IDs, live status, database notes, and next verification steps are maintained in [RAILWAY_HANDOFF.md](RAILWAY_HANDOFF.md). Verify live Railway state before making operational changes.
 
 ### Vercel
 
@@ -483,28 +403,12 @@ Known intended production frontend:
 
 ### LINE
 
-Used for:
-
-* LIFF
-* LINE Messaging API
-* weather alerts
-
----
-
+Used for LIFF, the LINE Messaging API, and weather alerts. Never store token values in this document or in Git.
 ## 17. Known Historical Production Issue
 
-A backend crash previously occurred during the scheduled alert execution around:
+A scheduled alert run previously crashed because `LINE_CHANNEL_ACCESS_TOKEN` was missing from the new Railway cron service. The user added the variable in Railway Production and the subsequent deployment succeeded on 2026-10-06.
 
-`06:00 Asia/Bangkok`
-
-This caused the expected LINE alert not to be delivered.
-
-The issue was investigated using deployment logs.
-
-Later manual testing indicated that Daily Peak Alert functionality could work, but the previous scheduled-crash issue should not be considered permanently resolved without verifying the current production deployment.
-
----
-
+The next scheduled run still needs verification. See [RAILWAY_HANDOFF.md](RAILWAY_HANDOFF.md) for the current deployment ID and follow-up.
 ## 18. Important Engineering Constraints
 
 Unless explicitly requested:
@@ -601,62 +505,16 @@ Always verify important implementation claims against the actual repository.
 
 ## 22. Current Status
 
-### Confirmed from latest repository inspection
+### Verified 2026-10-06
 
 ```text
-Branch:
-phase-1-backend-foundation
-
-HEAD:
-f15c9ed refactor: remove seed alert scheduler path
-
-Remote:
-origin/phase-1-backend-foundation
-
-Working tree:
-dirty
-
-Uncommitted:
-frontend/app/globals.css
-frontend/app/page.tsx
-
-Untracked:
-none before adding this documentation
+Branch: phase-1-backend-foundation
+HEAD: 202f278 docs: record Railway production handoff
+Remote: origin/phase-1-backend-foundation
+Working tree: clean after push
 ```
 
-### Known project direction
-
-```text
-Fixed seed locations
-        ↓
-User GPS-based forecasting
-        ↓
-Reverse geocoding
-        ↓
-Location-aware forecast
-        ↓
-Risk analysis
-        ↓
-LINE alerts
-        ↓
-Accuracy evaluation
-```
-
-### Current priority
-
-Before implementing another major feature, inspect the actual repository and establish the current implementation state, especially:
-
-* GPS flow
-* reverse geocoding
-* forecast flow
-* alert scheduler
-* Accuracy pipeline
-* current frontend changes
-* database migrations
-* production deployment
-
----
-
+Production operations were documented in [RAILWAY_HANDOFF.md](RAILWAY_HANDOFF.md). That handoff is the current source for Railway database, API, forecast, and alert status. Re-check the repo and Railway before continuing because deployment state can change.
 ## 23. Handoff Rule
 
 When a new AI agent starts working on this repository:
