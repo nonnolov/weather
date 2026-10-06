@@ -1,6 +1,6 @@
 import type { NextConfig } from "next";
 
-const apiBaseUrl = process.env.API_BASE_URL ?? "https://weather-api-production-0800.up.railway.app";
+const apiBaseUrl = process.env.API_BASE_URL ?? "https://weather-api-production-9152.up.railway.app";
 
 const nextConfig: NextConfig = {
   outputFileTracingRoot: __dirname,

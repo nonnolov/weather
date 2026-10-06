@@ -58,3 +58,14 @@ Legacy user accounts, preferences, LINE user IDs, and historical user-specific d
 ## Handoff maintenance
 
 After each Weather project task, update this file with the work completed, verification, and remaining next step. Never record secret values. Commit and push this handoff with the scoped project changes when the user asks to keep the work available across account changes.
+
+## Frontend GPS request failure (2026-10-06)
+
+The production frontend's `/api/backend/health` and `/api/backend/api/v1/locations` returned 404 while the new Railway API `/health` returned 200. `frontend/next.config.ts` still used the previous Railway API URL as its fallback.
+
+- Updated the rewrite fallback to `https://weather-api-production-9152.up.railway.app`.
+- Updated Vercel project `weather` in scope `weather-9c1f`, Production `API_BASE_URL`, to the same new API URL. This is a public URL, not a secret.
+- Preserved the GPS flow: save the user's GPS location, refresh that user's forecast, then retrieve it. No cron logic changed.
+- Ignored Vercel local metadata, environment files, and TypeScript build cache; kept `.env.example` available as a tracked template.
+- Local verification: `npm.cmd run typecheck` and `node node_modules/next/dist/bin/next build` both exited 0.
+- Production proxy verification: pending after deployment of this fix.
