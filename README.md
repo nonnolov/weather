@@ -5,7 +5,7 @@ A real, modular, testable 7-day weather forecasting system.
 ## Architecture
 
 ```
-Weather API/NWP → Ingestion → Normalization → PostgreSQL → Forecast → FastAPI
+Weather API/NWP â†’ Ingestion â†’ Normalization â†’ PostgreSQL â†’ Forecast â†’ FastAPI
 ```
 
 ## Stack
@@ -114,25 +114,29 @@ pytest --cov=app --cov-report=term-missing
 Providers are isolated behind a common abstraction (`BaseWeatherProvider`). Each provider normalises its raw API response into standard `NormalizedHourlyForecast` and `NormalizedDailyForecast` objects before storage.
 
 Currently implemented:
-- **Open-Meteo** — free, no API key required (default)
+- **Open-Meteo** â€” free, no API key required (default)
 
 To add a new provider, subclass `BaseWeatherProvider` in `app/providers/` and register it in `app/providers/registry.py`.
 
 ## Design Principles
 
-- Every forecast retrieval is stored as an immutable historical snapshot — forecasts are never overwritten.
+- Every forecast retrieval is stored as an immutable historical snapshot â€” forecasts are never overwritten.
 - Provider-specific logic is fully isolated behind the abstraction layer.
 - All secrets are loaded from environment variables; no secrets in code.
 - Chronological ordering is preserved throughout for future ML evaluation.
 
+## Forecast Accuracy Data Integrity
+
+The production forecast-evaluation pipeline must pass the read-only data-integrity checks before accuracy metrics are treated as trustworthy. See [`docs/FORECAST_ACCURACY_DATA_INTEGRITY.md`](docs/FORECAST_ACCURACY_DATA_INTEGRITY.md) for the daily checklist and implementation priorities.
+
 ## Development Phases
 
-- **Phase 1** ✅ Backend foundation, database, provider abstraction, ingestion, API, tests
-- **Phase 2** ✅ Web dashboard (Next.js)
-- **Phase 3** ✅ Historical evaluation + observation ingestion + accuracy metrics
-- **Phase 4** ✅ ML temperature bias correction with chronological holdout
-- **Phase 5** ✅ LINE notification service with DB deduplication
-- **Phase 6** ✅ Testing, security, logging, container deployment
+- **Phase 1** âœ… Backend foundation, database, provider abstraction, ingestion, API, tests
+- **Phase 2** âœ… Web dashboard (Next.js)
+- **Phase 3** âœ… Historical evaluation + observation ingestion + accuracy metrics
+- **Phase 4** âœ… ML temperature bias correction with chronological holdout
+- **Phase 5** âœ… LINE notification service with DB deduplication
+- **Phase 6** âœ… Testing, security, logging, container deployment
 
 ## LINE Notifications
 
@@ -158,8 +162,8 @@ Users can send browser GPS coordinates to `POST /api/v1/users/{external_user_id}
 
 User-specific forecast endpoints:
 
-- `GET /api/v1/users/{external_user_id}/forecast` � latest forecast for the user's current Location.
-- `POST /api/v1/users/{external_user_id}/forecast/refresh` � fetch a fresh forecast using that Location's stored coordinates.
+- `GET /api/v1/users/{external_user_id}/forecast` — latest forecast for the user's current Location.
+- `POST /api/v1/users/{external_user_id}/forecast/refresh` — fetch a fresh forecast using that Location's stored coordinates.
 
 For LINE delivery, `external_user_id` is intended to be the LINE user ID when LINE Login/webhook identity is used. `python -m app.notifications.cli` now targets each registered user's current Location instead of broadcasting one seed forecast to every recipient. The previous seed-alert implementation remains available as an internal test utility.
 
