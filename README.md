@@ -197,3 +197,6 @@ Current phase numbering is P0-P7, defined by the user Master prompt. See [MASTER
 
 
 P2 station evidence: GET /api/v1/rain-reference/status reports hourly collection, missing values and explicit scoring blockers. Station fetches are separate from location observations and LINE decisions. See docs/P2_03_AUTOMATIC_COLLECTION_HANDOFF.md for setup, validation and rollback; an unverified feed does not produce an accuracy score.
+
+
+P3-01: separate PM2.5/model air-quality API and bilingual dashboard card implemented. Source Open-Meteo/CAMS Global; European AQI explicitly labeled, epoch/GMT times, missing/stale handling and a bounded cache. See docs/P3_01_AIR_QUALITY_HANDOFF.md (P3_01_AIR_QUALITY_HANDOFF.md from docs). P2 remains active in quarantine with its reference-alignment and numerical-baseline gates open. P1 natural positive acceptance/handset verification remains open. Release outcome is recorded after verification.

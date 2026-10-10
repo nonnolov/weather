@@ -1,0 +1,19 @@
+.panel { padding: 24px; min-width: 0; }
+.heading { display: flex; justify-content: space-between; gap: 16px; align-items: flex-start; }
+.heading h2 { margin: 0 0 8px; font-size: 1.15rem; }
+.panel p { line-height: 1.6; font-size: .9rem; }
+.metrics { display: flex; gap: 48px; flex-wrap: wrap; margin: 20px 0; }
+.metrics p { font-size: 2rem; margin: 6px 0; }
+.metrics small { font-size: .85rem; }
+.notice { padding: 10px 14px; border-left: 3px solid #c88c24; }
+.trend summary { cursor: pointer; padding: 12px 0; }
+.bars { display: flex; align-items: flex-end; gap: 3px; height: 90px; }
+.bar { background: #3085b4; flex: 1; min-width: 0; border-radius: 3px 3px 0 0; }
+.gap { flex: 1; border-bottom: 2px dashed #8a8a8a; }
+.table { overflow-x: auto; max-height: 260px; margin-top: 16px; }
+.table table { border-collapse: collapse; width: 100%; font-size: .85rem; }
+.table th, .table td { padding: 8px; text-align: left; border-bottom: 1px solid #8884; }
+.table caption { text-align: left; padding: 8px; }
+.source { opacity: .85; }
+.source a { text-decoration: underline; }
+@media (max-width: 520px) { .panel { padding: 18px; } .heading { flex-wrap: wrap; } .metrics { gap: 28px; } }

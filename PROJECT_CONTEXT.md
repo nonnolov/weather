@@ -54,3 +54,6 @@ Follow docs/MASTER_ROADMAP.md for the current user-defined phase sequence. P1 is
 
 
 P2-03 adds durable hourly station staging and a read-only collection status API. P2 accuracy acceptance is still open because the legacy feed's time contract is not authoritatively confirmed. See docs/P2_03_AUTOMATIC_COLLECTION_HANDOFF.md for the release/rollback record. This rollout targets the existing API only; station data remain separate from current-point observations and LINE logic.
+
+
+P3-01: separate PM2.5/model air-quality API and bilingual dashboard card implemented. Source Open-Meteo/CAMS Global; European AQI explicitly labeled, epoch/GMT times, missing/stale handling and a bounded cache. See docs/P3_01_AIR_QUALITY_HANDOFF.md (P3_01_AIR_QUALITY_HANDOFF.md from docs). P2 remains active in quarantine with its reference-alignment and numerical-baseline gates open. P1 natural positive acceptance/handset verification remains open. Release outcome is recorded after verification.

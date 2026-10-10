@@ -9,3 +9,6 @@ api_router.include_router(line.router, prefix="/line", tags=["line"])
 api_router.include_router(users.router, prefix="/users", tags=["users"])
 
 api_router.include_router(rain_reference.router, tags=["rain-reference"])
+
+from app.api.v1 import air_quality
+api_router.include_router(air_quality.router)
