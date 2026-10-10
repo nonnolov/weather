@@ -1,0 +1,110 @@
+{
+  "code_commit": "802384105f92506a3238815f958b2d1d4dfa0529",
+  "deployment_id": "e51c75e3-ea12-4b40-9986-394be57ae380",
+  "deployment_terminal_status": "SUCCESS",
+  "branch": "review/p1-intraday-20261010",
+  "full_regression": {
+    "passed": 605,
+    "external_integration_deselected": 18,
+    "existing_warnings": 1
+  },
+  "original_worktree_protected_files": 34,
+  "original_worktree_mismatches": 0,
+  "cron_deployment_unchanged": "6ffccaae-5764-47cf-89c9-c5e2d39b5287",
+  "automatic_first_tick_verified": true,
+  "automatic_tick_log": [
+    {
+      "timestamp": "2026-10-10T17:29:05.716484011Z",
+      "message": "2026-10-10 17:28:56,028 INFO app.evaluation.rain_collection P2 station collection: status=quarantined known_rows=23 missing_rows=2"
+    }
+  ],
+  "runtime_verification": {
+    "checked_at_utc": "2026-10-10T17:29:07.544373+00:00",
+    "source_files_verified": 78,
+    "source_mismatches": 0,
+    "schema": "0008",
+    "policy_version": "intraday-v2-candidate",
+    "live_enabled": true,
+    "scheduler_enabled": true,
+    "p2_collection_enabled": true,
+    "allowed_recipients": 1,
+    "prior_delivery_records_retained": true,
+    "baseline_evidence_retained": true,
+    "intent_unique_indexes": [
+      "uq_intraday_attempt_event",
+      "uq_intraday_pending_scope"
+    ],
+    "total_deliveries": 5,
+    "pending_intents": 0,
+    "station_fetches_observed": 1,
+    "raw_body_hashes_verified": 1,
+    "rain_reference_status": {
+      "collection_enabled": true,
+      "station_id": 1116457,
+      "status": "pending_contract_verification",
+      "latest_attempt_at": "2026-10-10T17:28:56.013161+00:00",
+      "latest_attempt_status": "quarantined",
+      "latest_error_code": null,
+      "latest_success_at": "2026-10-10T17:28:56.013161+00:00",
+      "latest_success_stale": false,
+      "known_rows": 23,
+      "missing_rows": 2,
+      "invalid_rows": 0,
+      "alignment_verified": false,
+      "station_is_at_user_point": false,
+      "eligible_pairs": 0,
+      "metrics": null,
+      "accuracy_claim_available": false,
+      "blocked_by": [
+        "endpoint_timezone_unverified",
+        "endpoint_accumulation_interval_unverified",
+        "station_is_not_current_point"
+      ],
+      "limitations": [
+        "Nearby station data are distinct from point observations.",
+        "Endpoint timezone and accumulation interval still require authoritative confirmation.",
+        "Known rows are provider values, not verified instrument quality or eligible pairs."
+      ]
+    },
+    "internal_health_http": 200,
+    "audit_database_writes": 0,
+    "audit_line_calls": 0,
+    "public_health_http": 200,
+    "public_status": {
+      "collection_enabled": true,
+      "station_id": 1116457,
+      "status": "pending_contract_verification",
+      "latest_attempt_at": "2026-10-10T17:28:56.013161+00:00",
+      "latest_attempt_status": "quarantined",
+      "latest_error_code": null,
+      "latest_success_at": "2026-10-10T17:28:56.013161+00:00",
+      "latest_success_stale": false,
+      "known_rows": 23,
+      "missing_rows": 2,
+      "invalid_rows": 0,
+      "alignment_verified": false,
+      "station_is_at_user_point": false,
+      "eligible_pairs": 0,
+      "metrics": null,
+      "accuracy_claim_available": false,
+      "blocked_by": [
+        "endpoint_timezone_unverified",
+        "endpoint_accumulation_interval_unverified",
+        "station_is_not_current_point"
+      ],
+      "limitations": [
+        "Nearby station data are distinct from point observations.",
+        "Endpoint timezone and accumulation interval still require authoritative confirmation.",
+        "Known rows are provider values, not verified instrument quality or eligible pairs."
+      ]
+    }
+  },
+  "accuracy_gate": "open: endpoint time contract and independent point-aligned reference remain unverified",
+  "forced_line_messages": 0,
+  "backup_before_migration": {
+    "valid_pg_dump": true,
+    "bytes": 161452,
+    "table_data_entries": 9,
+    "sha256": "be1e74f810980c641977bb5c36a123fb7b76053479cf30aafd386ec7586f6417"
+  }
+}

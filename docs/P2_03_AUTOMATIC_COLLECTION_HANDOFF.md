@@ -32,4 +32,11 @@ No manual observation is manufactured. This package does not improve ML, tune we
 
 ## Completed local validation
 
-Full isolated suite: 605 passed, 18 external integration cases deselected, one existing python_multipart warning; pytest 345.92 seconds, exit 0. Original worktree preservation check passed: 34 protected files unchanged, original branch/HEAD and empty index retained. P1 notification source is unchanged. Production backup before 0008 is a valid 161,452-byte PGDMP archive with nine table-data entries and a verified pg_restore listing, stored outside git. Deployment remains pending at this local-validation checkpoint.
+Full isolated suite: 605 passed, 18 external integration cases deselected, one existing python_multipart warning; pytest 345.92 seconds, exit 0. Original worktree preservation check passed: 34 protected files unchanged, original branch/HEAD and empty index retained. P1 notification source is unchanged. Production backup before 0008 is a valid 161,452-byte PGDMP archive with nine table-data entries and a verified pg_restore listing, stored outside git. Deployment completed; see the production verification below.
+
+
+## Verified production release
+
+Code commit 802384105f92506a3238815f958b2d1d4dfa0529 was pushed normally and deployed to the existing API. Railway deployment e51c75e3-ea12-4b40-9986-394be57ae380 reached SUCCESS. Runtime hashes match all 78 expected Python files; schema is 0008 and both health checks return HTTP 200. Existing baseline evidence, delivery records, P1 flags and unique intent indexes are retained. Cron deployment is unchanged.
+
+The native startup task collected its first station response at 2026-10-10T17:28:56Z, storing 23 known rows and 2 missing rows in quarantine. Exact raw-body hash was verified in a read-only audit. No manual collector trigger or forced LINE send was used. The status API reports pending_contract_verification, eligible_pairs=0 and metrics=null. This verifies collection and reporting, not numerical accuracy or endpoint time alignment. Full evidence is in P2_03_PRODUCTION_RELEASE.json.
