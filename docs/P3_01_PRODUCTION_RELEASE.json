@@ -1,0 +1,60 @@
+{
+  "code_commit": "e7d53650313453d74ae6a90ab722c0785babc0ed",
+  "documentation_branch": "review/p1-intraday-20261010",
+  "api_deployment": {
+    "id": "8c29476b-3482-4661-bdd3-a5d83227d9c4",
+    "status": "SUCCESS",
+    "verified_python_files": 80,
+    "mismatches": 0,
+    "schema": "0008",
+    "health_http": 200
+  },
+  "frontend_deployment": {
+    "deployment_id": "dpl_4JtFYDp9kc5omQksfBXjLB5NTkhY",
+    "state": "READY",
+    "stable_url": "https://weather-iota-five-83.vercel.app",
+    "root_http": 200,
+    "health_http": 200,
+    "air_quality_http": 200,
+    "pm25_present": true,
+    "source_type": "model_estimate",
+    "aqi_standard": "European AQI (Open-Meteo)"
+  },
+  "local_verification": {
+    "full_suite_passed": 646,
+    "external_integration_deselected": 18,
+    "existing_warning_count": 1,
+    "air_quality_targeted_passed": 51,
+    "eslint": true,
+    "typescript": true,
+    "next_production_build": true
+  },
+  "provider_live_probe": {
+    "status": "available",
+    "pm25_present": true,
+    "aqi_present": true,
+    "forecast_hours": 24,
+    "source_type": "model_estimate",
+    "aqi_standard": "European AQI (Open-Meteo)",
+    "measurement_available": false,
+    "same_location_cache_verified": true
+  },
+  "p2": {
+    "status": "active_data_quarantine",
+    "station_known_rows": 23,
+    "missing_rows": 2,
+    "eligible_pairs": 0,
+    "accuracy_claim_available": false,
+    "blocked_by": [
+      "legacy endpoint timezone/accumulation interval unverified",
+      "station is not a point measurement",
+      "no eligible point-aligned reference"
+    ]
+  },
+  "line_messages_for_release": 0,
+  "protected_original_files": 34,
+  "original_mismatches": 0,
+  "browser_visual_interaction": "not_verified: automatic browser review rejected expanding the preview when access.line.me was requested; review reported usage limit. No workaround or retry.",
+  "frontend_source_commit": "e7d53650313453d74ae6a90ab722c0785babc0ed",
+  "default_branch_merged": false
+}
