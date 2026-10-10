@@ -8,6 +8,7 @@ from sqlalchemy import select, text
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker
 
+from app.core.config import settings
 from app.models import ForecastRun, HourlyForecast, Location, User
 from app.notifications.intraday_comparison import Decision, Evidence, Hour, Scope, canonical_fingerprint
 from app.notifications.intraday_delivery import IntradayDeliveryResult, deliver_intraday_update
@@ -124,6 +125,7 @@ async def preview_committed_snapshots(
                 source_id = candidate.source_id
                 result = await deliver_intraday_update(
                     sessions, candidate, clock=clock, client=None, dry_run=True,
+                    policy_version=settings.INTRADAY_POLICY_VERSION,
                 )
         except SQLAlchemyError:
             result = IntradayDeliveryResult("error", Decision("skip", ("database_error",)))

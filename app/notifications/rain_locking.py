@@ -14,8 +14,10 @@ from app.models.notification import NotificationDelivery
 from app.models.user import User
 from app.notifications.intraday_baseline import read_latest_rain_baseline
 from app.notifications.intraday_comparison import (
-    Decision, Evidence, canonical_fingerprint, compare_intraday,
+    Decision, Evidence, POLICY_VERSION, canonical_fingerprint, compare_intraday,
 )
+
+from app.notifications.intraday_policy import comparator_for, delivery_prefix
 
 
 def rain_scope_lock_key(recipient_id: str, location_id: int) -> int:
@@ -55,6 +57,7 @@ async def locked_intraday_evaluation(
     clock: Callable[[], datetime],
     known_location_reassigned: bool = False,
     lock_timeout_ms: int = 3000,
+    policy_version: str = POLICY_VERSION,
 ) -> AsyncIterator[LockedEvaluation]:
     """Recheck under a shared lock; no LINE, ingestion or automatic ledger write.
 
@@ -73,6 +76,7 @@ async def locked_intraday_evaluation(
         raise ValueError("lock_timeout_ms must be 1..60000")
     if not callable(clock):
         raise ValueError("clock must be callable")
+    compare = comparator_for(policy_version)
     async with sessions() as db:
         async with db.begin():
             with db.no_autoflush:
@@ -116,9 +120,9 @@ async def locked_intraday_evaluation(
                     return
                 baseline = await read_latest_rain_baseline(db, scope)
                 decision = (baseline if isinstance(baseline, Decision)
-                            else compare_intraday(baseline, candidate, now=clock()))
+                            else compare(baseline, candidate, now=clock()))
                 if decision.outcome == "notify":
-                    key = f"rain-intraday:v1:{scope.location_id}:{decision.event_id}"
+                    key = delivery_prefix(policy_version, scope.location_id) + decision.event_id
                     existing = await db.scalar(
                         select(NotificationDelivery.id).where(
                             NotificationDelivery.channel == scope.channel,

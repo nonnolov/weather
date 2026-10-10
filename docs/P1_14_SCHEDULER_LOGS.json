@@ -1,0 +1,57 @@
+{
+  "deployment_id": "bf7c1724-7445-4395-a40d-81056f8b80a9",
+  "entries": [
+    {
+      "timestamp": "2026-10-10T11:43:22.147611700Z",
+      "message": "2026-10-10 11:43:22,124 INFO app.notifications.scheduled_preview Scheduled intraday live: status=complete locations=1 refreshed=0 fresh=1 refresh_failed=0 processed=1 statuses={'suppress': 1} reasons={'identical_content': 1} truncated=False"
+    },
+    {
+      "timestamp": "2026-10-10T11:58:27.336720301Z",
+      "message": "2026-10-10 11:58:22,832 INFO app.notifications.scheduled_preview Scheduled intraday live: status=complete locations=1 refreshed=1 fresh=0 refresh_failed=0 processed=1 statuses={'suppress': 1} reasons={'no_significant_change': 1} truncated=False"
+    },
+    {
+      "timestamp": "2026-10-10T12:13:32.751841872Z",
+      "message": "2026-10-10 12:13:22,879 INFO app.notifications.scheduled_preview Scheduled intraday live: status=complete locations=1 refreshed=0 fresh=1 refresh_failed=0 processed=1 statuses={'suppress': 1} reasons={'no_significant_change': 1} truncated=False"
+    },
+    {
+      "timestamp": "2026-10-10T12:28:29.758301057Z",
+      "message": "2026-10-10 12:28:22,931 INFO app.notifications.scheduled_preview Scheduled intraday live: status=complete locations=1 refreshed=0 fresh=1 refresh_failed=0 processed=1 statuses={'suppress': 1} reasons={'no_significant_change': 1} truncated=False"
+    },
+    {
+      "timestamp": "2026-10-10T12:43:25.245993603Z",
+      "message": "2026-10-10 12:43:22,978 INFO app.notifications.scheduled_preview Scheduled intraday live: status=complete locations=1 refreshed=0 fresh=1 refresh_failed=0 processed=1 statuses={'suppress': 1} reasons={'no_significant_change': 1} truncated=False"
+    },
+    {
+      "timestamp": "2026-10-10T12:58:30.453094761Z",
+      "message": "2026-10-10 12:58:23,670 INFO app.notifications.scheduled_preview Scheduled intraday live: status=complete locations=1 refreshed=1 fresh=0 refresh_failed=0 processed=1 statuses={'suppress': 1} reasons={'no_significant_change': 1} truncated=False"
+    },
+    {
+      "timestamp": "2026-10-10T13:13:25.184488001Z",
+      "message": "2026-10-10 13:13:23,704 INFO app.notifications.scheduled_preview Scheduled intraday live: status=complete locations=1 refreshed=0 fresh=1 refresh_failed=0 processed=1 statuses={'suppress': 1} reasons={'no_significant_change': 1} truncated=False"
+    },
+    {
+      "timestamp": "2026-10-10T13:28:31.310877069Z",
+      "message": "2026-10-10 13:28:23,755 INFO app.notifications.scheduled_preview Scheduled intraday live: status=complete locations=1 refreshed=0 fresh=1 refresh_failed=0 processed=1 statuses={'suppress': 1} reasons={'no_significant_change': 1} truncated=False"
+    },
+    {
+      "timestamp": "2026-10-10T13:43:30.838123257Z",
+      "message": "2026-10-10 13:43:23,793 INFO app.notifications.scheduled_preview Scheduled intraday live: status=complete locations=1 refreshed=0 fresh=1 refresh_failed=0 processed=1 statuses={'suppress': 1} reasons={'no_significant_change': 1} truncated=False"
+    },
+    {
+      "timestamp": "2026-10-10T13:58:28.271331846Z",
+      "message": "2026-10-10 13:58:24,476 INFO app.notifications.scheduled_preview Scheduled intraday live: status=complete locations=1 refreshed=1 fresh=0 refresh_failed=0 processed=1 statuses={'suppress': 1} reasons={'no_significant_change': 1} truncated=False"
+    },
+    {
+      "timestamp": "2026-10-10T14:13:25.335804784Z",
+      "message": "2026-10-10 14:13:24,520 INFO app.notifications.scheduled_preview Scheduled intraday live: status=complete locations=1 refreshed=0 fresh=1 refresh_failed=0 processed=1 statuses={'suppress': 1} reasons={'no_significant_change': 1} truncated=False"
+    },
+    {
+      "timestamp": "2026-10-10T14:28:32.052869654Z",
+      "message": "2026-10-10 14:28:24,566 INFO app.notifications.scheduled_preview Scheduled intraday live: status=complete locations=1 refreshed=0 fresh=1 refresh_failed=0 processed=1 statuses={'suppress': 1} reasons={'no_significant_change': 1} truncated=False"
+    },
+    {
+      "timestamp": "2026-10-10T14:43:30.612706272Z",
+      "message": "2026-10-10 14:43:24,616 INFO app.notifications.scheduled_preview Scheduled intraday live: status=complete locations=1 refreshed=0 fresh=1 refresh_failed=0 processed=1 statuses={'suppress': 1} reasons={'no_significant_change': 1} truncated=False"
+    }
+  ]
+}

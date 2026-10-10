@@ -1,6 +1,6 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from pydantic import field_validator, model_validator
-from typing import Optional
+from typing import Optional, Literal
 
 
 class Settings(BaseSettings):
@@ -37,6 +37,8 @@ class Settings(BaseSettings):
     # Live delivery only from this scheduler; explicit recipient allowlist required.
     INTRADAY_SEND_ENABLED: bool = False
     INTRADAY_SEND_RECIPIENT_IDS: str = ""
+    # Explicit rollout selection; unchanged default keeps current production v1.
+    INTRADAY_POLICY_VERSION: Literal["intraday-v1", "intraday-v2-candidate"] = "intraday-v1"
 
     # LINE Messaging API
     LINE_CHANNEL_ACCESS_TOKEN: str | None = None

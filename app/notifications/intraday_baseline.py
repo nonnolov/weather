@@ -13,6 +13,7 @@ from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker
 from app.models.location import Location
 from app.models.notification import NotificationDelivery
 from app.models.user import User
+from app.notifications.intraday_policy import SUPPORTED_POLICIES, delivery_prefix
 from app.notifications.intraday_comparison import (
     Baseline, Decision, Evidence, Hour, Scope, canonical_fingerprint, compare_intraday,
 )
@@ -70,14 +71,14 @@ def _adapt(row, scope: Scope) -> Baseline | Decision:
 
 
 async def read_latest_rain_baseline(db: AsyncSession, scope: Scope) -> Baseline | Decision | None:
-    """Select newest daily/v1-intraday rain delivery, without evidence filtering.
+    """Select newest daily/supported intraday delivery, without evidence filtering.
 
     The caller must supply a clean, committed-history session. Do not use this
     helper alone as a pre-send check. Unknown newest evidence never falls back.
     created_at is the stored acceptance proxy, not handset receipt time.
     """
     daily = f"rain:{scope.location_id}:"
-    intraday = f"rain-intraday:v1:{scope.location_id}:"
+    intraday = [delivery_prefix(policy, scope.location_id) for policy in SUPPORTED_POLICIES]
     with db.no_autoflush:
         row = (await db.execute(
             select(NotificationDelivery.id, NotificationDelivery.created_at,
@@ -86,7 +87,7 @@ async def read_latest_rain_baseline(db: AsyncSession, scope: Scope) -> Baseline 
                    NotificationDelivery.recipient_id == scope.recipient_id,
                    NotificationDelivery.location_id == scope.location_id,
                    or_(NotificationDelivery.dedupe_key.startswith(daily),
-                       NotificationDelivery.dedupe_key.startswith(intraday)))
+                       *(NotificationDelivery.dedupe_key.startswith(prefix) for prefix in intraday)))
             .order_by(NotificationDelivery.created_at.desc(), NotificationDelivery.id.desc())
             .limit(1)
         )).first()

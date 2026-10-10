@@ -7,6 +7,8 @@ from zoneinfo import ZoneInfo
 from app.notifications.formatter import _FORECAST_URL, _thai_date
 from app.notifications.intraday_comparison import Decision, Evidence, Hour, POLICY_VERSION
 
+from app.notifications.intraday_policy import comparator_for
+
 
 def utc(value: datetime) -> datetime:
     return value.replace(tzinfo=timezone.utc) if value.tzinfo is None else value.astimezone(timezone.utc)
@@ -85,8 +87,10 @@ def format_intraday_alert(candidate: Evidence, decision: Decision, *,
 
 
 def freeze_intraday_evidence(candidate: Evidence, decision: Decision, rendered: RenderedIntraday,
-                             *, now: datetime, baseline_delivery_id: int) -> dict:
+                             *, now: datetime, baseline_delivery_id: int,
+                             policy_version: str = POLICY_VERSION) -> dict:
     """Fresh JSON value; recipient/GPS excluded, all local-day hours retained."""
+    comparator_for(policy_version)
     zone = ZoneInfo(candidate.scope.timezone.strip())
     day = utc(now).astimezone(zone).date()
     return {
@@ -104,7 +108,7 @@ def freeze_intraday_evidence(candidate: Evidence, decision: Decision, rendered: 
              "max_rainfall_mm": float(max(row.rainfall_mm for row in period)),
              "duration_hours": len(period)} for period in rendered.periods],
         "daily_aggregate": None, "message_text": rendered.message,
-        "comparison": {"policy_version": POLICY_VERSION, "baseline_delivery_id": baseline_delivery_id,
+        "comparison": {"policy_version": policy_version, "baseline_delivery_id": baseline_delivery_id,
                        "evaluated_at": utc(now).isoformat(), "event_id": decision.event_id,
                        "candidate_fingerprint": decision.candidate_fingerprint,
                        "reasons": list(decision.reasons),

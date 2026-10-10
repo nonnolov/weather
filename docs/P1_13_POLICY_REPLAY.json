@@ -1,0 +1,66 @@
+{
+  "candidate_policy_version": "intraday-v2-candidate",
+  "recorded_sources": 7,
+  "first_retrieval": "2026-10-10T04:56:17.539423+00:00",
+  "last_retrieval": "2026-10-10T12:58:23.618933+00:00",
+  "baseline_accepted_at": "2026-10-10T09:57:49.078815+00:00",
+  "cadence_minutes": 15,
+  "includes_final_retrieval_tick": true,
+  "actual_rain_observations_included": false,
+  "accuracy_measured": false,
+  "line_calls": 0,
+  "production_writes": 0,
+  "simulation_only": true,
+  "results": {
+    "fixed_recorded_baseline": {
+      "v1": {
+        "evaluated_ticks": 14,
+        "outcomes": {
+          "suppress": 14
+        },
+        "reasons": {
+          "identical_content": 9,
+          "no_significant_change": 5
+        },
+        "eligible_events": []
+      },
+      "candidate_v2": {
+        "evaluated_ticks": 14,
+        "outcomes": {
+          "suppress": 14
+        },
+        "reasons": {
+          "identical_content": 9,
+          "no_significant_change": 5
+        },
+        "eligible_events": []
+      }
+    },
+    "hypothetical_acceptance": {
+      "v1": {
+        "evaluated_ticks": 14,
+        "outcomes": {
+          "suppress": 14
+        },
+        "reasons": {
+          "identical_content": 9,
+          "no_significant_change": 5
+        },
+        "eligible_events": []
+      },
+      "candidate_v2": {
+        "evaluated_ticks": 14,
+        "outcomes": {
+          "suppress": 14
+        },
+        "reasons": {
+          "identical_content": 9,
+          "no_significant_change": 5
+        },
+        "eligible_events": []
+      }
+    }
+  },
+  "outcome_disagreements": [],
+  "input_sha256": "5e8ea4136d0db4ae674fbbb9e14f4d0c51ea9fae3398a604ddee64bf30276e70"
+}

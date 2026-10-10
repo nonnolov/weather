@@ -1,0 +1,19 @@
+{
+  "template_only": true,
+  "location_alias": "current_weather_location",
+  "observed_at_local": null,
+  "rain_status": null,
+  "allowed_rain_status": [
+    "raining",
+    "not_raining",
+    "not_observed"
+  ],
+  "observation_type": "point_check",
+  "coverage_start_local": null,
+  "coverage_end_local": null,
+  "approximate_rain_start_local": null,
+  "approximate_rain_end_local": null,
+  "rainfall_mm": null,
+  "notes": null,
+  "instructions": "Use ISO timestamps with +07:00. Leave unknown times and amount null. A point check does not establish rain absence over an entire hour. Do not invent millimeters without a gauge."
+}

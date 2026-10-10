@@ -1,0 +1,755 @@
+{
+  "collected_at_utc": "2026-10-10T14:10:14.372545+00:00",
+  "area": "Saen Suk, Mueang Chonburi",
+  "selected_candidate_station_id": 1116457,
+  "selection_status": "provisional_offline_reference",
+  "source_timezone_hint": "Asia/Bangkok",
+  "exact_accumulation_interval_alignment_verified": false,
+  "station_is_at_user_point": false,
+  "independent_quality_control_performed": false,
+  "accuracy_measured": false,
+  "production_database_writes": 0,
+  "continuous_collection_enabled": false,
+  "line_calls": 0,
+  "manual_reports_collected": 0,
+  "stations": [
+    {
+      "station_id": 1119654,
+      "station_code": "EA10",
+      "name": "สวนเฉลิมพระเกียรติ ร.9 ชายทะเลบางพระ หมู่ 1",
+      "distance_km": 6.24,
+      "endpoint": "https://api-v3.thaiwater.net/api/v1/thaiwater30/public/rain_24h_graph?station_id=1119654",
+      "raw_sha256": "cdfcb511d94467fb80cf72fdfbf86bbcb81c2d2312f3d158535190eea7f63c07",
+      "series_label": "hourly rainfall, as labeled by ThaiWater public renderer",
+      "total_rows": 46,
+      "known_rows": 0,
+      "missing_rows": 46,
+      "last_known_time": null,
+      "last_known_mm": null,
+      "rows": [
+        {
+          "provider_time": "2026-10-09 00:00",
+          "rainfall_mm": null,
+          "quality": "missing"
+        },
+        {
+          "provider_time": "2026-10-09 01:00",
+          "rainfall_mm": null,
+          "quality": "missing"
+        },
+        {
+          "provider_time": "2026-10-09 02:00",
+          "rainfall_mm": null,
+          "quality": "missing"
+        },
+        {
+          "provider_time": "2026-10-09 03:00",
+          "rainfall_mm": null,
+          "quality": "missing"
+        },
+        {
+          "provider_time": "2026-10-09 04:00",
+          "rainfall_mm": null,
+          "quality": "missing"
+        },
+        {
+          "provider_time": "2026-10-09 05:00",
+          "rainfall_mm": null,
+          "quality": "missing"
+        },
+        {
+          "provider_time": "2026-10-09 06:00",
+          "rainfall_mm": null,
+          "quality": "missing"
+        },
+        {
+          "provider_time": "2026-10-09 07:00",
+          "rainfall_mm": null,
+          "quality": "missing"
+        },
+        {
+          "provider_time": "2026-10-09 08:00",
+          "rainfall_mm": null,
+          "quality": "missing"
+        },
+        {
+          "provider_time": "2026-10-09 09:00",
+          "rainfall_mm": null,
+          "quality": "missing"
+        },
+        {
+          "provider_time": "2026-10-09 10:00",
+          "rainfall_mm": null,
+          "quality": "missing"
+        },
+        {
+          "provider_time": "2026-10-09 11:00",
+          "rainfall_mm": null,
+          "quality": "missing"
+        },
+        {
+          "provider_time": "2026-10-09 12:00",
+          "rainfall_mm": null,
+          "quality": "missing"
+        },
+        {
+          "provider_time": "2026-10-09 13:00",
+          "rainfall_mm": null,
+          "quality": "missing"
+        },
+        {
+          "provider_time": "2026-10-09 14:00",
+          "rainfall_mm": null,
+          "quality": "missing"
+        },
+        {
+          "provider_time": "2026-10-09 15:00",
+          "rainfall_mm": null,
+          "quality": "missing"
+        },
+        {
+          "provider_time": "2026-10-09 16:00",
+          "rainfall_mm": null,
+          "quality": "missing"
+        },
+        {
+          "provider_time": "2026-10-09 17:00",
+          "rainfall_mm": null,
+          "quality": "missing"
+        },
+        {
+          "provider_time": "2026-10-09 18:00",
+          "rainfall_mm": null,
+          "quality": "missing"
+        },
+        {
+          "provider_time": "2026-10-09 19:00",
+          "rainfall_mm": null,
+          "quality": "missing"
+        },
+        {
+          "provider_time": "2026-10-09 20:00",
+          "rainfall_mm": null,
+          "quality": "missing"
+        },
+        {
+          "provider_time": "2026-10-09 21:00",
+          "rainfall_mm": null,
+          "quality": "missing"
+        },
+        {
+          "provider_time": "2026-10-09 22:00",
+          "rainfall_mm": null,
+          "quality": "missing"
+        },
+        {
+          "provider_time": "2026-10-09 23:00",
+          "rainfall_mm": null,
+          "quality": "missing"
+        },
+        {
+          "provider_time": "2026-10-10 00:00",
+          "rainfall_mm": null,
+          "quality": "missing"
+        },
+        {
+          "provider_time": "2026-10-10 01:00",
+          "rainfall_mm": null,
+          "quality": "missing"
+        },
+        {
+          "provider_time": "2026-10-10 02:00",
+          "rainfall_mm": null,
+          "quality": "missing"
+        },
+        {
+          "provider_time": "2026-10-10 03:00",
+          "rainfall_mm": null,
+          "quality": "missing"
+        },
+        {
+          "provider_time": "2026-10-10 04:00",
+          "rainfall_mm": null,
+          "quality": "missing"
+        },
+        {
+          "provider_time": "2026-10-10 05:00",
+          "rainfall_mm": null,
+          "quality": "missing"
+        },
+        {
+          "provider_time": "2026-10-10 06:00",
+          "rainfall_mm": null,
+          "quality": "missing"
+        },
+        {
+          "provider_time": "2026-10-10 07:00",
+          "rainfall_mm": null,
+          "quality": "missing"
+        },
+        {
+          "provider_time": "2026-10-10 08:00",
+          "rainfall_mm": null,
+          "quality": "missing"
+        },
+        {
+          "provider_time": "2026-10-10 09:00",
+          "rainfall_mm": null,
+          "quality": "missing"
+        },
+        {
+          "provider_time": "2026-10-10 10:00",
+          "rainfall_mm": null,
+          "quality": "missing"
+        },
+        {
+          "provider_time": "2026-10-10 11:00",
+          "rainfall_mm": null,
+          "quality": "missing"
+        },
+        {
+          "provider_time": "2026-10-10 12:00",
+          "rainfall_mm": null,
+          "quality": "missing"
+        },
+        {
+          "provider_time": "2026-10-10 13:00",
+          "rainfall_mm": null,
+          "quality": "missing"
+        },
+        {
+          "provider_time": "2026-10-10 14:00",
+          "rainfall_mm": null,
+          "quality": "missing"
+        },
+        {
+          "provider_time": "2026-10-10 15:00",
+          "rainfall_mm": null,
+          "quality": "missing"
+        },
+        {
+          "provider_time": "2026-10-10 16:00",
+          "rainfall_mm": null,
+          "quality": "missing"
+        },
+        {
+          "provider_time": "2026-10-10 17:00",
+          "rainfall_mm": null,
+          "quality": "missing"
+        },
+        {
+          "provider_time": "2026-10-10 18:00",
+          "rainfall_mm": null,
+          "quality": "missing"
+        },
+        {
+          "provider_time": "2026-10-10 19:00",
+          "rainfall_mm": null,
+          "quality": "missing"
+        },
+        {
+          "provider_time": "2026-10-10 20:00",
+          "rainfall_mm": null,
+          "quality": "missing"
+        },
+        {
+          "provider_time": "2026-10-10 21:00",
+          "rainfall_mm": null,
+          "quality": "missing"
+        }
+      ]
+    },
+    {
+      "station_id": 1116457,
+      "station_code": "GOT001",
+      "name": "สถานีวิจัยประมงศรีราชา",
+      "distance_km": 8.77,
+      "endpoint": "https://api-v3.thaiwater.net/api/v1/thaiwater30/public/rain_24h_graph?station_id=1116457",
+      "raw_sha256": "ac1e6cfa6d571f52b1a1ae1a861cc1feda9f645d95f036d2b6a1eb69bcd7b420",
+      "series_label": "hourly rainfall, as labeled by ThaiWater public renderer",
+      "total_rows": 46,
+      "known_rows": 44,
+      "missing_rows": 2,
+      "last_known_time": "2026-10-10 20:00",
+      "last_known_mm": 0,
+      "rows": [
+        {
+          "provider_time": "2026-10-09 00:00",
+          "rainfall_mm": 0,
+          "quality": "unverified_station_value"
+        },
+        {
+          "provider_time": "2026-10-09 01:00",
+          "rainfall_mm": 0,
+          "quality": "unverified_station_value"
+        },
+        {
+          "provider_time": "2026-10-09 02:00",
+          "rainfall_mm": 0,
+          "quality": "unverified_station_value"
+        },
+        {
+          "provider_time": "2026-10-09 03:00",
+          "rainfall_mm": 0,
+          "quality": "unverified_station_value"
+        },
+        {
+          "provider_time": "2026-10-09 04:00",
+          "rainfall_mm": 0,
+          "quality": "unverified_station_value"
+        },
+        {
+          "provider_time": "2026-10-09 05:00",
+          "rainfall_mm": 0,
+          "quality": "unverified_station_value"
+        },
+        {
+          "provider_time": "2026-10-09 06:00",
+          "rainfall_mm": 0,
+          "quality": "unverified_station_value"
+        },
+        {
+          "provider_time": "2026-10-09 07:00",
+          "rainfall_mm": 0,
+          "quality": "unverified_station_value"
+        },
+        {
+          "provider_time": "2026-10-09 08:00",
+          "rainfall_mm": 0,
+          "quality": "unverified_station_value"
+        },
+        {
+          "provider_time": "2026-10-09 09:00",
+          "rainfall_mm": 0,
+          "quality": "unverified_station_value"
+        },
+        {
+          "provider_time": "2026-10-09 10:00",
+          "rainfall_mm": 0.8,
+          "quality": "unverified_station_value"
+        },
+        {
+          "provider_time": "2026-10-09 11:00",
+          "rainfall_mm": 0.4,
+          "quality": "unverified_station_value"
+        },
+        {
+          "provider_time": "2026-10-09 12:00",
+          "rainfall_mm": 0,
+          "quality": "unverified_station_value"
+        },
+        {
+          "provider_time": "2026-10-09 13:00",
+          "rainfall_mm": 0.6,
+          "quality": "unverified_station_value"
+        },
+        {
+          "provider_time": "2026-10-09 14:00",
+          "rainfall_mm": 0.2,
+          "quality": "unverified_station_value"
+        },
+        {
+          "provider_time": "2026-10-09 15:00",
+          "rainfall_mm": 0,
+          "quality": "unverified_station_value"
+        },
+        {
+          "provider_time": "2026-10-09 16:00",
+          "rainfall_mm": 0,
+          "quality": "unverified_station_value"
+        },
+        {
+          "provider_time": "2026-10-09 17:00",
+          "rainfall_mm": 0,
+          "quality": "unverified_station_value"
+        },
+        {
+          "provider_time": "2026-10-09 18:00",
+          "rainfall_mm": 0,
+          "quality": "unverified_station_value"
+        },
+        {
+          "provider_time": "2026-10-09 19:00",
+          "rainfall_mm": 0,
+          "quality": "unverified_station_value"
+        },
+        {
+          "provider_time": "2026-10-09 20:00",
+          "rainfall_mm": 0,
+          "quality": "unverified_station_value"
+        },
+        {
+          "provider_time": "2026-10-09 21:00",
+          "rainfall_mm": 0,
+          "quality": "unverified_station_value"
+        },
+        {
+          "provider_time": "2026-10-09 22:00",
+          "rainfall_mm": 0,
+          "quality": "unverified_station_value"
+        },
+        {
+          "provider_time": "2026-10-09 23:00",
+          "rainfall_mm": 0,
+          "quality": "unverified_station_value"
+        },
+        {
+          "provider_time": "2026-10-10 00:00",
+          "rainfall_mm": 0,
+          "quality": "unverified_station_value"
+        },
+        {
+          "provider_time": "2026-10-10 01:00",
+          "rainfall_mm": 0,
+          "quality": "unverified_station_value"
+        },
+        {
+          "provider_time": "2026-10-10 02:00",
+          "rainfall_mm": 0,
+          "quality": "unverified_station_value"
+        },
+        {
+          "provider_time": "2026-10-10 03:00",
+          "rainfall_mm": 0,
+          "quality": "unverified_station_value"
+        },
+        {
+          "provider_time": "2026-10-10 04:00",
+          "rainfall_mm": 0,
+          "quality": "unverified_station_value"
+        },
+        {
+          "provider_time": "2026-10-10 05:00",
+          "rainfall_mm": 0,
+          "quality": "unverified_station_value"
+        },
+        {
+          "provider_time": "2026-10-10 06:00",
+          "rainfall_mm": 0,
+          "quality": "unverified_station_value"
+        },
+        {
+          "provider_time": "2026-10-10 07:00",
+          "rainfall_mm": null,
+          "quality": "missing"
+        },
+        {
+          "provider_time": "2026-10-10 08:00",
+          "rainfall_mm": 0,
+          "quality": "unverified_station_value"
+        },
+        {
+          "provider_time": "2026-10-10 09:00",
+          "rainfall_mm": 0,
+          "quality": "unverified_station_value"
+        },
+        {
+          "provider_time": "2026-10-10 10:00",
+          "rainfall_mm": 0,
+          "quality": "unverified_station_value"
+        },
+        {
+          "provider_time": "2026-10-10 11:00",
+          "rainfall_mm": 0.8,
+          "quality": "unverified_station_value"
+        },
+        {
+          "provider_time": "2026-10-10 12:00",
+          "rainfall_mm": 0.6,
+          "quality": "unverified_station_value"
+        },
+        {
+          "provider_time": "2026-10-10 13:00",
+          "rainfall_mm": 0.4,
+          "quality": "unverified_station_value"
+        },
+        {
+          "provider_time": "2026-10-10 14:00",
+          "rainfall_mm": 0.6,
+          "quality": "unverified_station_value"
+        },
+        {
+          "provider_time": "2026-10-10 15:00",
+          "rainfall_mm": 0.4,
+          "quality": "unverified_station_value"
+        },
+        {
+          "provider_time": "2026-10-10 16:00",
+          "rainfall_mm": 0,
+          "quality": "unverified_station_value"
+        },
+        {
+          "provider_time": "2026-10-10 17:00",
+          "rainfall_mm": 0,
+          "quality": "unverified_station_value"
+        },
+        {
+          "provider_time": "2026-10-10 18:00",
+          "rainfall_mm": 0,
+          "quality": "unverified_station_value"
+        },
+        {
+          "provider_time": "2026-10-10 19:00",
+          "rainfall_mm": 0,
+          "quality": "unverified_station_value"
+        },
+        {
+          "provider_time": "2026-10-10 20:00",
+          "rainfall_mm": 0,
+          "quality": "unverified_station_value"
+        },
+        {
+          "provider_time": "2026-10-10 21:00",
+          "rainfall_mm": null,
+          "quality": "missing"
+        }
+      ]
+    },
+    {
+      "station_id": 3715,
+      "station_code": "48459",
+      "name": "ชลบุรี",
+      "distance_km": 12.95,
+      "endpoint": "https://api-v3.thaiwater.net/api/v1/thaiwater30/public/rain_24h_graph?station_id=3715",
+      "raw_sha256": "cdfcb511d94467fb80cf72fdfbf86bbcb81c2d2312f3d158535190eea7f63c07",
+      "series_label": "hourly rainfall, as labeled by ThaiWater public renderer",
+      "total_rows": 46,
+      "known_rows": 0,
+      "missing_rows": 46,
+      "last_known_time": null,
+      "last_known_mm": null,
+      "rows": [
+        {
+          "provider_time": "2026-10-09 00:00",
+          "rainfall_mm": null,
+          "quality": "missing"
+        },
+        {
+          "provider_time": "2026-10-09 01:00",
+          "rainfall_mm": null,
+          "quality": "missing"
+        },
+        {
+          "provider_time": "2026-10-09 02:00",
+          "rainfall_mm": null,
+          "quality": "missing"
+        },
+        {
+          "provider_time": "2026-10-09 03:00",
+          "rainfall_mm": null,
+          "quality": "missing"
+        },
+        {
+          "provider_time": "2026-10-09 04:00",
+          "rainfall_mm": null,
+          "quality": "missing"
+        },
+        {
+          "provider_time": "2026-10-09 05:00",
+          "rainfall_mm": null,
+          "quality": "missing"
+        },
+        {
+          "provider_time": "2026-10-09 06:00",
+          "rainfall_mm": null,
+          "quality": "missing"
+        },
+        {
+          "provider_time": "2026-10-09 07:00",
+          "rainfall_mm": null,
+          "quality": "missing"
+        },
+        {
+          "provider_time": "2026-10-09 08:00",
+          "rainfall_mm": null,
+          "quality": "missing"
+        },
+        {
+          "provider_time": "2026-10-09 09:00",
+          "rainfall_mm": null,
+          "quality": "missing"
+        },
+        {
+          "provider_time": "2026-10-09 10:00",
+          "rainfall_mm": null,
+          "quality": "missing"
+        },
+        {
+          "provider_time": "2026-10-09 11:00",
+          "rainfall_mm": null,
+          "quality": "missing"
+        },
+        {
+          "provider_time": "2026-10-09 12:00",
+          "rainfall_mm": null,
+          "quality": "missing"
+        },
+        {
+          "provider_time": "2026-10-09 13:00",
+          "rainfall_mm": null,
+          "quality": "missing"
+        },
+        {
+          "provider_time": "2026-10-09 14:00",
+          "rainfall_mm": null,
+          "quality": "missing"
+        },
+        {
+          "provider_time": "2026-10-09 15:00",
+          "rainfall_mm": null,
+          "quality": "missing"
+        },
+        {
+          "provider_time": "2026-10-09 16:00",
+          "rainfall_mm": null,
+          "quality": "missing"
+        },
+        {
+          "provider_time": "2026-10-09 17:00",
+          "rainfall_mm": null,
+          "quality": "missing"
+        },
+        {
+          "provider_time": "2026-10-09 18:00",
+          "rainfall_mm": null,
+          "quality": "missing"
+        },
+        {
+          "provider_time": "2026-10-09 19:00",
+          "rainfall_mm": null,
+          "quality": "missing"
+        },
+        {
+          "provider_time": "2026-10-09 20:00",
+          "rainfall_mm": null,
+          "quality": "missing"
+        },
+        {
+          "provider_time": "2026-10-09 21:00",
+          "rainfall_mm": null,
+          "quality": "missing"
+        },
+        {
+          "provider_time": "2026-10-09 22:00",
+          "rainfall_mm": null,
+          "quality": "missing"
+        },
+        {
+          "provider_time": "2026-10-09 23:00",
+          "rainfall_mm": null,
+          "quality": "missing"
+        },
+        {
+          "provider_time": "2026-10-10 00:00",
+          "rainfall_mm": null,
+          "quality": "missing"
+        },
+        {
+          "provider_time": "2026-10-10 01:00",
+          "rainfall_mm": null,
+          "quality": "missing"
+        },
+        {
+          "provider_time": "2026-10-10 02:00",
+          "rainfall_mm": null,
+          "quality": "missing"
+        },
+        {
+          "provider_time": "2026-10-10 03:00",
+          "rainfall_mm": null,
+          "quality": "missing"
+        },
+        {
+          "provider_time": "2026-10-10 04:00",
+          "rainfall_mm": null,
+          "quality": "missing"
+        },
+        {
+          "provider_time": "2026-10-10 05:00",
+          "rainfall_mm": null,
+          "quality": "missing"
+        },
+        {
+          "provider_time": "2026-10-10 06:00",
+          "rainfall_mm": null,
+          "quality": "missing"
+        },
+        {
+          "provider_time": "2026-10-10 07:00",
+          "rainfall_mm": null,
+          "quality": "missing"
+        },
+        {
+          "provider_time": "2026-10-10 08:00",
+          "rainfall_mm": null,
+          "quality": "missing"
+        },
+        {
+          "provider_time": "2026-10-10 09:00",
+          "rainfall_mm": null,
+          "quality": "missing"
+        },
+        {
+          "provider_time": "2026-10-10 10:00",
+          "rainfall_mm": null,
+          "quality": "missing"
+        },
+        {
+          "provider_time": "2026-10-10 11:00",
+          "rainfall_mm": null,
+          "quality": "missing"
+        },
+        {
+          "provider_time": "2026-10-10 12:00",
+          "rainfall_mm": null,
+          "quality": "missing"
+        },
+        {
+          "provider_time": "2026-10-10 13:00",
+          "rainfall_mm": null,
+          "quality": "missing"
+        },
+        {
+          "provider_time": "2026-10-10 14:00",
+          "rainfall_mm": null,
+          "quality": "missing"
+        },
+        {
+          "provider_time": "2026-10-10 15:00",
+          "rainfall_mm": null,
+          "quality": "missing"
+        },
+        {
+          "provider_time": "2026-10-10 16:00",
+          "rainfall_mm": null,
+          "quality": "missing"
+        },
+        {
+          "provider_time": "2026-10-10 17:00",
+          "rainfall_mm": null,
+          "quality": "missing"
+        },
+        {
+          "provider_time": "2026-10-10 18:00",
+          "rainfall_mm": null,
+          "quality": "missing"
+        },
+        {
+          "provider_time": "2026-10-10 19:00",
+          "rainfall_mm": null,
+          "quality": "missing"
+        },
+        {
+          "provider_time": "2026-10-10 20:00",
+          "rainfall_mm": null,
+          "quality": "missing"
+        },
+        {
+          "provider_time": "2026-10-10 21:00",
+          "rainfall_mm": null,
+          "quality": "missing"
+        }
+      ]
+    }
+  ]
+}

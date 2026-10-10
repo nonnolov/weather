@@ -1,0 +1,19 @@
+{
+  "checked_at_utc": "2026-10-10T14:43:06.097320+00:00",
+  "live_enabled": true,
+  "scheduler_enabled": true,
+  "allowed_recipients": 1,
+  "total_deliveries": 5,
+  "intraday_deliveries": 0,
+  "accepted_intraday_records": [],
+  "pending_intents": 0,
+  "accepted_intents": 0,
+  "current_source": 44,
+  "dry_run_status": "suppress",
+  "dry_run_reasons": [
+    "no_significant_change"
+  ],
+  "audit_line_calls": 0,
+  "positive_intraday_acceptance_observed": false,
+  "handset_receipt_verified": false
+}

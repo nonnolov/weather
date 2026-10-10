@@ -36,6 +36,7 @@ async def send_committed_snapshots(sessions, recipient_ids, *,
                     result = await deliver_intraday_update(
                         sessions, candidate, clock=clock, client=client,
                         dry_run=False, durable_attempts=True,
+                        policy_version=settings.INTRADAY_POLICY_VERSION,
                     )
             except (SendOutcomeUnknown, AcceptedDeliveryNotCommitted):
                 result = IntradayDeliveryResult("error", Decision("skip", ("send_requires_reconciliation",)))

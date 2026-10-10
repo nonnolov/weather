@@ -1,4 +1,4 @@
-"""Intraday delivery integration. Default is preview; no CLI/scheduler hook."""
+"""Versioned intraday delivery; defaults to v1 preview, explicit sending only."""
 import asyncio
 from collections.abc import Callable
 from dataclasses import dataclass, replace
@@ -7,7 +7,7 @@ from typing import Protocol, Literal
 from zoneinfo import ZoneInfo
 
 import httpx
-from sqlalchemy import select, update
+from sqlalchemy import or_, select, update
 from app.models.intraday_attempt import IntradaySendAttempt
 from app.notifications.intraday_attempts import reserve_attempt
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
@@ -21,6 +21,7 @@ from app.notifications.intraday_comparison import (
 )
 from app.notifications.intraday_formatter import format_intraday_alert, freeze_intraday_evidence, utc
 from app.notifications.rain_locking import locked_intraday_evaluation
+from app.notifications.intraday_policy import SUPPORTED_POLICIES, comparator_for, delivery_prefix
 
 
 class TextSender(Protocol):
@@ -88,9 +89,9 @@ async def _verify_candidate(db: AsyncSession, candidate: Evidence, *, now: datet
 
 async def _historical_replay(db: AsyncSession, candidate: Evidence,
                              baseline_id: int, now: datetime) -> Decision | None:
-    """Verify committed v1 intraday history without mutating or inventing a ledger."""
+    """Verify supported intraday history across policies without resetting the ledger."""
     scope = candidate.scope
-    prefix = f"rain-intraday:v1:{scope.location_id}:"
+    prefixes = [delivery_prefix(policy, scope.location_id) for policy in SUPPORTED_POLICIES]
     rows = (await db.execute(
         select(NotificationDelivery.id, NotificationDelivery.created_at,
                NotificationDelivery.forecast_run_id, NotificationDelivery.rain_evidence,
@@ -98,7 +99,7 @@ async def _historical_replay(db: AsyncSession, candidate: Evidence,
         .where(NotificationDelivery.channel == scope.channel,
                NotificationDelivery.recipient_id == scope.recipient_id,
                NotificationDelivery.location_id == scope.location_id,
-               NotificationDelivery.dedupe_key.startswith(prefix))
+               or_(*(NotificationDelivery.dedupe_key.startswith(prefix) for prefix in prefixes)))
     )).all()
     fingerprint = canonical_fingerprint(candidate)
     day = utc(now).astimezone(ZoneInfo(scope.timezone.strip())).date().isoformat()
@@ -110,14 +111,14 @@ async def _historical_replay(db: AsyncSession, candidate: Evidence,
         comparison = data.get("comparison")
         old_hash = canonical_fingerprint(adapted.evidence)
         if (not isinstance(comparison, dict)
-                or comparison.get("policy_version") != POLICY_VERSION
+                or comparison.get("policy_version") not in SUPPORTED_POLICIES
                 or type(comparison.get("baseline_delivery_id")) is not int
                 or comparison["baseline_delivery_id"] <= 0
                 or comparison.get("candidate_fingerprint") != old_hash
                 or not isinstance(comparison.get("event_id"), str)
                 or len(comparison["event_id"]) != 64
                 or any(char not in "0123456789abcdef" for char in comparison["event_id"])
-                or row.dedupe_key != prefix + comparison["event_id"]):
+                or row.dedupe_key != delivery_prefix(comparison["policy_version"], scope.location_id) + comparison["event_id"]):
             return Decision("skip", ("unknown_replay_history",))
         same_day_scope = (data["alert_local_date"] == day
                           and adapted.evidence.scope.timezone.strip() == scope.timezone.strip())
@@ -134,6 +135,7 @@ async def deliver_intraday_update(
     clock: Callable[[], datetime], client: TextSender | None = None,
     dry_run: bool = True, known_location_reassigned: bool = False,
     lock_timeout_ms: int = 3000, durable_attempts: bool = False,
+    policy_version: str = POLICY_VERSION,
 ) -> IntradayDeliveryResult:
     """Render/verify under lock, optionally push and persist; return after commit.
 
@@ -150,6 +152,7 @@ async def deliver_intraday_update(
         raise ValueError("dry_run must be boolean")
     if not dry_run and client is None:
         raise ValueError("Explicit client is required for sending")
+    compare = comparator_for(policy_version)
     accepted = False
     event_id = None
     sampled = []
@@ -161,7 +164,7 @@ async def deliver_intraday_update(
         async with locked_intraday_evaluation(
             sessions, candidate, clock=decision_clock,
             known_location_reassigned=known_location_reassigned,
-            lock_timeout_ms=lock_timeout_ms,
+            lock_timeout_ms=lock_timeout_ms, policy_version=policy_version,
         ) as evaluation:
             db, decision = evaluation.session, evaluation.decision
             if decision.outcome != "notify":
@@ -175,10 +178,10 @@ async def deliver_intraday_update(
             # Candidate/source reads may themselves wait. Freeze the final decision
             # clock after those locks, then recheck identity before any network await.
             now = clock()
-            decision = compare_intraday(baseline, candidate, now=now)
+            decision = compare(baseline, candidate, now=now)
             if decision.outcome != "notify":
                 return IntradayDeliveryResult(decision.outcome, decision)
-            key = f"rain-intraday:v1:{candidate.scope.location_id}:{decision.event_id}"
+            key = delivery_prefix(policy_version, candidate.scope.location_id) + decision.event_id
             existing = await db.scalar(select(NotificationDelivery.id).where(
                 NotificationDelivery.channel == candidate.scope.channel,
                 NotificationDelivery.recipient_id == candidate.scope.recipient_id,
@@ -195,7 +198,7 @@ async def deliver_intraday_update(
             location_name = await db.scalar(select(Location.name).where(Location.id == candidate.scope.location_id))
             rendered = format_intraday_alert(candidate, decision, now=now, location_name=location_name)
             frozen = freeze_intraday_evidence(candidate, decision, rendered, now=now,
-                                               baseline_delivery_id=baseline.delivery_id)
+                                               baseline_delivery_id=baseline.delivery_id, policy_version=policy_version)
             if dry_run:
                 return IntradayDeliveryResult("preview", decision, rendered.message)
             attempt_id = None
@@ -204,7 +207,7 @@ async def deliver_intraday_update(
                 if attempt_id is None:
                     return IntradayDeliveryResult("skip", Decision("skip", ("unresolved_or_replayed_send",)))
                 # An intent commit may wait; never send a candidate that aged out.
-                final_decision = compare_intraday(baseline, candidate, now=clock())
+                final_decision = compare(baseline, candidate, now=clock())
                 if final_decision.outcome != "notify" or final_decision.event_id != decision.event_id:
                     return IntradayDeliveryResult("skip", Decision("skip", ("intent_requires_reconciliation",)))
             event_id = decision.event_id
@@ -222,7 +225,7 @@ async def deliver_intraday_update(
             delivery = NotificationDelivery(
                 location_id=candidate.scope.location_id, channel=candidate.scope.channel,
                 recipient_id=candidate.scope.recipient_id,
-                dedupe_key=f"rain-intraday:v1:{candidate.scope.location_id}:{event_id}",
+                dedupe_key=delivery_prefix(policy_version, candidate.scope.location_id) + event_id,
                 forecast_run_id=candidate.source_id, rain_evidence=frozen, created_at=accepted_at,
             )
             db.add(delivery)
