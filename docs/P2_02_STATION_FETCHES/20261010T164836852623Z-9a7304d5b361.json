@@ -1,0 +1,458 @@
+{
+  "version": "rain-staging-v1",
+  "station_id": 1116457,
+  "endpoint": "https://api-v3.thaiwater.net/api/v1/thaiwater30/public/rain_24h_graph?station_id=1116457",
+  "collected_at": "2026-10-10T16:48:36.852623+00:00",
+  "raw_sha256": "9a7304d5b361ed67b14918c057cc431ae759c93d299f81895d7afe9902c1df4d",
+  "raw_response": {
+    "result": "OK",
+    "data": [
+      {
+        "rainfall_datetime": "2026-10-09 00:00",
+        "rainfall_value": 0
+      },
+      {
+        "rainfall_datetime": "2026-10-09 01:00",
+        "rainfall_value": 0
+      },
+      {
+        "rainfall_datetime": "2026-10-09 02:00",
+        "rainfall_value": 0
+      },
+      {
+        "rainfall_datetime": "2026-10-09 03:00",
+        "rainfall_value": 0
+      },
+      {
+        "rainfall_datetime": "2026-10-09 04:00",
+        "rainfall_value": 0
+      },
+      {
+        "rainfall_datetime": "2026-10-09 05:00",
+        "rainfall_value": 0
+      },
+      {
+        "rainfall_datetime": "2026-10-09 06:00",
+        "rainfall_value": 0
+      },
+      {
+        "rainfall_datetime": "2026-10-09 07:00",
+        "rainfall_value": 0
+      },
+      {
+        "rainfall_datetime": "2026-10-09 08:00",
+        "rainfall_value": 0
+      },
+      {
+        "rainfall_datetime": "2026-10-09 09:00",
+        "rainfall_value": 0
+      },
+      {
+        "rainfall_datetime": "2026-10-09 10:00",
+        "rainfall_value": 0.8
+      },
+      {
+        "rainfall_datetime": "2026-10-09 11:00",
+        "rainfall_value": 0.4
+      },
+      {
+        "rainfall_datetime": "2026-10-09 12:00",
+        "rainfall_value": 0
+      },
+      {
+        "rainfall_datetime": "2026-10-09 13:00",
+        "rainfall_value": 0.6
+      },
+      {
+        "rainfall_datetime": "2026-10-09 14:00",
+        "rainfall_value": 0.2
+      },
+      {
+        "rainfall_datetime": "2026-10-09 15:00",
+        "rainfall_value": 0
+      },
+      {
+        "rainfall_datetime": "2026-10-09 16:00",
+        "rainfall_value": 0
+      },
+      {
+        "rainfall_datetime": "2026-10-09 17:00",
+        "rainfall_value": 0
+      },
+      {
+        "rainfall_datetime": "2026-10-09 18:00",
+        "rainfall_value": 0
+      },
+      {
+        "rainfall_datetime": "2026-10-09 19:00",
+        "rainfall_value": 0
+      },
+      {
+        "rainfall_datetime": "2026-10-09 20:00",
+        "rainfall_value": 0
+      },
+      {
+        "rainfall_datetime": "2026-10-09 21:00",
+        "rainfall_value": 0
+      },
+      {
+        "rainfall_datetime": "2026-10-09 22:00",
+        "rainfall_value": 0
+      },
+      {
+        "rainfall_datetime": "2026-10-09 23:00",
+        "rainfall_value": 0
+      },
+      {
+        "rainfall_datetime": "2026-10-10 00:00",
+        "rainfall_value": 0
+      },
+      {
+        "rainfall_datetime": "2026-10-10 01:00",
+        "rainfall_value": 0
+      },
+      {
+        "rainfall_datetime": "2026-10-10 02:00",
+        "rainfall_value": 0
+      },
+      {
+        "rainfall_datetime": "2026-10-10 03:00",
+        "rainfall_value": 0
+      },
+      {
+        "rainfall_datetime": "2026-10-10 04:00",
+        "rainfall_value": 0
+      },
+      {
+        "rainfall_datetime": "2026-10-10 05:00",
+        "rainfall_value": 0
+      },
+      {
+        "rainfall_datetime": "2026-10-10 06:00",
+        "rainfall_value": 0
+      },
+      {
+        "rainfall_datetime": "2026-10-10 07:00",
+        "rainfall_value": null
+      },
+      {
+        "rainfall_datetime": "2026-10-10 08:00",
+        "rainfall_value": 0
+      },
+      {
+        "rainfall_datetime": "2026-10-10 09:00",
+        "rainfall_value": 0
+      },
+      {
+        "rainfall_datetime": "2026-10-10 10:00",
+        "rainfall_value": 0
+      },
+      {
+        "rainfall_datetime": "2026-10-10 11:00",
+        "rainfall_value": 0.8
+      },
+      {
+        "rainfall_datetime": "2026-10-10 12:00",
+        "rainfall_value": 0.6
+      },
+      {
+        "rainfall_datetime": "2026-10-10 13:00",
+        "rainfall_value": 0.4
+      },
+      {
+        "rainfall_datetime": "2026-10-10 14:00",
+        "rainfall_value": 0.6
+      },
+      {
+        "rainfall_datetime": "2026-10-10 15:00",
+        "rainfall_value": 0.4
+      },
+      {
+        "rainfall_datetime": "2026-10-10 16:00",
+        "rainfall_value": 0
+      },
+      {
+        "rainfall_datetime": "2026-10-10 17:00",
+        "rainfall_value": 0
+      },
+      {
+        "rainfall_datetime": "2026-10-10 18:00",
+        "rainfall_value": 0
+      },
+      {
+        "rainfall_datetime": "2026-10-10 19:00",
+        "rainfall_value": 0
+      },
+      {
+        "rainfall_datetime": "2026-10-10 20:00",
+        "rainfall_value": 0
+      },
+      {
+        "rainfall_datetime": "2026-10-10 21:00",
+        "rainfall_value": 0
+      },
+      {
+        "rainfall_datetime": "2026-10-10 22:00",
+        "rainfall_value": 0
+      },
+      {
+        "rainfall_datetime": "2026-10-10 23:00",
+        "rainfall_value": 0
+      }
+    ]
+  },
+  "rows": [
+    {
+      "provider_time": "2026-10-09 00:00",
+      "raw_rainfall_value": 0,
+      "quality": "plausible_amount"
+    },
+    {
+      "provider_time": "2026-10-09 01:00",
+      "raw_rainfall_value": 0,
+      "quality": "plausible_amount"
+    },
+    {
+      "provider_time": "2026-10-09 02:00",
+      "raw_rainfall_value": 0,
+      "quality": "plausible_amount"
+    },
+    {
+      "provider_time": "2026-10-09 03:00",
+      "raw_rainfall_value": 0,
+      "quality": "plausible_amount"
+    },
+    {
+      "provider_time": "2026-10-09 04:00",
+      "raw_rainfall_value": 0,
+      "quality": "plausible_amount"
+    },
+    {
+      "provider_time": "2026-10-09 05:00",
+      "raw_rainfall_value": 0,
+      "quality": "plausible_amount"
+    },
+    {
+      "provider_time": "2026-10-09 06:00",
+      "raw_rainfall_value": 0,
+      "quality": "plausible_amount"
+    },
+    {
+      "provider_time": "2026-10-09 07:00",
+      "raw_rainfall_value": 0,
+      "quality": "plausible_amount"
+    },
+    {
+      "provider_time": "2026-10-09 08:00",
+      "raw_rainfall_value": 0,
+      "quality": "plausible_amount"
+    },
+    {
+      "provider_time": "2026-10-09 09:00",
+      "raw_rainfall_value": 0,
+      "quality": "plausible_amount"
+    },
+    {
+      "provider_time": "2026-10-09 10:00",
+      "raw_rainfall_value": 0.8,
+      "quality": "plausible_amount"
+    },
+    {
+      "provider_time": "2026-10-09 11:00",
+      "raw_rainfall_value": 0.4,
+      "quality": "plausible_amount"
+    },
+    {
+      "provider_time": "2026-10-09 12:00",
+      "raw_rainfall_value": 0,
+      "quality": "plausible_amount"
+    },
+    {
+      "provider_time": "2026-10-09 13:00",
+      "raw_rainfall_value": 0.6,
+      "quality": "plausible_amount"
+    },
+    {
+      "provider_time": "2026-10-09 14:00",
+      "raw_rainfall_value": 0.2,
+      "quality": "plausible_amount"
+    },
+    {
+      "provider_time": "2026-10-09 15:00",
+      "raw_rainfall_value": 0,
+      "quality": "plausible_amount"
+    },
+    {
+      "provider_time": "2026-10-09 16:00",
+      "raw_rainfall_value": 0,
+      "quality": "plausible_amount"
+    },
+    {
+      "provider_time": "2026-10-09 17:00",
+      "raw_rainfall_value": 0,
+      "quality": "plausible_amount"
+    },
+    {
+      "provider_time": "2026-10-09 18:00",
+      "raw_rainfall_value": 0,
+      "quality": "plausible_amount"
+    },
+    {
+      "provider_time": "2026-10-09 19:00",
+      "raw_rainfall_value": 0,
+      "quality": "plausible_amount"
+    },
+    {
+      "provider_time": "2026-10-09 20:00",
+      "raw_rainfall_value": 0,
+      "quality": "plausible_amount"
+    },
+    {
+      "provider_time": "2026-10-09 21:00",
+      "raw_rainfall_value": 0,
+      "quality": "plausible_amount"
+    },
+    {
+      "provider_time": "2026-10-09 22:00",
+      "raw_rainfall_value": 0,
+      "quality": "plausible_amount"
+    },
+    {
+      "provider_time": "2026-10-09 23:00",
+      "raw_rainfall_value": 0,
+      "quality": "plausible_amount"
+    },
+    {
+      "provider_time": "2026-10-10 00:00",
+      "raw_rainfall_value": 0,
+      "quality": "plausible_amount"
+    },
+    {
+      "provider_time": "2026-10-10 01:00",
+      "raw_rainfall_value": 0,
+      "quality": "plausible_amount"
+    },
+    {
+      "provider_time": "2026-10-10 02:00",
+      "raw_rainfall_value": 0,
+      "quality": "plausible_amount"
+    },
+    {
+      "provider_time": "2026-10-10 03:00",
+      "raw_rainfall_value": 0,
+      "quality": "plausible_amount"
+    },
+    {
+      "provider_time": "2026-10-10 04:00",
+      "raw_rainfall_value": 0,
+      "quality": "plausible_amount"
+    },
+    {
+      "provider_time": "2026-10-10 05:00",
+      "raw_rainfall_value": 0,
+      "quality": "plausible_amount"
+    },
+    {
+      "provider_time": "2026-10-10 06:00",
+      "raw_rainfall_value": 0,
+      "quality": "plausible_amount"
+    },
+    {
+      "provider_time": "2026-10-10 07:00",
+      "raw_rainfall_value": null,
+      "quality": "missing"
+    },
+    {
+      "provider_time": "2026-10-10 08:00",
+      "raw_rainfall_value": 0,
+      "quality": "plausible_amount"
+    },
+    {
+      "provider_time": "2026-10-10 09:00",
+      "raw_rainfall_value": 0,
+      "quality": "plausible_amount"
+    },
+    {
+      "provider_time": "2026-10-10 10:00",
+      "raw_rainfall_value": 0,
+      "quality": "plausible_amount"
+    },
+    {
+      "provider_time": "2026-10-10 11:00",
+      "raw_rainfall_value": 0.8,
+      "quality": "plausible_amount"
+    },
+    {
+      "provider_time": "2026-10-10 12:00",
+      "raw_rainfall_value": 0.6,
+      "quality": "plausible_amount"
+    },
+    {
+      "provider_time": "2026-10-10 13:00",
+      "raw_rainfall_value": 0.4,
+      "quality": "plausible_amount"
+    },
+    {
+      "provider_time": "2026-10-10 14:00",
+      "raw_rainfall_value": 0.6,
+      "quality": "plausible_amount"
+    },
+    {
+      "provider_time": "2026-10-10 15:00",
+      "raw_rainfall_value": 0.4,
+      "quality": "plausible_amount"
+    },
+    {
+      "provider_time": "2026-10-10 16:00",
+      "raw_rainfall_value": 0,
+      "quality": "plausible_amount"
+    },
+    {
+      "provider_time": "2026-10-10 17:00",
+      "raw_rainfall_value": 0,
+      "quality": "plausible_amount"
+    },
+    {
+      "provider_time": "2026-10-10 18:00",
+      "raw_rainfall_value": 0,
+      "quality": "plausible_amount"
+    },
+    {
+      "provider_time": "2026-10-10 19:00",
+      "raw_rainfall_value": 0,
+      "quality": "plausible_amount"
+    },
+    {
+      "provider_time": "2026-10-10 20:00",
+      "raw_rainfall_value": 0,
+      "quality": "plausible_amount"
+    },
+    {
+      "provider_time": "2026-10-10 21:00",
+      "raw_rainfall_value": 0,
+      "quality": "plausible_amount"
+    },
+    {
+      "provider_time": "2026-10-10 22:00",
+      "raw_rainfall_value": 0,
+      "quality": "plausible_amount"
+    },
+    {
+      "provider_time": "2026-10-10 23:00",
+      "raw_rainfall_value": 0,
+      "quality": "plausible_amount"
+    }
+  ],
+  "known_rows": 47,
+  "missing_rows": 1,
+  "invalid_rows": 0,
+  "alignment_verified": false,
+  "station_is_at_user_point": false,
+  "evaluation_eligible": false,
+  "blocked_by": [
+    "endpoint_timezone_unverified",
+    "endpoint_accumulation_interval_unverified",
+    "station_is_not_current_point"
+  ],
+  "instrument_quality_verified": false
+}

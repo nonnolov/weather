@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta, timezone
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
@@ -7,8 +8,9 @@ from app.core.database import get_db
 from app.models.location import Location
 from app.models.forecast import ForecastRun, HourlyForecast, DailyForecast
 from app.schemas.forecast import ForecastRunRead, ForecastRunDetail, IngestResponse
-from app.schemas.evaluation import CorrectedForecastRead, ForecastEvaluationRead
+from app.schemas.evaluation import CorrectedForecastRead, ForecastEvaluationRead, ForecastAuditRead
 from app.evaluation.service import evaluate_location_forecasts
+from app.evaluation.audit import evaluate_location_audit
 from app.ingestion.service import ingest_forecast_for_location, IngestionError
 from app.ml.service import correct_forecast_run
 
@@ -117,6 +119,32 @@ async def get_forecast_evaluation(
         location_id=location_id,
         metrics=await evaluate_location_forecasts(db, location_id),
     )
+
+
+@router.get(
+    "/forecast/{location_id}/evaluation/audit",
+    response_model=ForecastAuditRead,
+    tags=["forecasts"],
+)
+async def get_forecast_evaluation_audit(
+    location_id: int,
+    days: int = Query(default=30, ge=1, le=90),
+    as_of: datetime | None = Query(default=None),
+    db: AsyncSession = Depends(get_db),
+) -> ForecastAuditRead:
+    """Report reference provenance, excluded pairs and bucketed evaluation."""
+    await _get_location_or_404(db, location_id)
+    now = datetime.now(timezone.utc)
+    if as_of is not None:
+        if as_of.tzinfo is None or as_of.utcoffset() is None:
+            raise HTTPException(status_code=422, detail="as_of requires an explicit timezone.")
+        if as_of > now:
+            raise HTTPException(status_code=422, detail="as_of cannot be in the future.")
+    cutoff = (as_of or now).astimezone(timezone.utc)
+    report = await evaluate_location_audit(
+        db, location_id, since=cutoff - timedelta(days=days), as_of=cutoff,
+    )
+    return ForecastAuditRead(**report)
 
 
 @router.get(

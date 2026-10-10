@@ -1,6 +1,7 @@
 import logging
 import time
 from uuid import uuid4
+from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -8,6 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.api.v1.router import api_router
 from app.core.config import settings
 from app.notifications.scheduled_preview import scheduled_preview_lifespan
+from app.evaluation.rain_collection import rain_collection_lifespan
 
 logging.basicConfig(
     level=logging.DEBUG if settings.DEBUG else logging.INFO,
@@ -15,9 +17,16 @@ logging.basicConfig(
 )
 logger = logging.getLogger("weather.api")
 
+@asynccontextmanager
+async def application_lifespan(app):
+    async with scheduled_preview_lifespan(app):
+        async with rain_collection_lifespan(app):
+            yield
+
+
 app = FastAPI(
     title="Weather Forecasting System",
-    lifespan=scheduled_preview_lifespan,
+    lifespan=application_lifespan,
     description="Modular 7-day weather forecasting API",
     version="1.0.0",
     docs_url="/docs",

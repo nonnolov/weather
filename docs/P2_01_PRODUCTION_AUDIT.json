@@ -1,0 +1,146 @@
+{
+  "checked_at_utc": "2026-10-10T16:05:49.220377+00:00",
+  "database_access": "read_only_repeatable_read",
+  "reference_sources": [
+    {
+      "source": "open_meteo_historical",
+      "rows": 1224
+    }
+  ],
+  "reports": [
+    {
+      "audit_version": "forecast-audit-v1",
+      "since": "2026-07-12T16:05:49.220377+00:00",
+      "as_of": "2026-10-10T16:05:49.220377+00:00",
+      "status": "no_eligible_pairs",
+      "accuracy_claim_available": false,
+      "verified_at_point_pairs": 0,
+      "alert_delivery_evaluated": false,
+      "selection_policy": "latest_retrieval_per_target_provider_reference_horizon_bucket",
+      "horizon_basis": "retrieval_time_not_model_initialization",
+      "candidate_pairs": 480,
+      "matched_pairs": 0,
+      "eligible_pairs": 0,
+      "selected_pairs": 0,
+      "excluded_by_reason": {
+        "missing_reference": 480
+      },
+      "reference_sources": {
+        "missing": 480
+      },
+      "metrics": [],
+      "scope": "seed_reference_location",
+      "forecast_runs": 2,
+      "observation_rows": 24,
+      "unknown_model_initialization_runs": 2
+    },
+    {
+      "audit_version": "forecast-audit-v1",
+      "since": "2026-07-12T16:05:49.220377+00:00",
+      "as_of": "2026-10-10T16:05:49.220377+00:00",
+      "status": "no_eligible_pairs",
+      "accuracy_claim_available": false,
+      "verified_at_point_pairs": 0,
+      "alert_delivery_evaluated": false,
+      "selection_policy": "latest_retrieval_per_target_provider_reference_horizon_bucket",
+      "horizon_basis": "retrieval_time_not_model_initialization",
+      "candidate_pairs": 480,
+      "matched_pairs": 0,
+      "eligible_pairs": 0,
+      "selected_pairs": 0,
+      "excluded_by_reason": {
+        "missing_reference": 480
+      },
+      "reference_sources": {
+        "missing": 480
+      },
+      "metrics": [],
+      "scope": "seed_reference_location",
+      "forecast_runs": 2,
+      "observation_rows": 24,
+      "unknown_model_initialization_runs": 2
+    },
+    {
+      "audit_version": "forecast-audit-v1",
+      "since": "2026-07-12T16:05:49.220377+00:00",
+      "as_of": "2026-10-10T16:05:49.220377+00:00",
+      "status": "no_eligible_pairs",
+      "accuracy_claim_available": false,
+      "verified_at_point_pairs": 0,
+      "alert_delivery_evaluated": false,
+      "selection_policy": "latest_retrieval_per_target_provider_reference_horizon_bucket",
+      "horizon_basis": "retrieval_time_not_model_initialization",
+      "candidate_pairs": 480,
+      "matched_pairs": 0,
+      "eligible_pairs": 0,
+      "selected_pairs": 0,
+      "excluded_by_reason": {
+        "missing_reference": 480
+      },
+      "reference_sources": {
+        "missing": 480
+      },
+      "metrics": [],
+      "scope": "seed_reference_location",
+      "forecast_runs": 2,
+      "observation_rows": 24,
+      "unknown_model_initialization_runs": 2
+    },
+    {
+      "audit_version": "forecast-audit-v1",
+      "since": "2026-07-12T16:05:49.220377+00:00",
+      "as_of": "2026-10-10T16:05:49.220377+00:00",
+      "status": "no_eligible_pairs",
+      "accuracy_claim_available": false,
+      "verified_at_point_pairs": 0,
+      "alert_delivery_evaluated": false,
+      "selection_policy": "latest_retrieval_per_target_provider_reference_horizon_bucket",
+      "horizon_basis": "retrieval_time_not_model_initialization",
+      "candidate_pairs": 480,
+      "matched_pairs": 0,
+      "eligible_pairs": 0,
+      "selected_pairs": 0,
+      "excluded_by_reason": {
+        "missing_reference": 480
+      },
+      "reference_sources": {
+        "missing": 480
+      },
+      "metrics": [],
+      "scope": "seed_reference_location",
+      "forecast_runs": 2,
+      "observation_rows": 24,
+      "unknown_model_initialization_runs": 2
+    },
+    {
+      "audit_version": "forecast-audit-v1",
+      "since": "2026-07-12T16:05:49.220377+00:00",
+      "as_of": "2026-10-10T16:05:49.220377+00:00",
+      "status": "no_eligible_pairs",
+      "accuracy_claim_available": false,
+      "verified_at_point_pairs": 0,
+      "alert_delivery_evaluated": false,
+      "selection_policy": "latest_retrieval_per_target_provider_reference_horizon_bucket",
+      "horizon_basis": "retrieval_time_not_model_initialization",
+      "candidate_pairs": 432,
+      "matched_pairs": 0,
+      "eligible_pairs": 0,
+      "selected_pairs": 0,
+      "excluded_by_reason": {
+        "missing_reference": 432
+      },
+      "reference_sources": {
+        "missing": 432
+      },
+      "metrics": [],
+      "scope": "current_authorized_location",
+      "forecast_runs": 9,
+      "observation_rows": 0,
+      "unknown_model_initialization_runs": 9
+    }
+  ],
+  "line_calls": 0,
+  "database_writes": 0,
+  "audit_code_deployed": false,
+  "forecast_accuracy_percentage_claimed": false
+}

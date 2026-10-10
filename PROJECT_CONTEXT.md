@@ -1,6 +1,6 @@
 # Weather Forecasting System — Project Context
 
-## Status
+## Initial implementation status (legacy numbering)
 - Phase 1 Backend Foundation: COMPLETE
 - Phase 2 Dashboard: COMPLETE
 - Phase 3 Evaluation + Observation Ingestion: COMPLETE
@@ -46,3 +46,11 @@ Latest local full suite: 83 passed, 17 skipped, 2 warnings before Phase 6 harden
 
 ## Git rules
 Do not commit or push unless explicitly requested. Keep `.env`, `.venv`, caches, and credentials out of Git.
+
+
+## Current P0-P7 work
+
+Follow docs/MASTER_ROADMAP.md for the current user-defined phase sequence. P1 is deployed with an open natural positive intraday LINE verification gate. P2 is in progress: P2-01 adds a read-only provenance/interval audit, archive request isolation and populated metric API fixes. No at-point accuracy percentage or validated correction improvement is claimed. See docs/P2_01_EVALUATION_HANDOFF.md for tests, data evidence and remaining work.
+
+
+P2-03 adds durable hourly station staging and a read-only collection status API. P2 accuracy acceptance is still open because the legacy feed's time contract is not authoritatively confirmed. See docs/P2_03_AUTOMATIC_COLLECTION_HANDOFF.md for the release/rollback record. This rollout targets the existing API only; station data remain separate from current-point observations and LINE logic.

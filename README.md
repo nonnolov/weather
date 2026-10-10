@@ -129,7 +129,7 @@ To add a new provider, subclass `BaseWeatherProvider` in `app/providers/` and re
 - All secrets are loaded from environment variables; no secrets in code.
 - Chronological ordering is preserved throughout for future ML evaluation.
 
-## Development Phases
+## Initial implementation milestones (legacy numbering)
 
 - **Phase 1** ✅ Backend foundation, database, provider abstraction, ingestion, API, tests
 - **Phase 2** ✅ Web dashboard (Next.js)
@@ -189,3 +189,11 @@ LINE setup:
 6. Put the LINE Login channel ID in `LINE_LOGIN_CHANNEL_ID`.
 
 The backend verifies the ID token with LINE; the frontend does not treat a browser-supplied user ID as authenticated identity.
+
+
+## Current master roadmap
+
+Current phase numbering is P0-P7, defined by the user Master prompt. See [MASTER_ROADMAP.md](docs/MASTER_ROADMAP.md) for scope, order and current verification status. P2 is Forecast Accuracy Evaluation & Improvement; the earlier Dashboard Phase 2 above is historical implementation numbering. P2 audited evaluation and open data/correction gates are recorded in [P2_01_EVALUATION_HANDOFF.md](docs/P2_01_EVALUATION_HANDOFF.md).
+
+
+P2 station evidence: GET /api/v1/rain-reference/status reports hourly collection, missing values and explicit scoring blockers. Station fetches are separate from location observations and LINE decisions. See docs/P2_03_AUTOMATIC_COLLECTION_HANDOFF.md for setup, validation and rollback; an unverified feed does not produce an accuracy score.

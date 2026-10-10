@@ -1,0 +1,21 @@
+{
+  "station_id": 1116457,
+  "collected_at": "2026-10-10T16:48:36.852623+00:00",
+  "raw_sha256": "9a7304d5b361ed67b14918c057cc431ae759c93d299f81895d7afe9902c1df4d",
+  "total_rows": 48,
+  "known_rows": 47,
+  "missing_rows": 1,
+  "invalid_rows": 0,
+  "blocked_by": [
+    "endpoint_timezone_unverified",
+    "endpoint_accumulation_interval_unverified",
+    "station_is_not_current_point"
+  ],
+  "eligible_station_pairs": 0,
+  "accuracy_claim_available": false,
+  "manual_reference_rows": 0,
+  "point_baseline_selected_pairs": 0,
+  "production_database_writes": 0,
+  "line_calls": 0,
+  "continuous_collection_enabled": false
+}

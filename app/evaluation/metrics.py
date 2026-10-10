@@ -43,11 +43,12 @@ def calculate_metrics(samples: Iterable[EvaluationSample]) -> list[ForecastMetri
         if not _is_finite_number(sample.forecast_value) or not _is_finite_number(sample.observation_value):
             continue
 
-        horizon_seconds = round(
-            (_as_utc(sample.valid_time) - _as_utc(sample.retrieved_at)).total_seconds()
-        )
-        if horizon_seconds < 0:
+        raw_horizon_seconds = (
+            _as_utc(sample.valid_time) - _as_utc(sample.retrieved_at)
+        ).total_seconds()
+        if raw_horizon_seconds < 0:
             continue
+        horizon_seconds = round(raw_horizon_seconds)
 
         error = float(sample.forecast_value) - float(sample.observation_value)
         grouped.setdefault((sample.variable, horizon_seconds), []).append(error)

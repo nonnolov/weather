@@ -40,6 +40,9 @@ class Settings(BaseSettings):
     # Explicit rollout selection; unchanged default keeps current production v1.
     INTRADAY_POLICY_VERSION: Literal["intraday-v1", "intraday-v2-candidate"] = "intraday-v1"
 
+    # Separate hourly measured-reference staging; never enables LINE.
+    P2_RAIN_COLLECTION_ENABLED: bool = False
+
     # LINE Messaging API
     LINE_CHANNEL_ACCESS_TOKEN: str | None = None
     LINE_CHANNEL_SECRET: str | None = None

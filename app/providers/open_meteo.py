@@ -34,6 +34,16 @@ _HOURLY_VARS = [
     "is_day",
 ]
 
+# Archive supports a different set from the live forecast endpoint.
+# Historical probability, visibility and UV are not supplied by this endpoint.
+_OBSERVATION_HOURLY_VARS = [
+    "temperature_2m", "apparent_temperature", "dewpoint_2m",
+    "relative_humidity_2m", "precipitation", "rain", "snowfall",
+    "weather_code", "cloud_cover", "surface_pressure",
+    "wind_speed_10m", "wind_direction_10m", "wind_gusts_10m", "is_day",
+]
+
+
 _DAILY_VARS = [
     "temperature_2m_max",
     "temperature_2m_min",
@@ -118,7 +128,7 @@ class OpenMeteoProvider(BaseWeatherProvider):
         params = {
             "latitude": latitude,
             "longitude": longitude,
-            "hourly": ",".join(_HOURLY_VARS),
+            "hourly": ",".join(_OBSERVATION_HOURLY_VARS),
             "start_date": start_date.isoformat(),
             "end_date": end_date.isoformat(),
             "timezone": timezone,

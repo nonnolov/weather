@@ -11,6 +11,8 @@ class ForecastMetricRead(BaseModel):
     rmse: float
     bias: float
 
+    model_config = {"from_attributes": True}
+
 
 class ForecastEvaluationRead(BaseModel):
     location_id: int
@@ -50,3 +52,53 @@ class CorrectedForecastRead(BaseModel):
     location_id: int
     values: list[BiasCorrectionValueRead]
     evaluations: list[BiasCorrectionEvaluationRead]
+
+
+class PrecipitationOccurrenceRead(BaseModel):
+    event_threshold_mm: float
+    hits: int
+    misses: int
+    false_alarms: int
+    correct_dry: int
+    precision: float | None
+    recall: float | None
+    false_alarm_ratio: float | None
+    brier_sample_count: int
+    brier_score: float | None
+
+
+class AuditedMetricRead(BaseModel):
+    provider: str
+    reference_source: str
+    reference_kind: str
+    variable: str
+    unit: str
+    horizon_start_hours: int
+    horizon_end_hours: int
+    horizon_basis: str
+    sample_count: int
+    unique_target_count: int
+    mae: float
+    rmse: float
+    bias: float
+    precipitation_occurrence: PrecipitationOccurrenceRead | None
+
+
+class ForecastAuditRead(BaseModel):
+    audit_version: str
+    location_id: int
+    since: datetime
+    as_of: datetime
+    status: str
+    accuracy_claim_available: bool
+    verified_at_point_pairs: int
+    alert_delivery_evaluated: bool
+    selection_policy: str
+    horizon_basis: str
+    candidate_pairs: int
+    matched_pairs: int
+    eligible_pairs: int
+    selected_pairs: int
+    excluded_by_reason: dict[str, int]
+    reference_sources: dict[str, int]
+    metrics: list[AuditedMetricRead]

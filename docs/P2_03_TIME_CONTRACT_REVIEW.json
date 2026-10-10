@@ -1,0 +1,32 @@
+{
+  "review_date_local": "2026-10-11",
+  "timezone": "Asia/Bangkok",
+  "station_id": 1116457,
+  "endpoint": "https://api-v3.thaiwater.net/api/v1/thaiwater30/public/rain_24h_graph?station_id=1116457",
+  "result": "legacy_endpoint_contract_not_authoritatively_confirmed",
+  "alignment_verified": false,
+  "scoring_enabled": false,
+  "evidence": [
+    {
+      "url": "https://standard.thaiwater.net/",
+      "page": "คาบเวลาของข้อมูล",
+      "finding": "The official standard defines hourly accumulated rainfall as the preceding hour ending at the displayed timestamp.",
+      "scope": "standard definition; endpoint conformance not proven"
+    },
+    {
+      "url": "https://standard.thaiwater.net/",
+      "page": "รูปแบบวันและเวลา",
+      "finding": "The standard allows domestic naive datetime strings and gives +07:00 as an international datetime example.",
+      "scope": "Does not establish the legacy endpoint timezone."
+    },
+    {
+      "url": "https://www.thaiwater.net/dist/js/app.chunk.js",
+      "sha256": "28c2ee7bf80a16085190263d159c5556844b1c5a8474184223e2556319a3c036",
+      "finding": "The public renderer requests rain_24h_graph and applies a seven-hour display adjustment to rainfall_datetime.",
+      "scope": "Renderer behavior; not a substitute for a provider period/timezone declaration."
+    }
+  ],
+  "decision": "Automatically preserve the legacy station's raw fetches in a separate table with quarantine status. Do not convert clocks, calculate scores, merge with point observations or use the feed to change LINE rules.",
+  "remaining_requirement": "A provider declaration or a supported alternative feed with explicit timezone, hourly interval, quality and missing/error semantics.",
+  "paid_services_added": 0
+}

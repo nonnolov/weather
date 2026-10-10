@@ -4,6 +4,7 @@ from app.models.observation import Observation
 from app.models.notification import NotificationDelivery
 from app.models.intraday_attempt import IntradaySendAttempt
 from app.models.user import User
+from app.models.rain_station_fetch import RainStationFetch
 
 __all__ = [
     "Location",
@@ -14,4 +15,5 @@ __all__ = [
     "NotificationDelivery",
     "IntradaySendAttempt",
     "User",
+    "RainStationFetch",
 ]

@@ -1,0 +1,23 @@
+{
+  "template_only": true,
+  "report_id": null,
+  "scope_id": null,
+  "observation_type": "continuous_interval",
+  "rain_status": null,
+  "recorded_at": null,
+  "coverage_start": null,
+  "coverage_end": null,
+  "rainfall_mm": null,
+  "source": "manual_point_report",
+  "notes": null,
+  "instructions": [
+    "Template only; no observation has been supplied.",
+    "Use the exact private forecast scope for the place actually observed; do not reuse current-location aliases after moving.",
+    "Use ISO timestamps with explicit +07:00 or UTC.",
+    "continuous_interval: an actually observed complete aligned hour; raining means any rain during that hour; not_raining means dry throughout the hour.",
+    "point_check: coverage_start equals coverage_end, retained but excluded from hourly scores.",
+    "not_observed is missing coverage, never dry.",
+    "Do not estimate millimeters without a gauge; this adapter accepts rain state only.",
+    "Set template_only=false only for an actual report. Keep filled files outside git."
+  ]
+}

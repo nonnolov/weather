@@ -1,0 +1,35 @@
+{
+  "version": "point-rain-evaluation-v1",
+  "since": "2026-07-12T16:50:54.853373+00:00",
+  "as_of": "2026-10-10T16:50:54.853373+00:00",
+  "status": "no_eligible_pairs",
+  "reference_kind": "self_report",
+  "event_definition": "any_rain_during_complete_hour",
+  "forecast_variable": "rain",
+  "forecast_event_threshold_mm": 0,
+  "amount_metrics": null,
+  "probability_metrics": null,
+  "accuracy_claim_available": false,
+  "alert_delivery_evaluated": false,
+  "reference_rows": 0,
+  "eligible_unique_reference_hours": 0,
+  "candidate_forecasts": 240,
+  "selected_pairs": 0,
+  "unique_target_count": 0,
+  "excluded_by_reason": {
+    "forecast_retrieved_after_period_start": 187,
+    "missing_eligible_reference": 53
+  },
+  "metrics": [],
+  "limitations": [
+    "Manual continuous coverage is self-reported, not instrument verified.",
+    "No millimeter or >0.1mm probability calibration from visual reports.",
+    "Targets may appear in different lead buckets; do not sum them as independent hours.",
+    "Point checks, missing hours and nearby stations cannot establish a dry hour."
+  ],
+  "scope": "current_authorized_location",
+  "database_access": "read_only_repeatable_read",
+  "database_writes": 0,
+  "line_calls": 0,
+  "forecast_data_in_git": false
+}
