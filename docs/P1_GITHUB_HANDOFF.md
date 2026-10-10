@@ -47,3 +47,16 @@ sender wiring. Production deployment and enabling preview require the next
 explicit rollout instruction. The normal daily cron's post-release scheduled
 acceptance remains separate from October 10's controlled one-off acceptance.
 No upgrade or paid dependency was introduced.
+
+## Subsequent authorized production rollout
+
+The user subsequently explicitly authorized deploying and enabling preview.
+P1-11 deployed the exact 6eda58f source archive to the existing API service;
+deployment 515a5c49-b042-4833-bd30-23ba3fef97ba reached SUCCESS. Production
+settings now have both preview flags true, while their source defaults remain
+false. Request-side and the first native timed preview were observed; neither
+sent LINE or added delivery history. See P1_11_PRODUCTION_PREVIEW_HANDOFF.md.
+This documentation update does not redeploy the code, change the daily cron,
+add autodeploy triggers or enable a real intraday sender. The code-upload
+boundary described above is historical; P1-11 is its separately authorized
+API-only rollout. The documentation commit follows the deployed source commit.

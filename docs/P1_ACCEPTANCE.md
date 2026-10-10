@@ -1,10 +1,10 @@
 # P1 acceptance and operations record
 
-Current prepared integration: P1-10, periodic forecast-only preview in the
+Current integration: P1-11, production preview deployed and enabled in the
 existing API. This document separates checked implementation from active
-production behavior. The user authorized ordered preparation, capacity review,
-testing and GitHub commit/push after those checks. Deployment and real intraday
-LINE activation remain separate.
+production behavior. The user authorized preparation, capacity review, tests,
+GitHub commit/push, then explicitly authorized production preview rollout.
+Real intraday LINE activation remains separate.
 
 ## Implemented and checked
 
@@ -57,9 +57,15 @@ Date-scoped daily dedupe does not automatically suppress tomorrow's daily key.
 
 ## Production boundary
 
-- No automatic P1 task has been deployed or activated. Local repeated ticks,
-  actual lifespan tests and the production one-off do not prove continuous
-  deployed cadence.
+- API deployment 515a5c49-b042-4833-bd30-23ba3fef97ba reached SUCCESS with
+  source commit 6eda58f. All 57 deployed app Python hashes match the archive.
+  Both preview flags are true in production and no messaging token is present.
+- The real request post-commit hook and first native timed cycle both processed
+  one recipient and suppressed identical_content. The native tick completed at
+  17:48:20 Bangkok, reusing fresh source 41. Delivery counts stayed five total,
+  zero intraday. See P1_11_PRODUCTION_PREVIEW_HANDOFF.md and sanitized JSON.
+  Later due-source refresh and continuous uptime/cadence remain observational
+  checks; a single timed cycle is not proof of all future ticks.
 - The existing normal daily cron has not yet been observed accepting a
   source-linked frozen delivery after its evidence release; October 10's
   controlled process is distinct from that scheduled path.
@@ -67,16 +73,17 @@ Date-scoped daily dedupe does not automatically suppress tomorrow's daily key.
   P1_10_SCHEDULED_PREVIEW_HANDOFF.md and P1_10_CAPACITY.json. No new service,
   paid dependency or upgrade was introduced. Future billed usage and shared
   provider quota headroom are not guaranteed.
-- A future authorized rollout must deploy the reviewed API commit, enable
-  preview flags, observe real ticks/fresh sources and check aggregate logs.
+- Production preview rollout is complete at the request/native-startup-tick
+  boundary. Continue observing fresh sources, aggregate logs and usage.
   Both flags false and redeployment disable preview work.
 - Real intraday LINE activation requires reviewed recipient authorization,
   explicit enablement and operator handling. No real intraday sender is wired
   into API or scheduler, and API does not receive messaging credentials.
 
-Automatic preview preparation is complete and testable. P1 is not described
-as production-complete or continuously sending LINE while those operations
-remain unverified.
+Automatic preview is deployed, enabled and verified at the request and first
+timed-cycle boundary. P1 is not described as continuously sending LINE; real
+intraday delivery is not wired or activated. Longer-term cadence and the normal
+daily cron acceptance remain separate checks.
 
 ## Failure handling for a future live sender
 
