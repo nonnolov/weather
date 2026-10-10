@@ -26,6 +26,19 @@ class RainRiskPeriod:
     score: float
 
 
+def rain_interval_start(value: datetime) -> datetime:
+    """Open-Meteo hourly precipitation at t describes (t-1h, t]."""
+    return value - timedelta(hours=1)
+
+
+def rain_interval_local_date(row: HourlyForecast, timezone_name: str) -> date:
+    """Assign precipitation interval to the local date containing its start."""
+    value = rain_interval_start(row.valid_time)
+    if value.tzinfo is None:
+        value = value.replace(tzinfo=ZoneInfo("UTC"))
+    return value.astimezone(ZoneInfo(timezone_name)).date()
+
+
 def _is_risky(row: HourlyForecast) -> bool:
     probability = row.precipitation_probability or 0.0
     rainfall = row.precipitation or 0.0
@@ -44,13 +57,6 @@ def _score(rows: Sequence[HourlyForecast]) -> float:
     return probability_score + intensity_score + duration_score
 
 
-def _local_date(row: HourlyForecast, timezone_name: str) -> date:
-    value = row.valid_time
-    if value.tzinfo is None:
-        return value.date()
-    return value.astimezone(ZoneInfo(timezone_name)).date()
-
-
 def find_rain_risk_periods(
     hourly_rows: Sequence[HourlyForecast],
     *,
@@ -58,7 +64,10 @@ def find_rain_risk_periods(
     timezone_name: str = "UTC",
 ) -> list[RainRiskPeriod]:
     rows = sorted(
-        (row for row in hourly_rows if _local_date(row, timezone_name) == target_date),
+        (
+            row for row in hourly_rows
+            if rain_interval_local_date(row, timezone_name) == target_date
+        ),
         key=lambda row: row.valid_time,
     )
     periods: list[list[HourlyForecast]] = []
@@ -81,8 +90,8 @@ def find_rain_risk_periods(
     for period in periods:
         result.append(
             RainRiskPeriod(
-                start=period[0].valid_time,
-                end=period[-1].valid_time + timedelta(hours=1),
+                start=rain_interval_start(period[0].valid_time),
+                end=period[-1].valid_time,
                 max_probability=max(row.precipitation_probability or 0.0 for row in period),
                 max_rainfall_mm=max(row.precipitation or 0.0 for row in period),
                 duration_hours=len(period),
@@ -100,7 +109,10 @@ def find_daily_peak_period(
 ) -> RainRiskPeriod | None:
     """Return the single strongest fallback period when no risk alert qualifies."""
     rows = sorted(
-        (row for row in hourly_rows if _local_date(row, timezone_name) == target_date),
+        (
+            row for row in hourly_rows
+            if rain_interval_local_date(row, timezone_name) == target_date
+        ),
         key=lambda row: row.valid_time,
     )
     candidates = [
@@ -116,8 +128,8 @@ def find_daily_peak_period(
     probability = row.precipitation_probability or 0.0
     rainfall = row.precipitation or 0.0
     return RainRiskPeriod(
-        start=row.valid_time,
-        end=row.valid_time + timedelta(hours=1),
+        start=rain_interval_start(row.valid_time),
+        end=row.valid_time,
         max_probability=probability,
         max_rainfall_mm=rainfall,
         duration_hours=1,

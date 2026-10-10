@@ -11,6 +11,7 @@ from app.models.notification import NotificationDelivery
 from app.notifications.formatter import format_rain_alert
 from app.notifications.line_client import LineApiError
 from app.notifications.rain_alerts import send_rain_alert
+from app.notifications.rain_risk import find_daily_peak_period
 
 TZ = ZoneInfo("Asia/Bangkok")
 
@@ -28,7 +29,7 @@ async def setup_run(db, probability=20, rainfall=0.02, stale=False, empty=False)
     for hour in range(24):
         db.add(HourlyForecast(
             forecast_run_id=run.id,
-            valid_time=(datetime.combine(today, time(hour), TZ)).astimezone(timezone.utc),
+            valid_time=(datetime.combine(today, time(hour), TZ) + timedelta(hours=1)).astimezone(timezone.utc),
             precipitation_probability=None if empty else probability,
             precipitation=None if empty else rainfall,
         ))
@@ -96,9 +97,9 @@ def test_format_summary_uses_local_day_omits_partial_total_and_actual_update():
     run = ForecastRun(retrieved_at=datetime(2026, 10, 6, 23, 12, tzinfo=timezone.utc))
     run.location = Location(name="Test Area", timezone="Asia/Bangkok")
     hours = [
-        HourlyForecast(valid_time=datetime(2026, 10, 6, 17, tzinfo=timezone.utc),
-                       precipitation_probability=20, precipitation=0.1),
         HourlyForecast(valid_time=datetime(2026, 10, 7, 17, tzinfo=timezone.utc),
+                       precipitation_probability=20, precipitation=0.1),
+        HourlyForecast(valid_time=datetime(2026, 10, 7, 18, tzinfo=timezone.utc),
                        precipitation_probability=99, precipitation=10),
     ]
     text = format_rain_alert(run, [], alert_date=today, hourly_rows=hours)
@@ -115,6 +116,42 @@ def test_format_omits_missing_values_without_inventing_zero():
     text = format_rain_alert(run, [], alert_date=datetime(2026, 10, 7).date(), hourly_rows=[])
     assert "โอกาสฝนสูงสุด" not in text
     assert "ปริมาณฝนคาดการณ์รวมวันนี้" not in text
+
+
+def test_format_rain_window_uses_preceding_bangkok_hour_and_daily_peak_stays_daily():
+    run = ForecastRun(retrieved_at=datetime(2026, 10, 8, tzinfo=timezone.utc))
+    run.location = Location(name="Test Area", timezone="Asia/Bangkok")
+    hourly = [
+        HourlyForecast(
+            valid_time=datetime(2026, 10, 8, 9),
+            precipitation_probability=63,
+            precipitation=0.2,
+        )
+    ]
+    daily = DailyForecast(
+        forecast_date=datetime(2026, 10, 8).date(),
+        precipitation_probability_max=80,
+    )
+    period = find_daily_peak_period(
+        hourly,
+        target_date=datetime(2026, 10, 8).date(),
+        timezone_name="Asia/Bangkok",
+    )
+
+    assert period is not None
+    assert period.max_probability == 63
+    text = format_rain_alert(
+        run,
+        [period],
+        alert_date=datetime(2026, 10, 8).date(),
+        hourly_rows=hourly,
+        daily_rows=[daily],
+        daily_peak=True,
+    )
+
+    assert "15:00–16:00" in text
+    assert "16:00–17:00" not in text
+    assert "80%" in text
 
 
 @pytest.mark.asyncio

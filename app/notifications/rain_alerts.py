@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 from zoneinfo import ZoneInfo
 
 from sqlalchemy import select
@@ -13,8 +13,15 @@ from app.models.notification import NotificationDelivery
 from app.models.user import User
 from app.notifications.formatter import format_rain_alert
 from app.notifications.line_client import LineApiError, LineClient
-from app.notifications.rain_risk import find_daily_peak_period, find_rain_risk_periods
+from app.notifications.rain_risk import (
+    RainRiskPeriod,
+    find_daily_peak_period,
+    find_rain_risk_periods,
+    rain_interval_local_date,
+    rain_interval_start,
+)
 from app.notifications.service import _lock_dedupe_key
+from app.notifications.rain_locking import lock_rain_scope
 
 
 async def send_rain_alert(
@@ -24,6 +31,7 @@ async def send_rain_alert(
     client: LineClient,
 ) -> bool:
     """Send one daily rain alert or below-threshold summary per recipient/location."""
+    await lock_rain_scope(db, recipient_id, run.location_id)
     location = await db.scalar(select(Location).where(Location.id == run.location_id))
     if location is None:
         return False
@@ -56,8 +64,7 @@ async def send_rain_alert(
     )).all())
     today_hours = [
         row for row in hourly
-        if (row.valid_time if row.valid_time.tzinfo else row.valid_time.replace(tzinfo=timezone.utc))
-        .astimezone(tz).date() == alert_date
+        if rain_interval_local_date(row, tz.key) == alert_date
     ]
     if not any(
         row.precipitation is not None or row.precipitation_probability is not None
@@ -109,6 +116,11 @@ async def send_rain_alert(
         hourly_rows=hourly,
         daily_rows=daily,
     )
+    # Freeze the exact formatter inputs before the network await. Never query
+    # the latest run later, or retain references to mutable forecast objects.
+    evidence = _rain_evidence(
+        run, alert_date, timezone_name, periods, daily_peak, today_hours, daily, message
+    )
     await client.push_text(recipient_id, message)
     db.add(
         NotificationDelivery(
@@ -116,10 +128,76 @@ async def send_rain_alert(
             channel="line",
             recipient_id=recipient_id,
             dedupe_key=dedupe_key,
+            forecast_run_id=run.id,
+            rain_evidence=evidence,
         )
     )
     await db.flush()
     return True
+
+
+def _utc_iso(value: datetime | None) -> str | None:
+    if value is None:
+        return None
+    if value.tzinfo is None:
+        value = value.replace(tzinfo=timezone.utc)
+    return value.astimezone(timezone.utc).isoformat()
+
+
+def _rain_evidence(
+    run: ForecastRun,
+    alert_date: date,
+    timezone_name: str,
+    periods: list[RainRiskPeriod],
+    daily_peak: bool,
+    hours: list[HourlyForecast],
+    daily: list[DailyForecast],
+    message: str,
+) -> dict:
+    """Versioned, self-contained rain evidence; no recipient, GPS or raw metadata."""
+    day = next((row for row in daily if row.forecast_date == alert_date), None)
+    return {
+        "schema_version": 1,
+        "template_version": "rain-daily-v1",
+        "selection_version": "rain-selection-p0-02-v1",
+        "mode": "daily_peak" if daily_peak else "strong_rain" if periods else "below_threshold_daily_summary",
+        "alert_local_date": alert_date.isoformat(),
+        "timezone": timezone_name,
+        "source": {
+            "forecast_run_id": run.id,
+            "provider": run.provider,
+            "retrieved_at": _utc_iso(run.retrieved_at),
+            "model_run_time": _utc_iso(run.model_run_time),
+        },
+        # Preserve selection order (score-ranked), even though message windows
+        # are sorted chronologically. Daily probability is never a period value.
+        "selected_periods": [
+            {
+                "start": _utc_iso(period.start),
+                "end": _utc_iso(period.end),
+                "max_probability": period.max_probability,
+                "max_rainfall_mm": period.max_rainfall_mm,
+                "duration_hours": period.duration_hours,
+                "score": period.score,
+            }
+            for period in periods
+        ],
+        "hourly_intervals": [
+            {
+                "start": _utc_iso(rain_interval_start(row.valid_time)),
+                "end": _utc_iso(row.valid_time),
+                "precipitation_probability": row.precipitation_probability,
+                "precipitation_mm": row.precipitation,
+            }
+            for row in hours
+        ],
+        "daily_aggregate": None if day is None else {
+            "forecast_date": day.forecast_date.isoformat(),
+            "precipitation_probability_max": day.precipitation_probability_max,
+            "precipitation_sum_mm": day.precipitation_sum,
+        },
+        "message_text": message,
+    }
 
 
 async def refresh_and_send_rain_alerts(db: AsyncSession, client: LineClient) -> dict[str, int]:

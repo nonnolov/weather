@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 
-from sqlalchemy import DateTime, ForeignKey, Index, String, UniqueConstraint
+from sqlalchemy import DateTime, ForeignKey, Index, JSON, String, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database import Base
@@ -22,6 +22,13 @@ class NotificationDelivery(Base):
     channel: Mapped[str] = mapped_column(String(32), nullable=False)
     recipient_id: Mapped[str] = mapped_column(String(128), nullable=False)
     dedupe_key: Mapped[str] = mapped_column(String(255), nullable=False)
+    # Legacy and non-rain deliveries remain unknown. Run deletion must not
+    # delete delivery history; the frozen evidence retains the original ID.
+    forecast_run_id: Mapped[int | None] = mapped_column(
+        ForeignKey("forecast_runs.id", name="fk_notification_forecast_run", ondelete="SET NULL"),
+        nullable=True,
+    )
+    rain_evidence: Mapped[dict | None] = mapped_column(JSON(none_as_null=True), nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         default=lambda: datetime.now(timezone.utc),

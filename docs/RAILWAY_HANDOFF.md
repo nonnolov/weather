@@ -1,8 +1,72 @@
 # Weather Railway Handoff
 
-Last updated: 2026-10-06 22:15 Asia/Bangkok
+Last updated: 2026-10-10 Asia/Bangkok
 
 This is the current operational handoff. Verify live Railway state before acting because deployments and secrets can change.
+
+## P0-02/P0-03 authorized release: API and cron deployed; scheduled verification pending (2026-10-10 Bangkok)
+
+- Release execution authorized. Deployment uses reviewed exported baselines + overlays, not a new Git commit. Source commit/push NOT performed; no staging or GitHub push. Existing dirty code/tests preserved. This follow-up changes only documentation; no runtime edits, tests, re-audit, or release actions.
+- Railway CLI API `deploymentTriggers` queried explicitly for production API and cron: both empty `edges`, `hasNextPage: false`. Repo source `nonnolov/weather` remains; neither has a connected auto-deploy branch.
+- All 183 exported file hashes and immutable manifest SHA256 reverified. Artifact paths, hashes and exact baseline differences remain in [P0_RELEASE_PLAN.md](P0_RELEASE_PLAN.md).
+- Fresh `pg_dump` 18.6 backup: `C:/Users/Nutchanon/Backups/weather/weather-production-before-0006-20261010T030451Z.dump` (128535 bytes), SHA256 `4783f1142441f70d6d156c04f3463626a595b26a55f39932e1db07329c40be7b`. Full restoration to isolated PostgreSQL 18.6 `localhost:55418/weather_restore_0005` passed; constraints validated. Archive/restored counts match all eight tables: `alembic_version=1`, `daily_forecasts=231`, `forecast_runs=33`, `hourly_forecasts=5544`, `locations=11`, `notification_deliveries=4`, `observations=1224`, `users=5`. Local server stopped. Report: `C:/Users/Nutchanon/Backups/weather/restore-check-20261010T030557Z/restore-report.json`. No paid Railway plan, public DB proxy, or new paid services needed.
+- Both services' `DATABASE_URL` and `DATABASE_URL_SYNC` verified valid; all four resolve to the same private DB. Values not printed.
+- API deployment `339511aa-cb47-4e95-a362-3bd664cba306` **SUCCESS**. Alembic logs: `0005 -> 0006` at `2026-10-10T03:08:24Z`. Production revision `0006`, nullable integer `forecast_run_id`, nullable JSON `rain_evidence`, FK `ON DELETE SET NULL`, and unchanged `uq_notification_dedupe` verified. Four legacy deliveries preserved with both fields NULL; forecast runs 33/observations 1224 unchanged. Seed logs: 0 created, 4 skipped.
+- API `/health`, `/api/v1/locations`, `/api/v1/forecast/1` and frontend `/api/backend/health`: HTTP 200, valid JSON. No manual ingestion, LINE, or cron run.
+- Cron deployment `6ffccaae-5764-47cf-89c9-c5e2d39b5287` terminal SUCCESS; live state Ready verified after release. Start `python -m app.notifications.cli`, restart NEVER, and schedule `0 23 * * *` UTC (06:00 Bangkok) unchanged; no cron predeploy, staged changes, issues, or recent failures. New scheduled delivery is still UNVERIFIED.
+- Follow-up scheduled: one-time read-only verification on 2026-10-11 at 06:10 Asia/Bangkok, after the normal 06:00 cron. Verify actual ForecastRun linkage/frozen evidence; no manual cron, ingestion, LINE, or production mutation. Production release is deployed; delivery end-to-end acceptance remains pending.
+- Rollback constraint: retain additive `0006`; do not revert to the old API image missing `0006`. Prepared cron old code + `0006` remains available; no rollback executed. Known send-before-DB-commit and location-cascade risks unchanged.
+
+The sections below preserve historical evidence. Their preparation-only/no-authorization statements describe those earlier tasks; current release status is above.
+
+## Historical local P0-02 pending release
+
+- Local, uncommitted change on `feature/frontend-ux`; no deployment, cron run, ingestion, database access, or LINE message.
+- Open-Meteo hourly precipitation and precipitation probability at `t` now select and label rain interval `(t-1h, t]`; stored `valid_time` and forecast snapshots remain unchanged.
+- Hourly rain intervals belong to local date containing interval start. A Bangkok interval ending at local midnight belongs to previous local day. Provider daily records remain assigned by stored `forecast_date`.
+- Unit coverage adds naive-UTC incident timestamp, Bangkok conversion, midnight boundary, grouped-period boundaries, daily peak, formatter daily aggregate, and existing delivery regression checks.
+- Deferred: frontend hourly display semantics. P0-02 adds no UI change or intraday scheduler.
+- Source reviewed. Unit tests passed: `& C:\Users\Nutchanon\AppData\Local\Programs\Python\Python312\python.exe -m pytest -q tests/test_rain_risk.py tests/test_daily_rain_summary.py tests/test_rain_alert_delivery.py tests/test_notifications.py` — 23 passed, 1 warning in 1.46s, exit 0. Existing warning: `starlette` `PendingDeprecationWarning` importing `multipart`.
+- Production not verified. No commit or deploy.
+
+## Historical local P0-03 review; local PostgreSQL 16.15 verified (2026-10-10)
+
+- Uncommitted implementation only; `feature/frontend-ux` remains at `fc3d29c5203916a26e3c6c0a33f3712cc263da2e`. No commit, push, deployment, Railway operation, production DB access, ingestion, restart, real LINE message, dependency installation, or persistent environment change.
+- P0-03 files: `app/models/notification.py`, new `alembic/versions/0006_rain_delivery_evidence.py`, additive evidence code in `app/notifications/rain_alerts.py`, new `tests/test_rain_delivery_evidence.py`, new `tests/test_rain_evidence_migration.py`, new `tests/test_rain_evidence_postgres.py`, and this handoff section. The preceding P0-02 section and all existing P0-02 changes are preserved; formatter/risk logic and their tests are not P0-03 changes.
+- Small additive schema: nullable `forecast_run_id` FK with `ON DELETE SET NULL`, plus nullable JSON `rain_evidence`. No defaults or historical backfill. Existing and non-rain deliveries remain null/unknown. ForecastRun deletion retains delivery evidence and its original source ID; existing location deletion still cascades delivery deletion and is outside this scope.
+- Actual rain send freezes the supplied run's provider, retrieval timestamp, nullable model run timestamp, local alert date/timezone, schema/template/selection versions, mode (`strong_rain`, `daily_peak`, `below_threshold_daily_summary`), score-ranked selected periods, today's hourly interval boundaries/probability/precipitation, separate daily aggregates, and exact formatted message text. UTC ISO timestamps normalize SQLite's naive UTC values. Missing model run time remains null. No latest-run re-query, recipient duplication, GPS, credentials, or raw provider metadata in evidence. Exact message text retains the already-displayed location name.
+- Evidence is built before the network await and attached to a delivery only after a successful push. Existing recipient/location/day dedupe, skip/failure/retry behavior, thresholds, scoring, freshness, P0-02 preceding-hour mapping, wording, snapshots, observation/evaluation history, and 06:00 schedule remain unchanged.
+- New regression checks cover replay from frozen evidence after source/latest changes, all three modes, daily-versus-period probability, midnight interval mapping, selected top periods, missing daily aggregates, UTC location, skip paths, failed push/retry, and legacy null provenance. The migration check uses a temporary SQLite file, explicit safe URLs, and disables Alembic's `load_dotenv`; it checks actual 0005-to-0006 upgrade, legacy preservation, invalid FK rejection, source deletion survival, downgrade, and re-upgrade without backfill. Parent executed these checks successfully as part of the suite below.
+- Parent reviewed the scoped code, migration, and tests and approves the implementation. Parent then used the existing installed interpreter through an authorized Remote Desktop terminal with process-only `DATABASE_URL=sqlite+aiosqlite:///:memory:` and `DATABASE_URL_SYNC=sqlite:///:memory:`, restoring the prior process environment afterwards. Actual command:
+
+  ```powershell
+  & C:\Users\Nutchanon\AppData\Local\Programs\Python\Python312\python.exe -m pytest -q tests/test_rain_risk.py tests/test_daily_rain_summary.py tests/test_rain_alert_delivery.py tests/test_notifications.py tests/test_rain_delivery_evidence.py tests/test_rain_evidence_migration.py
+  ```
+
+  Actual result: **33 collected, 33 passed**, 1 existing `starlette` multipart `PendingDeprecationWarning`, in **7.91s**, exit 0. This includes real SQLite upgrade/downgrade/re-upgrade, legacy-null preservation without backfill, FK deletion preservation, all three delivery modes, mocked failure, skip, and dedupe. No production database was accessed or real LINE message sent.
+- Parent inspected `tests/test_rain_evidence_postgres.py` for isolation and cleanup, then executed `pytest.main(['-q', '-s', 'tests/test_rain_evidence_postgres.py'])` using the existing Python 3.12 interpreter. `P003_TEST_POSTGRES_URL` came from the local URL in `alembic.ini`, remained in process memory, and was asserted to use loopback. Before pytest imports, `DATABASE_URL` and `DATABASE_URL_SYNC` were set to in-memory SQLite URLs. Safe command template (replace only the local PostgreSQL placeholder; never record credentials):
+
+  ```powershell
+  @'
+  import os
+  import sys
+  from urllib.parse import urlsplit
+
+  os.environ["P003_TEST_POSTGRES_URL"] = "<LOCAL_POSTGRES_URL>"
+  assert urlsplit(os.environ["P003_TEST_POSTGRES_URL"]).hostname in {"localhost", "127.0.0.1", "::1"}
+  os.environ["DATABASE_URL"] = "sqlite+aiosqlite:///:memory:"
+  os.environ["DATABASE_URL_SYNC"] = "sqlite:///:memory:"
+
+  import pytest
+  sys.exit(pytest.main(['-q', '-s', 'tests/test_rain_evidence_postgres.py']))
+  '@ | & C:\Users\Nutchanon\AppData\Local\Programs\Python\Python312\python.exe -
+  ```
+
+  Actual result: **PostgreSQL 16.15**, Alembic `PostgresqlImpl` with transactional DDL; **4 collected, 4 passed**, 1 existing `starlette` multipart `PendingDeprecationWarning`, in **10.83s**, exit 0. Tests exercised real upgrade to `0005` then `0006`, downgrade to `0005` and re-upgrade to `0006`, legacy nulls without backfill, invalid FK rejection within a SAVEPOINT, unique dedupe, and `ON DELETE SET NULL` preserving frozen evidence. Three-mode regression verified the exact supplied run, source mutations, and dedupe. Parent SELECT queries of schema names before and after confirmed zero new `weather_p003_test_` schemas remained. No production connections, real LINE messages, or writes to existing schemas/tables occurred. The prior **33-pass** SQLite/P0-02/P0-03 regression result remains unchanged; this documentation follow-up reran no tests.
+- Historical note: the initial sandbox CLI attempt failed before collection (`CommandNotFoundException`; interpreter access returned `Access is denied`). Subsequent parent executions resolve local SQLite and PostgreSQL verification. **LOCAL PostgreSQL 16.15 is verified; Railway staging, target release, and live behavior remain UNVERIFIED.**
+- Production release prerequisite: local PostgreSQL verification is complete; Railway staging was not tested and no release approval is implied. Before deploying code that maps the new columns, apply reviewed Alembic revision `0006` to the release database under separate authorization. Revision `0006` must precede the new code. Old code can continue using the additive schema; do not deploy new code against schema `0005`.
+- Rollback: prefer reverting application code while retaining the additive columns. Downgrading `0006` removes all recorded evidence and source links irreversibly without a backup; downgrade the application first. SQLite batch migration reconstructs the delivery table, so review lock/rebuild behavior separately from PostgreSQL ALTER TABLE behavior.
+- Remaining issues: existing LINE send-before-DB-commit gap remains. A push can succeed while flush/commit fails, leaving no durable history and allowing retry duplicates; success here means API acceptance, not handset receipt. No outbox/reliability redesign or DB-enforced write-once policy was added. Evidence is a frozen snapshot, not a tamper-proof ledger. Location deletion still removes delivery history. Parent review and local SQLite/PostgreSQL verification are complete; scoped test code is approved by review, not for release. Railway target release and live behavior remain UNVERIFIED. Next: separately authorized production migration `0006` before new code, followed by target release and live verification; no release approval is implied.
 
 ## Repository
 
@@ -203,3 +267,16 @@ Daily-message release verified: source `70eccf9` pushed to `feature/frontend-ux`
 ## Authorized real LINE template test — 2026-10-07
 
 User explicitly requested sending both message conditions to registered logged-in users. A private read-only user/location query found 1 active bound LINE recipient. Sent two clearly labeled test messages using the production formatter from source 70eccf9: qualifying rain (sample 80%, 12 mm, 14:00–17:00) and below threshold (sample 20%, 0.5 mm). Both begin “🧪 ข้อความทดสอบ — ข้อมูลฝนตัวอย่าง ไม่ใช่พยากรณ์จริง”. LINE Messaging API accepted both requests with HTTP 200; zero failures. API acceptance does not prove handset receipt or reading. No notification delivery/dedupe record, forecast write or cron invocation was made, preserving the scheduled 06:00 delivery. Credentials stayed in process memory and were not printed or stored in source. Recipient identifiers and coordinates were not exposed.
+
+
+## Historical P0-02/P0-03 packages: preparation only (2026-10-09T18:05:45.947Z)
+
+- Complete exports: `C:\Users\NUTCHA~1\AppData\Local\Temp\weather-p0-release-ready-20261009T180542728Z-vkIr3F`. API-schema, alert-cron and alert-cron-rollback: **61 files each**.
+- Manifest: `C:\Users\NUTCHA~1\AppData\Local\Temp\weather-p0-release-ready-20261009T180542728Z-vkIr3F\release-manifest.json`; SHA256 `aaa71c35c6790d7744805bd12d421a91bf877dbc54ef204b344e228797b01a37`. Exact candidate paths/hashes and review-only CLI templates: [P0_RELEASE_PLAN.md](P0_RELEASE_PLAN.md).
+- API baseline 1af361a + 0006 + sanitized INI: two differences. Cron baseline 70eccf9 + four approved runtime overlays + 0006 + sanitized INI: six differences. Rollback 70eccf9 + 0006 + sanitized INI: two differences. All unchanged files use Git blob bytes; no CRLF extras. Build/dependency bytes match all three.
+- Authorized export-only exception: sqlalchemy.url = postgresql+psycopg2://localhost/weather_db; every other INI byte unchanged. Repository alembic.ini untouched. Require DATABASE_URL and DATABASE_URL_SYNC on both services at preflight.
+- ALL original roots/manifests under `C:/Users/NUTCHA~1/AppData/Local/Temp/weather-p0-release-20261009T175931847Z-dad58969` are superseded, retained, incomplete; NEVER DEPLOY.
+- Existing P0 code/tests/dirty tree retained. No stage, commit, push, deploy, configuration/DB/LINE operation, installation, re-audit, or test rerun. Prior 33 SQLite + 4 LOCAL PostgreSQL 16.15 passed across two runs; no production new-code verification.
+- Release gates remain: separate source commit approval; branch/watch/autodeploy push safety; fresh live/schema check (old 0005 evidence from P0-01); verified backup/recovery; required DB environment variables; unchanged start/predeploy overrides. These do not block package completeness.
+- Order: API existing predeploy alembic upgrade head; terminal SUCCESS/schema 0006/health; then cron terminal SUCCESS. Preserve python -m app.notifications.cli and 0 23 * * * UTC (daily 06:00 Bangkok). No manual cron or LINE; read-only evidence checks after normal scheduled delivery only.
+- Keep additive columns during prepared cron rollback. Do not downgrade DB or redeploy original API missing 0006. Send-before-commit and location-cascade risks remain.

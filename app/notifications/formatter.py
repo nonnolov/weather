@@ -4,7 +4,7 @@ from datetime import date, timezone
 from zoneinfo import ZoneInfo
 
 from app.models.forecast import ForecastRun, HourlyForecast
-from app.notifications.rain_risk import RainRiskPeriod
+from app.notifications.rain_risk import RainRiskPeriod, rain_interval_local_date
 
 _FORECAST_URL = "https://weather-iota-five-83.vercel.app"
 _THAI_MONTHS = (
@@ -52,7 +52,7 @@ def format_rain_alert(
 
     hours = [
         row for row in (hourly_rows or [])
-        if _local_time(row.valid_time, tz).date() == alert_date
+        if rain_interval_local_date(row, tz.key) == alert_date
     ]
     daily = next(
         (row for row in (daily_rows or []) if row.forecast_date == alert_date), None
