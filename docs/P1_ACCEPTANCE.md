@@ -1,10 +1,12 @@
 # P1 acceptance and operations record
 
-Current integration: P1-11, production preview deployed and enabled in the
-existing API. This document separates checked implementation from active
-production behavior. The user authorized preparation, capacity review, tests,
-GitHub commit/push, then explicitly authorized production preview rollout.
-Real intraday LINE activation remains separate.
+Current integration: P1-12, deployed SUCCESS and live intraday enabled under
+explicit user authorization on 2026-10-10 at 18:31:37 Bangkok. One existing
+recipient is allowlisted. Local tests use mocks; the native production live cycle
+has been observed suppressing identical content. A positive real intraday send
+has not occurred. This review package contains the deployed P1-12 runtime and
+its tests/rollout record. Exact commit and remote verification are reported
+with the separately authorized GitHub upload.
 
 ## Implemented and checked
 
@@ -22,12 +24,28 @@ Real intraday LINE activation remains separate.
 | Duplicate worker and bounded scope prevention | Nonblocking PostgreSQL cycle lock; 10 locations/100 recipients |
 | Error/cancellation isolation | Deadlines, source rollback before commit; committed sources retained afterward |
 | Normal daily job preserved | Daily CLI and 06:00 Bangkok cron unchanged |
+| Default-off live scheduler and explicit recipient allowlist | P1-12 local live adapter tests |
+| Durable halt across ambiguous send/commit and process restart | P1-12 intent migration and real PostgreSQL mocked tests |
 
 P1-08 and P1-10 flags are independently false by default. Preview has no real
 LINE sender or accepted-delivery write. The periodic path calls only forecast
 ingestion, never rolling observation ingestion or the daily LINE CLI.
 
-## Final local validation
+## P1-12 local validation
+
+439 passed, 18 live integration cases deselected, one existing python_multipart
+warning, 273.20 seconds, exit 0. No selected cases skipped. The 19 new cases cover
+allowlisting/configuration, native scheduler routing, durable intent before push,
+replay/concurrency, timeout/cancellation/rejection, new-source blocking, failed
+intent commit, acceptance/commit failure and additive migration with seeded
+frozen history preservation. No live provider/LINE or production DB write.
+
+See P1_12_LIVE_DELIVERY_HANDOFF.md for rollout and unresolved-send handling.
+P1-12 implementation, local validation and authorized production activation
+are complete. Positive send acceptance and later scheduled observations remain
+separate evidence gates for closing P1.
+
+## P1-11 local validation (historical)
 
 420 passed, 18 live integration tests deselected, one existing Starlette
 python_multipart warning, 231.11 seconds, exit 0. No selected cases skipped.
@@ -55,7 +73,29 @@ immediate no-baseline/stale-source gate from the earlier audit. It establishes
 API acceptance and DB durability, not independently verified handset receipt.
 Date-scoped daily dedupe does not automatically suppress tomorrow's daily key.
 
-## Production boundary
+## P1-12 production rollout
+
+Deployment bf7c1724-7445-4395-a40d-81056f8b80a9 reached SUCCESS. The package uses
+baseline 39e4471 plus eight reviewed runtime overlays, without a new Git commit.
+All 68 deployed app/Alembic Python hashes match. Migration 0007 and both unique
+intent indexes are confirmed; original frozen baseline retained. Fresh private
+custom backup/archive listing is recorded in P1_12_LIVE_DELIVERY_HANDOFF.md.
+
+Live/scheduler flags are true, messaging credential references the existing
+cron token, and the allowlist is exactly one previously accepted recipient.
+Internal/public health HTTP 200. Native live tick at 18:43:22 Bangkok:
+complete, fresh=1, refreshed=0, processed=1, suppress/identical_content=1.
+Counts remain five total deliveries, zero intraday deliveries and zero intents.
+No artificial change, manual cycle or forced message was used to manufacture
+a positive result. Daily cron remains unchanged.
+
+The next tick is estimated around 18:58:22 Bangkok plus processing time. Later
+hourly due-source refresh, positive significant-change acceptance and the normal
+daily scheduled evidence remain unobserved gates. Rollback keeps schema/code
+0007 and disables the live flag; direct P1-11 rollback with its old predeploy
+cannot resolve revision 0007. Do not drop intent records.
+
+## P1-11 production boundary (historical)
 
 - API deployment 515a5c49-b042-4833-bd30-23ba3fef97ba reached SUCCESS with
   source commit 6eda58f. All 57 deployed app Python hashes match the archive.
@@ -76,14 +116,16 @@ Date-scoped daily dedupe does not automatically suppress tomorrow's daily key.
 - Production preview rollout is complete at the request/native-startup-tick
   boundary. Continue observing fresh sources, aggregate logs and usage.
   Both flags false and redeployment disable preview work.
-- Real intraday LINE activation requires reviewed recipient authorization,
-  explicit enablement and operator handling. No real intraday sender is wired
-  into API or scheduler, and API does not receive messaging credentials.
+- P1-12 locally wires the existing locked sender into the scheduler behind a
+  separate default-off live flag and explicit recipient allowlist. Migration
+  0007 retains unresolved send intent across crashes. See
+  P1_12_LIVE_DELIVERY_HANDOFF.md for failure handling and rollout preparation.
+  At that historical boundary, deployed P1-11 had no live path or messaging credentials.
 
-Automatic preview is deployed, enabled and verified at the request and first
-timed-cycle boundary. P1 is not described as continuously sending LINE; real
-intraday delivery is not wired or activated. Longer-term cadence and the normal
-daily cron acceptance remain separate checks.
+P1-11 established preview activation. P1-12 above supersedes that deployment
+with an explicitly enabled live path. Neither the original preview tick nor the
+first suppressed live tick proves positive LINE acceptance or continuous uptime.
+Longer-term cadence and the normal daily cron acceptance remain separate checks.
 
 ## Failure handling for a future live sender
 

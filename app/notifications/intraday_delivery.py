@@ -7,7 +7,9 @@ from typing import Protocol, Literal
 from zoneinfo import ZoneInfo
 
 import httpx
-from sqlalchemy import select
+from sqlalchemy import select, update
+from app.models.intraday_attempt import IntradaySendAttempt
+from app.notifications.intraday_attempts import reserve_attempt
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from app.models.forecast import ForecastRun, HourlyForecast
@@ -131,11 +133,13 @@ async def deliver_intraday_update(
     sessions: async_sessionmaker[AsyncSession], candidate: Evidence, *,
     clock: Callable[[], datetime], client: TextSender | None = None,
     dry_run: bool = True, known_location_reassigned: bool = False,
-    lock_timeout_ms: int = 3000,
+    lock_timeout_ms: int = 3000, durable_attempts: bool = False,
 ) -> IntradayDeliveryResult:
     """Render/verify under lock, optionally push and persist; return after commit.
 
-    This step is only exercised with mocks. No runtime entrypoint calls it.
+    The live scheduler requires durable_attempts=True. Pending intent survives
+    transport errors, rejection, cancellation or acceptance/commit ambiguity
+    and blocks later automatic sends for that scope across process restarts.
     Default preview neither pushes nor inserts a delivery. A send requires an
     explicitly supplied client and dry_run=False; there is no internal retry.
     Timeout is ambiguous; post-acceptance persistence failure is explicitly raised.
@@ -194,6 +198,15 @@ async def deliver_intraday_update(
                                                baseline_delivery_id=baseline.delivery_id)
             if dry_run:
                 return IntradayDeliveryResult("preview", decision, rendered.message)
+            attempt_id = None
+            if durable_attempts:
+                attempt_id = await reserve_attempt(sessions, candidate, decision, frozen, utc(now))
+                if attempt_id is None:
+                    return IntradayDeliveryResult("skip", Decision("skip", ("unresolved_or_replayed_send",)))
+                # An intent commit may wait; never send a candidate that aged out.
+                final_decision = compare_intraday(baseline, candidate, now=clock())
+                if final_decision.outcome != "notify" or final_decision.event_id != decision.event_id:
+                    return IntradayDeliveryResult("skip", Decision("skip", ("intent_requires_reconciliation",)))
             event_id = decision.event_id
             try:
                 await client.push_text(candidate.scope.recipient_id, rendered.message)
@@ -214,6 +227,11 @@ async def deliver_intraday_update(
             )
             db.add(delivery)
             await db.flush()
+            if attempt_id is not None:
+                await db.execute(update(IntradaySendAttempt).where(
+                    IntradaySendAttempt.id == attempt_id,
+                    IntradaySendAttempt.status == "pending",
+                ).values(status="accepted", delivery_id=delivery.id))
             result = IntradayDeliveryResult("sent", decision, rendered.message, delivery.id)
         # The context's commit has completed. A flush alone never reports success.
         return result

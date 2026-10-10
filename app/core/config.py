@@ -32,8 +32,11 @@ class Settings(BaseSettings):
     FORECAST_DAYS: int = 7
     # Explicit refresh preview only; never enables LINE sending.
     INTRADAY_PREVIEW_AFTER_REFRESH: bool = False
-    # Existing API process only; forecast-only polling and preview, never LINE.
+    # Existing API process only; forecast-only polling, preview unless live enabled.
     INTRADAY_PREVIEW_SCHEDULER_ENABLED: bool = False
+    # Live delivery only from this scheduler; explicit recipient allowlist required.
+    INTRADAY_SEND_ENABLED: bool = False
+    INTRADAY_SEND_RECIPIENT_IDS: str = ""
 
     # LINE Messaging API
     LINE_CHANNEL_ACCESS_TOKEN: str | None = None
@@ -48,6 +51,11 @@ class Settings(BaseSettings):
             raise ValueError("SECRET_KEY must be changed in production")
         if self.APP_ENV == "production" and self.DEBUG:
             raise ValueError("DEBUG must be false in production")
+        if self.INTRADAY_SEND_ENABLED:
+            recipients = [x.strip() for x in self.INTRADAY_SEND_RECIPIENT_IDS.split(",") if x.strip()]
+            if (not self.INTRADAY_PREVIEW_SCHEDULER_ENABLED or not self.LINE_CHANNEL_ACCESS_TOKEN
+                    or not recipients or any(not x.startswith("U") for x in recipients)):
+                raise ValueError("Live intraday requires scheduler, LINE token and explicit LINE recipients")
         return self
 
     @field_validator("FORECAST_DAYS")

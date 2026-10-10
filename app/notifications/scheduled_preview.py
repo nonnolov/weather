@@ -1,4 +1,4 @@
-"""Default-off forecast-only periodic previews in the existing API process."""
+"""Forecast-only periodic previews or explicitly enabled intraday delivery."""
 import asyncio
 import logging
 from contextlib import asynccontextmanager, suppress
@@ -113,18 +113,26 @@ async def _cycle(sessions, clock, report):
                     .order_by(User.external_id).limit(MAX_RECIPIENTS + 1)
                 )).all())
             report.truncated |= len(recipients) > MAX_RECIPIENTS
-            async with asyncio.timeout(PREVIEW_TIMEOUT_SECONDS):
-                results = await preview_committed_snapshots(sessions, recipients[:MAX_RECIPIENTS], clock=clock)
+            if settings.INTRADAY_SEND_ENABLED:
+                from app.notifications.intraday_live import send_committed_snapshots
+                async with asyncio.timeout(90):
+                    results = await send_committed_snapshots(sessions, recipients[:MAX_RECIPIENTS], clock=clock)
+            else:
+                async with asyncio.timeout(PREVIEW_TIMEOUT_SECONDS):
+                    results = await preview_committed_snapshots(sessions, recipients[:MAX_RECIPIENTS], clock=clock)
             report.processed = len(results)
             report.statuses = dict(Counter(p.result.status for p in results))
             report.reasons = dict(Counter(r for p in results for r in p.result.decision.reasons))
 
 
 async def run_scheduled_preview_cycle(sessions, *, clock=lambda: datetime.now(timezone.utc)):
-    """Commit due forecasts, then preview; never invokes observations or LINE.
+    """Commit due forecasts, then preview or explicitly enabled live intraday.
+
+    The daily CLI/observations are never invoked. Preview is the default.
 
     Future scheduled ticks may attempt a failed forecast again. No immediate
-    retries and no accepted-delivery writes. Cancellation propagates; already
+    retries of LINE sends. Preview never writes accepted deliveries. Cancellation
+    propagates; already
     committed snapshots survive any later failure.
     """
     if not settings.INTRADAY_PREVIEW_SCHEDULER_ENABLED:
@@ -138,9 +146,10 @@ async def run_scheduled_preview_cycle(sessions, *, clock=lambda: datetime.now(ti
         report.status = "timeout"
     except Exception:
         report.status = "error"
-    logger.info("Scheduled intraday preview: status=%s locations=%s refreshed=%s fresh=%s "
+    label = "live" if settings.INTRADAY_SEND_ENABLED else "preview"
+    logger.info("Scheduled intraday %s: status=%s locations=%s refreshed=%s fresh=%s "
                 "refresh_failed=%s processed=%s statuses=%s reasons=%s truncated=%s",
-                report.status, report.locations, report.refreshed, report.fresh,
+                label, report.status, report.locations, report.refreshed, report.fresh,
                 report.refresh_failed, report.processed, report.statuses,
                 report.reasons, report.truncated)
     return report
