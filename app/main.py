@@ -7,6 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.v1.router import api_router
 from app.core.config import settings
+from app.notifications.scheduled_preview import scheduled_preview_lifespan
 
 logging.basicConfig(
     level=logging.DEBUG if settings.DEBUG else logging.INFO,
@@ -16,6 +17,7 @@ logger = logging.getLogger("weather.api")
 
 app = FastAPI(
     title="Weather Forecasting System",
+    lifespan=scheduled_preview_lifespan,
     description="Modular 7-day weather forecasting API",
     version="1.0.0",
     docs_url="/docs",

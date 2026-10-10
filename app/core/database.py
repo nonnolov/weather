@@ -35,6 +35,11 @@ async def get_db() -> AsyncSession:  # type: ignore[return]
         try:
             yield session
             await session.commit()
-        except Exception:
+        except BaseException:
+            from app.notifications.post_commit_preview import discard_forecast_previews
+            discard_forecast_previews(session)
             await session.rollback()
             raise
+        else:
+            from app.notifications.post_commit_preview import run_forecast_previews
+            await run_forecast_previews(session, AsyncSessionLocal)

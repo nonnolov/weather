@@ -1,0 +1,8 @@
+{
+  "database_bytes": 11474623,
+  "forecast_runs": 40,
+  "hourly_rows": 6720,
+  "hourly_table_bytes": 2187264,
+  "active_line_locations": 1,
+  "current_scope_frozen_baselines": 1
+}

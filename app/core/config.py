@@ -30,6 +30,10 @@ class Settings(BaseSettings):
 
     # Ingestion
     FORECAST_DAYS: int = 7
+    # Explicit refresh preview only; never enables LINE sending.
+    INTRADAY_PREVIEW_AFTER_REFRESH: bool = False
+    # Existing API process only; forecast-only polling and preview, never LINE.
+    INTRADAY_PREVIEW_SCHEDULER_ENABLED: bool = False
 
     # LINE Messaging API
     LINE_CHANNEL_ACCESS_TOKEN: str | None = None

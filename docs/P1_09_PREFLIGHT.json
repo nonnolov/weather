@@ -1,0 +1,37 @@
+{
+  "live": false,
+  "accepted": 0,
+  "committed": 0,
+  "refreshed": 0,
+  "schema": "0006",
+  "eligible_recipients": 1,
+  "daily_exists": true,
+  "local_date": "2026-10-10",
+  "timezone": "Asia/Bangkok",
+  "preview": [
+    {
+      "status": "suppress",
+      "outcome": "suppress",
+      "reasons": [
+        "identical_content"
+      ]
+    }
+  ],
+  "probe_complete": true,
+  "source_hashes": {
+    "app.notifications.formatter": "b18e8a74d07483b4803f3053fd86977ed476622de72bad156db58b140ee4c97a",
+    "app.notifications.intraday_baseline": "027d57e1db6c056d408c516744749870d64edb4dbd28699375aeace59b9076d4",
+    "app.notifications.intraday_comparison": "16a97af2e928b978f6b1d1436aa0fa1c40d6b9eff605d217b20c1fa1d644d637",
+    "app.notifications.intraday_delivery": "5c44b61d06edea3163fe5ba6d54bb3a1a82a9dfeb6c25523102a02379a32027a",
+    "app.notifications.intraday_formatter": "ccbc0c075b3b4f573efac932336a4bf5d6a1dacf1ba9c8b0fe6f92eb9477f734",
+    "app.notifications.intraday_preview": "749899e2c4c29f36b49ab39dd46651d5e6adbb4b4cf8cf6153ba0e7c473b2040",
+    "app.notifications.intraday_preview_cli": "9c99a2daced0ab1ed9b30e6c6c8cf27604b2cf6413148479330efe3eee0cca58",
+    "app.notifications.line_client": "b591a360f48b705be4728d2ad4601bac658ca6131706734b55a7c742a753d5ab",
+    "app.notifications.rain_alerts": "f8315593d2d95e5ca0140c4805a04f6bf6769346dd81f66b44cf50c9aa960ec7",
+    "app.notifications.rain_locking": "ba1e60ea23bcc9baabc4f916b2d5a85b2f37d30db45bfd536362308187fde36a",
+    "app.notifications.rain_risk": "4f85262be7aa62c24da4f2f33ba907e3e391c3d7e0eef424637e53abb050d0e3",
+    "app.notifications.service": "d7e438c0b91c6d3a3501f5964d75af5dbdc914f4f86577a3abe170b60f37b66f",
+    "app.models.notification": "230961688408e82b25f1d6cd87c8cd6f138e24ceb53b824a9e4d7b81be10b491"
+  },
+  "recorded_at_utc": "2026-10-10T09:58:11.688834+00:00"
+}

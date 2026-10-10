@@ -1,64 +1,49 @@
-# GitHub review package: durable rain evidence and intraday previews
+# Weather P0/P1 GitHub review package
 
-Prepared 2026-10-10 Asia/Bangkok under user authorization to commit and push.
-Target private repository: nonnolov/weather.
+Repository: private nonnolov/weather.
 Review branch: review/p1-intraday-20261010.
-Base: fc3d29c5203916a26e3c6c0a33f3712cc263da2e (feature/frontend-ux).
+Original working tree: C:\Users\Nutchanon\source\repos\weather.
+Original branch/HEAD: feature/frontend-ux / fc3d29c5203916a26e3c6c0a33f3712cc263da2e.
+Isolated worktree: C:\Users\Nutchanon\source\repos\weather-p1-review-20261010.
 
 ## Scope
 
-Packages 33 existing P0/P1 runtime, test and handoff files plus this document.
-P0 interval semantics and durable frozen delivery evidence are necessary
-dependencies of the P1 comparator, baseline reader, shared locks, intraday
-formatter/delivery helper and committed-snapshot preview CLI.
-P1-07 is the current refresh-readiness review, not another runtime activation.
+Local package commit 57eed054d29793af1f93fde231c4614007d73f42 contains the
+reviewed P0 evidence foundation and P1-02 through P1-07 preparation. The
+subsequent integration commit on this review branch adds P1-08 post-commit
+preview, P1-09 controlled acceptance reports, P1-10 periodic preview preparation,
+regression tests and current acceptance/capacity records. It does not change
+production service configuration or activate any sender.
 
-The existing daily sender adds the shared recipient/location lock, retaining
-its daily key and existing schedule. P1 live delivery requires an explicitly
-injected sender and dry_run=False; the new CLI offers preview only.
-No ingestion route, scheduler, production configuration or LINE client is
-automatically connected to the new intraday pipeline.
+The original unrelated docs/FRONTEND_RELEASE_20261010.md is excluded. All 34
+original dirty file hashes, original HEAD/branch and original empty index are
+checked independently. Worktree packaging must not overwrite those files.
 
-Excluded: docs/FRONTEND_RELEASE_20261010.md, an unrelated frontend release note.
-No new frontend runtime changes, .env, credential files or generated output
-were selected. The selected files passed a targeted credential-pattern scan.
-Legacy unchanged tracked configuration is inherited from the existing base;
-this package is not a full repository/history secret audit.
+## Upload boundary
 
-## Preservation and validation
+The user explicitly requested GitHub CLI, completion of the preparation and
+ordered tests before commit/push, then authorized that sequence. gh verifies
+the repository and configures the credential helper; git performs the actual
+local commit and ordinary branch push. There is no force push, default-branch
+update, merge, pull request, deployment or live intraday LINE activation.
 
-An isolated worktree was created at:
-C:\Users\Nutchanon\source\repos\weather-p1-review-20261010
+Fresh pre-upload checks found zero GitHub repository hooks and zero Actions
+workflows. A Railway public GraphQL query through the CLI confirmed empty
+production deployment-trigger connections for API, cron and Hermes, with no
+additional pages. The review branch was absent remotely before its first push.
+Uploading this branch therefore does not wire a Railway deployment trigger.
+Remote branch SHA must match the local SHA after upload; report that SHA and
+GitHub branch link directly to the user, since a commit cannot store its own ID.
 
-Original working tree:
-C:\Users\Nutchanon\source\repos\weather
-All 34 original dirty files were SHA256-checkpointed and copied byte-for-byte
-where selected. The original working branch/index/HEAD remain unchanged;
-the source working tree stays dirty intentionally. Further development there
-must account for the review branch rather than committing the same package twice.
+## Validation and remaining operations
 
-Latest executed runtime result is the P1-06 isolated run: 268 passed, 1 existing
-Starlette python_multipart warning, no skips. See P1_06_PREVIEW_HANDOFF.md for
-the exact runner, PG isolation and cleanup. Tests were not repeated solely
-because files were copied into a Git worktree. Pre-commit whitespace and Python
-syntax checks are run on the review package, and staged paths are allowlisted.
+See P1_ACCEPTANCE.md and P1_10_SCHEDULED_PREVIEW_HANDOFF.md for final test results,
+controlled accepted daily evidence, cadence estimates, limits and rollout steps.
+Local mocked tests plus the controlled daily baseline prove the prepared
+preview pipeline; they do not prove automatic production execution.
 
-## Push and production boundary
-
-Fresh Railway GraphQL deploymentTriggers reads returned empty edges and
-hasNextPage=false for API, cron and Hermes in production before this push.
-Project 71e0e499-6a9d-46c5-a552-b9a9da0e1928;
-environment 7ca11e27-30cd-4217-a80d-0b1647cb55c9.
-The GitHub repository default branch is phase-1-backend-foundation.
-This push targets a new review branch; it does not update either existing
-feature/frontend-ux or phase-1-backend-foundation. No force push or merge.
-
-P1-07 confirms production snapshot freshness and a compatible current-location
-frozen baseline are still missing. Normal October 11 daily acceptance evidence,
-a reviewed post-commit preview bridge, actual cadence/budget and ambiguity
-handling remain relevant before live intraday activation. GitHub storage is not
-deployment or alert readiness.
-
-The commit identity and authoritative branch tip are available in Git history.
-After push, the remote branch SHA must equal the local commit and original
-source hashes/branch/index must still match their checkpoint.
+Both preview flags remain false by default. The API contains no real intraday
+sender wiring. Production deployment and enabling preview require the next
+explicit rollout instruction. The normal daily cron's post-release scheduled
+acceptance remains separate from October 10's controlled one-off acceptance.
+No upgrade or paid dependency was introduced.

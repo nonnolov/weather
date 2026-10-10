@@ -126,6 +126,8 @@ async def refresh_user_forecast(
         raise HTTPException(status_code=status.HTTP_502_BAD_GATEWAY, detail=str(exc)) from exc
     hourly_count = await db.execute(select(HourlyForecast).where(HourlyForecast.forecast_run_id == run.id))
     daily_count = await db.execute(select(DailyForecast).where(DailyForecast.forecast_run_id == run.id))
+    from app.notifications.post_commit_preview import queue_forecast_preview
+    queue_forecast_preview(db, location.id, run.id)
     return IngestResponse(
         forecast_run_id=run.id,
         location_id=location.id,

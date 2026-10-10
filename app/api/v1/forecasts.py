@@ -44,6 +44,8 @@ async def trigger_ingestion(
     hourly_records = len(hourly_count_result.scalars().all())
     daily_records = len(daily_count_result.scalars().all())
 
+    from app.notifications.post_commit_preview import queue_forecast_preview
+    queue_forecast_preview(db, location.id, run.id)
     return IngestResponse(
         forecast_run_id=run.id,
         location_id=location_id,
