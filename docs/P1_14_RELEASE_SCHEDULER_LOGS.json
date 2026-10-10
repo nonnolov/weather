@@ -1,0 +1,11 @@
+{
+  "deployment_id": "08eda3b9-d345-40d3-8f75-cff4ff0b5eb3",
+  "native_scheduler_tick_observed": true,
+  "timezone": "Asia/Bangkok",
+  "entries": [
+    {
+      "timestamp": "2026-10-10T15:06:50.486844815Z",
+      "message": "2026-10-10 15:06:40,798 INFO app.notifications.scheduled_preview Scheduled intraday live: status=complete locations=1 refreshed=0 fresh=1 refresh_failed=0 processed=1 statuses={'skip': 1} reasons={'short_window': 1} truncated=False"
+    }
+  ]
+}

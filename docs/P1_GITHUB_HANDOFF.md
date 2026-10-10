@@ -97,3 +97,8 @@ send remain separate observations.
 Original 34 dirty-file hashes, feature/frontend-ux/fc3d29c HEAD and original
 empty index are independently preserved. No original working-tree file is
 staged or committed; all changes are in the isolated review worktree.
+
+
+## P1-14 production follow-up
+
+The authorized P1-14 code is committed and pushed, and the existing API now runs `intraday-v2-candidate` on successful deployment `08eda3b9-d345-40d3-8f75-cff4ff0b5eb3`. See `P1_14_POLICY_DELIVERY_HANDOFF.md` and `P1_14_PRODUCTION_RELEASE.json` for source, health, cadence and preservation verification. Earlier offline-only and P1-12/v1 statements describe the earlier stages. Positive real intraday LINE acceptance and handset receipt remain open; no qualifying event was fabricated to close them.

@@ -1,0 +1,61 @@
+{
+  "code_commit": "eec1d7b7174f6b455a6934bf0d26218f1f391ee5",
+  "github_branch": "review/p1-intraday-20261010",
+  "github_push_verified": true,
+  "deployment_id": "08eda3b9-d345-40d3-8f75-cff4ff0b5eb3",
+  "deployment_status": "SUCCESS",
+  "project_id": "71e0e499-6a9d-46c5-a552-b9a9da0e1928",
+  "environment": "production",
+  "service": "weather-api",
+  "production_url": "https://weather-api-production-9152.up.railway.app",
+  "tests": {
+    "passed": 493,
+    "external_deselected": 18,
+    "existing_warnings": 1
+  },
+  "runtime_verification": {
+    "checked_at_utc": "2026-10-10T15:06:20.543371+00:00",
+    "source_files_verified": 71,
+    "source_mismatches": 0,
+    "policy_version": "intraday-v2-candidate",
+    "live_enabled": true,
+    "scheduler_enabled": true,
+    "post_commit_preview_enabled": true,
+    "allowed_recipients": 1,
+    "active_authorized_recipients": 1,
+    "token_present": true,
+    "schema": "0007",
+    "prior_daily_baseline_retained": true,
+    "intent_unique_indexes": [
+      "uq_intraday_attempt_event",
+      "uq_intraday_pending_scope"
+    ],
+    "total_deliveries": 5,
+    "intraday_deliveries": 0,
+    "accepted_intraday_records": [],
+    "pending_intents": 0,
+    "accepted_intents": 0,
+    "current_source": 45,
+    "dry_run_status": "skip",
+    "dry_run_reasons": [
+      "short_window"
+    ],
+    "audit_line_calls": 0,
+    "positive_intraday_acceptance_observed": false,
+    "handset_receipt_verified": false,
+    "internal_health_http": 200,
+    "public_health_http": 200
+  },
+  "native_scheduler_ticks": [
+    {
+      "timestamp": "2026-10-10T15:06:50.486844815Z",
+      "message": "2026-10-10 15:06:40,798 INFO app.notifications.scheduled_preview Scheduled intraday live: status=complete locations=1 refreshed=0 fresh=1 refresh_failed=0 processed=1 statuses={'skip': 1} reasons={'short_window': 1} truncated=False"
+    }
+  ],
+  "daily_cron_deployment_unchanged": "6ffccaae-5764-47cf-89c9-c5e2d39b5287",
+  "database_migration_added": false,
+  "new_services_created": false,
+  "original_protected_files": 34,
+  "original_hash_mismatches": 0,
+  "forced_real_line_calls": 0
+}

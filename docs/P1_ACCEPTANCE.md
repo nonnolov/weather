@@ -157,3 +157,8 @@ Original 34 dirty files retain their checkpoint hashes; original
 feature/frontend-ux branch, fc3d29c5203916a26e3c6c0a33f3712cc263da2e HEAD and
 empty index are preserved. The unrelated original frontend release note is
 excluded. See P1_GITHUB_HANDOFF.md for package and deployment-trigger evidence.
+
+
+## P1-14 production follow-up
+
+The authorized P1-14 code is committed and pushed, and the existing API now runs `intraday-v2-candidate` on successful deployment `08eda3b9-d345-40d3-8f75-cff4ff0b5eb3`. See `P1_14_POLICY_DELIVERY_HANDOFF.md` and `P1_14_PRODUCTION_RELEASE.json` for source, health, cadence and preservation verification. Earlier offline-only and P1-12/v1 statements describe the earlier stages. Positive real intraday LINE acceptance and handset receipt remain open; no qualifying event was fabricated to close them.

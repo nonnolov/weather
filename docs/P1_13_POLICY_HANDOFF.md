@@ -137,3 +137,8 @@ and evidence files.
 ## Subsequent P1-14 integration
 
 P1_14_POLICY_DELIVERY_HANDOFF.md supersedes the earlier offline-only integration boundary for the current review worktree. The candidate can now be explicitly selected by both preview and live adapters and is tested inside the locked delivery path with isolated PostgreSQL and mocked LINE. The default remains v1, and production remains P1-12. This follow-up does not establish actual intraday provider acceptance, handset receipt or meteorological accuracy.
+
+
+## P1-14 production follow-up
+
+The authorized P1-14 code is committed and pushed, and the existing API now runs `intraday-v2-candidate` on successful deployment `08eda3b9-d345-40d3-8f75-cff4ff0b5eb3`. See `P1_14_POLICY_DELIVERY_HANDOFF.md` and `P1_14_PRODUCTION_RELEASE.json` for source, health, cadence and preservation verification. Earlier offline-only and P1-12/v1 statements describe the earlier stages. Positive real intraday LINE acceptance and handset receipt remain open; no qualifying event was fabricated to close them.
