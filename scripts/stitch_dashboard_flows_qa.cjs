@@ -4,16 +4,16 @@ const entry=fs.readdirSync(cache).map(d=>path.join(cache,d,'node_modules','playw
 const {chromium}=require(entry);
 const stamp=new Date().toISOString();
 const place={id:1,name:'ชลบุรี',slug:'chon-buri-city',timezone:'Asia/Bangkok',subdistrict:'บางปลาสร้อย',district:'เมืองชลบุรี',province:'ชลบุรี',is_active:true};
-const forecast={id:1,provider:'open_meteo',retrieved_at:stamp,hourly:[{id:1,valid_time:new Date(Date.now()+3600000).toISOString(),temperature_2m:29,apparent_temperature:32,weather_code:2,precipitation_probability:40,precipitation:0.3,relative_humidity_2m:70,wind_speed_10m:8}],daily:[]};
+const forecast={id:1,location_id:1,provider:'open_meteo',retrieved_at:stamp,hourly:[{id:1,valid_time:new Date(Date.now()+3600000).toISOString(),temperature_2m:29,apparent_temperature:32,weather_code:2,precipitation_probability:40,precipitation:0.3,relative_humidity_2m:70,wind_speed_10m:8}],daily:[]};
 (async()=>{
  const browser=await chromium.launch({executablePath:'C:/Program Files/Google/Chrome/Application/chrome.exe',headless:true});
  const results=[];
  try {
- for(const mode of ['missing-air','stale-air','failed-air','empty-forecast','failed-forecast','gps-denied','gps-success']){
+ for(const mode of ['missing-air','stale-air','failed-air','empty-forecast','failed-forecast','gps-denied','gps-success','gps-location-failed','gps-refresh-failed','gps-saved-forecast','gps-wrong-saved-area','gps-expired-saved']){
   const ctx=await browser.newContext({viewport:{width:390,height:844}});
   await ctx.addInitScript(mode=>{
    localStorage.setItem('weather.theme','light');
-   Object.defineProperty(navigator,'geolocation',{value:{getCurrentPosition(success,error){mode==='gps-success'?success({coords:{latitude:13.36,longitude:100.98}}):error({code:1});}}});
+   Object.defineProperty(navigator,'geolocation',{value:{getCurrentPosition(success,error){mode!=='gps-denied'?success({coords:{latitude:13.36,longitude:100.98}}):error({code:1});}}});
   },mode);
   const page=await ctx.newPage(),requests=[],errors=[];
   page.on('pageerror',e=>errors.push(e.message));
@@ -26,11 +26,18 @@ const forecast={id:1,provider:'open_meteo',retrieved_at:stamp,hourly:[{id:1,vali
    else if(url.includes('/air-quality/')){
     if(mode==='failed-air')return r.fulfill({status:503,json:{error:'unavailable'}});
     data={location_id:1,status:mode==='missing-air'?'missing':mode==='stale-air'?'stale':'available',stale:mode==='stale-air',retrieved_at:stamp,current:mode==='missing-air'?null:{valid_time:stamp,pm25:18,aqi:40,category:'fair'},hourly:[]};
-   } else if(url.endsWith('/location/from-gps'))data={external_user_id:'mock-user',location:place};
-   else if(url.endsWith('/forecast/refresh'))data={timezone:'Asia/Bangkok'};
+   } else if(url.endsWith('/location/from-gps')){
+    if(mode==='gps-location-failed')return r.fulfill({status:502,json:{detail:'Geocoding unavailable'}});
+    data={external_user_id:'mock-user',location:place};
+   }
+   else if(url.endsWith('/forecast/refresh')){
+    if(['gps-refresh-failed','gps-saved-forecast','gps-wrong-saved-area','gps-expired-saved'].includes(mode))return r.fulfill({status:502,json:{detail:'Provider fetch failed'}});
+    data={timezone:'Asia/Bangkok'};
+   }
    else {
     if(mode==='failed-forecast')return r.fulfill({status:503,json:{error:'unavailable'}});
-    data=mode==='empty-forecast'?{...forecast,hourly:[],daily:[]}:forecast;
+    if(mode==='gps-refresh-failed')return r.fulfill({status:404,json:{detail:'No stored forecast'}});
+    data=mode==='empty-forecast'?{...forecast,hourly:[],daily:[]}:mode==='gps-wrong-saved-area'?{...forecast,location_id:2}:mode==='gps-expired-saved'?{...forecast,hourly:[{...forecast.hourly[0],valid_time:new Date(Date.now()-3600000).toISOString()}]}:forecast;
    }
    return r.fulfill({json:data});
   });
@@ -41,6 +48,20 @@ const forecast={id:1,provider:'open_meteo',retrieved_at:stamp,hourly:[{id:1,vali
     await page.locator('.status-error[role=alert]').waitFor();
     assert.equal(requests.filter(r=>r.method==='POST').length,0);
     assert(await page.locator('.retry-button').isVisible());
+   } else if(mode!=='gps-success'){
+    await page.locator('.status-error[role=alert]').waitFor();
+    const errorText=await page.locator('.status-error').innerText();
+    if(mode==='gps-location-failed'){
+     assert(errorText.includes('บริการระบุตำแหน่งไม่พร้อมใช้งาน'));
+     assert(!requests.some(r=>r.url.endsWith('/forecast/refresh')));
+    }else if(mode==='gps-saved-forecast'){
+     assert(errorText.includes('ข้อมูลเดิม'));
+     assert(await page.locator('.hero-actions').isVisible());
+    }else{
+     assert(errorText.includes('บริการพยากรณ์ขัดข้อง'));
+     assert(!errorText.includes('บริการระบุตำแหน่งไม่พร้อมใช้งาน'));
+     assert.equal(await page.locator('.hero-actions').count(),0,'Incorrect cached forecast shown');
+    }
    } else {
     await page.locator('.hero-actions').waitFor();
     assert.equal(requests.filter(r=>r.method==='POST').length,2);

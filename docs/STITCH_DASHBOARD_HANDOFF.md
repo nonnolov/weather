@@ -48,3 +48,13 @@ Rebuilt the presentation layer around the supplied Stitch desktop/mobile export,
 - Map remains a full-screen unavailable state; Leaflet/radar are still pending. No flood card or flood API calls were added.
 - QA uses mocked responses only: Thai/English layouts, six viewport/theme combinations (390/1024/1440/1920px), modal/API isolation, chart controls, reduced motion, missing/stale/failed PM data, empty/failed forecast, GPS denied and GPS success. The GPS success test intercepts both POSTs; no production writes.
 - Preview on the connected PC: http://localhost:3100. This change is not pushed or deployed.
+
+## GPS error diagnosis and recovery — 2026-10-12
+
+Read-only Railway runtime logs around 02:19 Asia/Bangkok show successful reverse geocoding and location/from-gps (HTTP 200), followed by forecast/refresh (HTTP 502). A preceding upstream Open-Meteo forecast fetch returned HTTP 500. The UI incorrectly classified every API 502 in the entire GPS workflow as a geocoding outage.
+
+The dashboard hook now distinguishes failures before and after resolving the location. After a forecast failure it performs one read-only saved-forecast lookup, accepts it only when location_id matches the resolved area and future hourly coverage remains, and displays an explicit saved-data warning with the original update time. Missing, wrong-area or expired saved forecasts are not relabelled as the new area's weather. There are no extra refresh POSTs or alert-policy changes.
+
+Regression QA covers the geocoding failure, forecast failure without saved data, matching saved data, wrong-area saved data and expired coverage. These tests intercept all backend requests.
+
+Live tests using coordinates/user identity taken from logs were blocked by automatic approval review for lack of explicit consent; no such tests were executed. Upstream service recovery is not claimed, and this UI fix has not been deployed.

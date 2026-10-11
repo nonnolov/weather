@@ -60,7 +60,10 @@ export function useWeatherDashboard() {
     timeout: "หาตำแหน่งไม่ทันเวลา ลองอีกครั้งในพื้นที่ที่รับสัญญาณ GPS ได้",
     unavailable: "ยังหาตำแหน่งไม่ได้ กรุณาเปิดบริการตำแหน่งแล้วลองอีกครั้ง",
     lineHint: "เปิดผ่าน LINE เพื่อเชื่อมบัญชีสำหรับการแจ้งเตือน", sampleHint: "กำลังดูพื้นที่ตัวอย่าง ไม่ได้เปลี่ยนตำแหน่งของคุณ",
-    low: "ต่ำสุด", high: "สูงสุด", loadingSample: "กำลังโหลดพื้นที่ตัวอย่าง"
+    low: "ต่ำสุด", high: "สูงสุด", loadingSample: "กำลังโหลดพื้นที่ตัวอย่าง",
+    forecastUnavailable: "ระบุตำแหน่งได้แล้ว แต่บริการพยากรณ์ขัดข้อง กรุณาลองอีกครั้งภายหลัง",
+    cachedForecast: "อัปเดตพยากรณ์ไม่สำเร็จ กำลังแสดงข้อมูลเดิมของพื้นที่นี้ โปรดตรวจเวลาอัปเดตและลองอีกครั้งภายหลัง",
+    locationSaveError: "ไม่สามารถบันทึกพื้นที่จากพิกัดได้ กรุณาลองอีกครั้ง"
   } : {
     title: "Weather around you", intro: "Ready for the day ahead",
     start: "What does today look like?", description: "Temperature, rain chances and a 7-day outlook for wherever you are.",
@@ -71,7 +74,10 @@ export function useWeatherDashboard() {
     timeout: "Location search timed out. Try again where GPS reception is available.",
     unavailable: "Location is unavailable. Enable location services and try again.",
     lineHint: "Open in LINE to connect your account for alerts.", sampleHint: "Sample area; your saved location has not changed.",
-    low: "Low", high: "High", loadingSample: "Loading sample forecast"
+    low: "Low", high: "High", loadingSample: "Loading sample forecast",
+    forecastUnavailable: "Location found, but the forecast service is unavailable. Please try again later.",
+    cachedForecast: "Forecast refresh failed. Showing saved data for this area; check its update time and retry later.",
+    locationSaveError: "Could not save the area for your coordinates. Please try again."
   };
   const isGpsBusy = ["locating", "saving", "forecasting"].includes(gpsState);
   const busy = isGpsBusy || seedLoading;
@@ -154,9 +160,11 @@ export function useWeatherDashboard() {
     setMessage(t.requesting);
     navigator.geolocation.getCurrentPosition(
       async (position) => {
+        let resolvedLocation: Location | null = null;
         try {
           setGpsState("saving");
           const result = await setUserLocationFromGps(activeUserId, position.coords.latitude, position.coords.longitude);
+          resolvedLocation = result.location;
           setGpsState("forecasting");
           const refresh = await refreshUserForecast(activeUserId);
           const data = await getUserForecast(activeUserId);
@@ -166,8 +174,26 @@ export function useWeatherDashboard() {
           setGpsState("success");
           setMessage(t.loaded);
         } catch (error) {
+          // A refresh failure does not mean GPS/geocoding failed. Read-only recovery
+          // must match the newly resolved location and still cover future hours.
+          if (resolvedLocation) {
+            try {
+              const saved = await getUserForecast(activeUserId);
+              if (saved.location_id === resolvedLocation.id &&
+                  saved.hourly.some(hour => new Date(hour.valid_time).getTime() >= Date.now())) {
+                setLocation(resolvedLocation);
+                setForecast(saved);
+                setGpsState("error");
+                setMessage(ux.cachedForecast);
+                return;
+              }
+            } catch {
+              // Missing or unavailable saved data leaves the displayed pair intact.
+            }
+          }
           setGpsState("error");
-          setMessage(error instanceof ApiError && error.status === 502 ? t.locationUnavailable : t.forecastError);
+          setMessage(resolvedLocation ? ux.forecastUnavailable :
+            error instanceof ApiError && error.status === 502 ? t.locationUnavailable : ux.locationSaveError);
         }
       },
       (error) => {
