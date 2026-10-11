@@ -1,0 +1,96 @@
+{
+  "code_commit": "f6074c78e6b608a65e7a3f759091bca145af6aee",
+  "validation": {
+    "backend_summary": "================= 215 passed, 1 warning in 354.76s (0:05:54) ==================",
+    "frontend": [
+      {
+        "check": "typecheck",
+        "exit_code": 0
+      },
+      {
+        "check": "lint",
+        "exit_code": 0
+      },
+      {
+        "check": "build",
+        "exit_code": 0
+      }
+    ]
+  },
+  "line_test_calls": 0,
+  "deployments": {
+    "api": {
+      "id": "59a5497e-2c55-4d64-882e-f54f4247c40a",
+      "service_id": "89478e29-e136-4a39-9ace-3dc128d01495",
+      "status": "SUCCESS",
+      "build_only": false,
+      "cron_schedule": null
+    },
+    "daily_cron": {
+      "id": "df611ce8-75e4-46a6-93ff-4dc1a86992b7",
+      "service_id": "7b46c113-c416-4571-ae05-7b697b4da7ec",
+      "status": "SUCCESS",
+      "build_only": true,
+      "cron_schedule": "0 23 * * *"
+    }
+  },
+  "frontend_staged": {
+    "deployment_id": "dpl_G5wmjDJjXMkkmYdXw6mbpquaK56L",
+    "state": "READY",
+    "flood_component_absent": true,
+    "flood_request_absent": true,
+    "pm25_retained": true
+  },
+  "frontend_production": {
+    "deployment_id": "dpl_G5wmjDJjXMkkmYdXw6mbpquaK56L",
+    "state": "READY",
+    "stable_url": "https://weather-iota-five-83.vercel.app",
+    "root_http": 200,
+    "health_http": 200,
+    "flood_component_absent": true,
+    "flood_request_absent": true,
+    "pm25_retained": true,
+    "source_commit": "f6074c78e6b608a65e7a3f759091bca145af6aee"
+  },
+  "backend_production_verification": {
+    "status": "verified",
+    "schema_revision": "0009",
+    "source_hashes_match": true,
+    "old_daily_evidence_unchanged": true,
+    "daily_rain_format_without_flood": true,
+    "intraday_preview_statuses": {
+      "suppress": 1
+    },
+    "intraday_preview_reasons": {
+      "no_significant_change": 1
+    },
+    "recipient_allowlist_count": 1,
+    "line_test_calls": 0,
+    "checked_at": "2026-10-11T14:35:41.682341+00:00"
+  },
+  "daily_use_smoke": {
+    "checked_at": "2026-10-11T14:35:42.024574+00:00",
+    "line_calls": 0,
+    "checks": [
+      {
+        "name": "health",
+        "status": "passed"
+      },
+      {
+        "location_id": 15,
+        "forecast_run_id": 75,
+        "forecast_age_minutes": 18.3,
+        "future_hours": 146,
+        "daily_records": 7,
+        "status": "passed"
+      },
+      {
+        "location_id": 15,
+        "name": "air_quality",
+        "status": "available"
+      }
+    ],
+    "warnings": [],
+    "status": "passed"
+  }
+}
