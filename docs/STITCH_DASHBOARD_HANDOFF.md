@@ -22,3 +22,11 @@ Not deployed. Leaflet/radar remain unimplemented. Real handset/LIFF visual accep
 Final lint, explicit tsc --noEmit and production build all exit 0 after marker/font refinement. A local preview server is started on port 3100 for review; not a production deployment.
 
 Logo follow-up: replace the green W badge with the existing SVG WeatherArtwork, driven by the displayed forecast hour's weather_code. A cloudy icon is shown before data is loaded; descriptive Thai/English accessible text is included. No new image service, dependency or API calls. The forecast art supports clear, cloudy, rain, thunderstorm, snow and fog conditions.
+
+## Fidelity correction after user review
+The user requested closer adherence to the supplied Stitch export, including UI motion. The second archive contains the same desktop HTML/screenshot plus DESIGN.md. The original mobile/map export remains the mobile reference.
+Added the fixed blurred header, compact navigation, location/update label inside the weather hero, feels-like from API data, four desktop metric blocks, probability progress bar, compact expandable seven-day rows, smaller PM2.5 details, and IBM Plex Sans/Thai with system fallbacks.
+Motion follows exported interactions: 150ms pressed button scale, 200ms hour-card lift/hover, rotating GPS icon, real connected-LINE status ping, 300ms chart entry, expandable detail transitions. Reduced-motion disables animation/transitions. Charts now expose a keyboard/touch hour selector and tooltip populated from actual forecast values, instead of the export's hard-coded sample tooltip.
+User-selected weather logo and black/charcoal dark theme remain.
+Unsupported station names, model accuracy/latency numbers, fake recipients/thresholds, and developer simulation controls are excluded. These are deliberate data/product corrections, not a claim of pixel-identical reproduction.
+Final production build/typecheck/lint completed with exit 0 and no CSS warnings. Browser validation is recorded in the session.

@@ -5,15 +5,15 @@ if (!entry) throw Error('Playwright package missing');
 const { chromium } = require(entry);
 const stamp = new Date().toISOString();
 const location = {id:1,name:'พื้นที่ทดสอบ',slug:'chon-buri-city',timezone:'Asia/Bangkok',subdistrict:'ตำบลชื่อยาวสำหรับทดสอบการจัดวาง',district:'อำเภอเมืองชลบุรี',province:'ชลบุรี',is_active:true};
-const hours = Array.from({length:24},(_,i)=>({id:i,valid_time:new Date(Date.now()+(i+1)*3600000).toISOString(),temperature_2m:28+i%5,weather_code:61,precipitation_probability:65,precipitation:1.2,relative_humidity_2m:78,wind_speed_10m:14}));
+const hours = Array.from({length:24},(_,i)=>({id:i,valid_time:new Date(Date.now()+(i+1)*3600000).toISOString(),temperature_2m:28+i%5,apparent_temperature:31+i%5,weather_code:61,precipitation_probability:65,precipitation:1.2,relative_humidity_2m:78,wind_speed_10m:14}));
 const daily = Array.from({length:7},(_,i)=>({id:i,forecast_date:new Date(Date.now()+i*86400000).toISOString().slice(0,10),temperature_2m_min:25,temperature_2m_max:33,weather_code:61,precipitation_sum:8,wind_speed_10m_max:14}));
 (async()=>{
  const browser=await chromium.launch({executablePath:'C:/Program Files/Google/Chrome/Application/chrome.exe',headless:true});
  const report=[];
  try {
-  for(const width of [390,1440]) {
+  for(const {width,theme} of [{width:390,theme:"light"},{width:1440,theme:"light"},{width:390,theme:"dark"},{width:1440,theme:"dark"}]) {
    const context=await browser.newContext({viewport:{width,height:1000}});
-   await context.addInitScript(()=>localStorage.setItem('weather.theme','light'));
+   await context.addInitScript(theme=>localStorage.setItem('weather.theme',theme),theme);
    const page=await context.newPage(), errors=[], requests=[];
    page.on('pageerror',e=>errors.push(e.message));
    await page.route('**/api/backend/**',route=>{
@@ -31,7 +31,7 @@ const daily = Array.from({length:7},(_,i)=>({id:i,forecast_date:new Date(Date.no
    assert.equal(await page.locator('.forecast-day').count(),7);
    assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'Horizontal overflow');
    const before=requests.length;
-   await page.getByRole('button',{name:'ดูแผนที่',exact:true}).click();
+   await page.locator('.hero-actions .map-button').click();
    await page.getByRole('heading',{name:'แผนที่ยังไม่เปิดใช้งาน'}).waitFor();
    await page.keyboard.press('Escape');
    await page.locator('dialog').waitFor({state:'detached'});
@@ -40,11 +40,25 @@ const daily = Array.from({length:7},(_,i)=>({id:i,forecast_date:new Date(Date.no
    assert(await page.locator('.rain-chart').isVisible());
    await page.getByRole('button',{name:'แนวโน้มอุณหภูมิ',exact:true}).click();
    assert(await page.locator('.temperature-chart').isVisible());
+   await page.locator('.chart-inspector input').focus(); await page.keyboard.press('Home'); await page.keyboard.press('ArrowRight');
+   assert((await page.locator('.chart-tooltip time').innerText()).length > 0);
+   await page.locator('.day-summary').first().click();
+   assert(await page.locator('.forecast-day[open] .day-details').isVisible());
+   if(theme==='dark') assert.equal(await page.evaluate(()=>getComputedStyle(document.body).backgroundColor),'rgb(0, 0, 0)');
+   await page.emulateMedia({reducedMotion:'reduce'});
+   assert.equal(await page.locator('.chart-card').evaluate(el=>getComputedStyle(el).animationName),'none');
+   await page.emulateMedia({reducedMotion:'no-preference'});
    assert(!requests.some(r=>r.method!=='GET'),'Unexpected write request');
    assert(!requests.some(r=>r.url.includes('flood')),'Flood request');
    assert.equal(errors.length,0,errors.join('; '));
-   await page.screenshot({path:'stitch-dashboard-'+width+'.png',fullPage:true});
-   report.push({width,status:'passed',hourly:24,daily:7,mapRequests:0,pageErrors:0});
+   assert(!(await page.locator('.hero-reading').innerText()).includes('NaN'));
+   await page.locator('.day-summary').first().click();
+   await page.locator('.sample-picker summary').click();
+   await page.evaluate(()=>window.scrollTo(0,0));
+   await page.waitForTimeout(400);
+   assert.equal(await page.locator('.dashboard-header').evaluate(el=>Math.round(el.getBoundingClientRect().top)),0);
+   await page.screenshot({path:'stitch-dashboard-'+width+'-'+theme+'.png',fullPage:true});
+   report.push({width,theme,status:'passed',hourly:24,daily:7,mapRequests:0,pageErrors:0});
    await context.close();
   }
   console.log(JSON.stringify({status:'passed',mockData:true,productionWrites:0,report},null,2));

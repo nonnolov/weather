@@ -18,7 +18,7 @@ import {
   type Location,
 } from "../lib/api";
 
-const value = (n: number | null, unit = "") => n === null ? "—" : Math.round(n * 10) / 10 + unit;
+const value = (n: number | null | undefined, unit = "") => n == null || !Number.isFinite(n) ? "—" : Math.round(n * 10) / 10 + unit;
 const translations = {
   th: { unavailable: "ไม่พร้อมใช้งาน", clear: "ท้องฟ้าแจ่มใส", cloudy: "มีเมฆบางส่วน", fog: "หมอก", drizzle: "ฝนปรอย", rain: "ฝนตก", thunderstorm: "พายุฝนฟ้าคะนอง", weatherCode: "รหัสสภาพอากาศ", monitoring: "ติดตามสภาพอากาศ", dashboard: "แดชบอร์ดพยากรณ์", checking: "กำลังตรวจสอบ", online: "ออนไลน์", offline: "ออฟไลน์", yourLocation: "ตำแหน่งของคุณ", gpsDescription: "ใช้ GPS เพื่อพยากรณ์อากาศในพื้นที่ที่คุณอยู่", detecting: "กำลังค้นหาตำแหน่ง…", useLocation: "ใช้ตำแหน่งของฉัน", seedLocations: "ตำแหน่งทดสอบ", seedDescription: "ใช้สำหรับทดสอบก่อนเปิดใช้งาน GPS", monitoredLocation: "ตำแหน่งที่ติดตาม", noForecast: "ยังไม่มีพยากรณ์อากาศ", allowGps: "อนุญาต GPS เพื่อโหลดพยากรณ์อากาศสำหรับพื้นที่ปัจจุบัน", nextHour: "ชั่วโมงถัดไป", rainChance: "โอกาสฝนตก", maxRainChance: "โอกาสฝนสูงสุด", rainRiskPeriod: "ช่วงเสี่ยงฝน", wind: "ลม", humidity: "ความชื้น", forecast7: "พยากรณ์ 7 วัน", retrieved: "อัปเดต", precip: "ปริมาณฝน", tempTrend: "แนวโน้มอุณหภูมิ", rainTrend: "แนวโน้มฝน", next24: "24 ชั่วโมงถัดไป", minimum: "ต่ำสุด", maximum: "สูงสุด", current: "ขณะนี้", peak: "สูงสุด", rainfall: "ปริมาณฝน", probability: "โอกาส", theme: "ธีม", light: "สว่าง", dark: "มืด", highRisk: "เสี่ยงสูง", connectedLine: "เชื่อมต่อ LINE แล้ว", lineUnavailable: "ไม่สามารถเชื่อมต่อ LINE ได้ ขณะนี้ใช้บัญชีในเบราว์เซอร์", gpsUnsupported: "เบราว์เซอร์นี้ไม่รองรับตำแหน่ง GPS", requesting: "กำลังขอตำแหน่งของคุณ…", loaded: "ตรวจพบตำแหน่งและโหลดพยากรณ์แล้ว", locationUnavailable: "บริการระบุตำแหน่งไม่พร้อมใช้งานชั่วคราว", forecastError: "ไม่สามารถโหลดพยากรณ์สำหรับตำแหน่งนี้ได้", permissionDenied: "ไม่ได้รับอนุญาตหรือไม่สามารถระบุตำแหน่งได้", noStored: "ไม่มีพยากรณ์ที่บันทึกไว้สำหรับตำแหน่งนี้", lang: "ภาษา" },
   en: { unavailable: "Unavailable", clear: "Clear sky", cloudy: "Partly cloudy", fog: "Fog", drizzle: "Drizzle", rain: "Rain", thunderstorm: "Thunderstorm", weatherCode: "Weather code", monitoring: "Weather monitoring", dashboard: "Forecast dashboard", checking: "checking", online: "online", offline: "offline", yourLocation: "Your location", gpsDescription: "Use GPS to forecast the exact area you are currently in.", detecting: "Detecting location…", useLocation: "Use my location", seedLocations: "Seed locations", seedDescription: "Fallback for testing before GPS is available.", monitoredLocation: "Monitored location", noForecast: "No forecast loaded", allowGps: "Allow GPS access to load a forecast for your current area.", nextHour: "Next forecast hour", rainChance: "Rain chance", maxRainChance: "Peak rain chance", rainRiskPeriod: "Rain-risk period", wind: "Wind", humidity: "Humidity", forecast7: "7-day forecast", retrieved: "Retrieved", precip: "Precip.", tempTrend: "Temperature trend", rainTrend: "Rain trend", next24: "Next 24 hours", minimum: "Min", maximum: "Max", current: "Now", peak: "Peak", rainfall: "Rainfall", probability: "Probability", theme: "Theme", light: "Light", dark: "Dark", highRisk: "High risk", connectedLine: "Connected to LINE.", lineUnavailable: "LINE connection is unavailable. Local demo identity is still active.", gpsUnsupported: "This browser does not support GPS location.", requesting: "Requesting your location…", loaded: "Location detected and forecast loaded.", locationUnavailable: "Location service is temporarily unavailable.", forecastError: "Could not load the forecast for your location.", permissionDenied: "Location permission was denied or unavailable.", noStored: "No stored forecast is available for this location.", lang: "Language" },
@@ -113,6 +113,16 @@ function ChartTimes({ hours, timeZone }: { hours: ForecastRun["hourly"]; timeZon
   </div>;
 }
 
+function ChartInspector({ hours, timeZone, language }: { hours: ForecastRun["hourly"]; timeZone: string; language: Language }) {
+  const [index, setIndex] = useState(0);
+  const hour = hours[Math.min(index, hours.length - 1)];
+  if (!hour) return null;
+  return <div className="chart-inspector">
+    <output className="chart-tooltip" htmlFor={"hour-" + language + "-" + hours[0].id}><time dateTime={hour.valid_time}>{timeLabel(hour.valid_time, timeZone)}</time><span>{value(hour.temperature_2m, "°C")}</span><span>{language === "th" ? "โอกาสฝน " : "Rain chance "}{value(hour.precipitation_probability, "%")}</span><span>{value(hour.precipitation, language === "th" ? " มม." : " mm")}</span></output>
+    <input id={"hour-" + language + "-" + hours[0].id} type="range" min={0} max={hours.length - 1} value={index} onChange={event => setIndex(Number(event.target.value))} aria-label={language === "th" ? "เลือกชั่วโมงเพื่อดูค่าบนกราฟ" : "Choose forecast hour"} aria-valuetext={timeLabel(hour.valid_time, timeZone)} />
+  </div>;
+}
+
 function TemperatureTrend({ hourly, timeZone, language }: { hourly: ForecastRun["hourly"]; timeZone: string; language: Language }) {
   const hours = next24Hours(hourly);
   const temperatures = hours.map((hour) => hour.temperature_2m);
@@ -135,6 +145,7 @@ function TemperatureTrend({ hourly, timeZone, language }: { hourly: ForecastRun[
       <div><h2 id="temperature-trend-heading">{language === "th" ? "แนวโน้มอุณหภูมิ" : "Temperature trend"}</h2><p>{language === "th" ? "24 ชั่วโมงข้างหน้า" : "Next 24 hours"}</p></div>
       <dl className="chart-stats"><div><dt>{language === "th" ? "ต่ำสุดวันนี้" : "Low today"}</dt><dd>{value(Math.min(...available), "°C")}</dd></div><div><dt>{language === "th" ? "สูงสุดวันนี้" : "High today"}</dt><dd>{value(peakValue, "°C")}</dd></div><div><dt>{language === "th" ? "ช่วงร้อนสุด" : "Warmest"}</dt><dd>{peakIndex >= 0 ? timeLabel(hours[peakIndex].valid_time, timeZone) : "—"}</dd></div></dl>
     </div>
+    <ChartInspector hours={hours} timeZone={timeZone} language={language} />
     <div className="chart-body">
       <div className="chart-plot">
         <svg className="trend-svg" viewBox={`0 0 ${width} ${height}`} role="img" aria-labelledby="temperature-trend-heading temperature-trend-summary" preserveAspectRatio="none">
@@ -175,6 +186,7 @@ function RainTrend({ hourly, timeZone, language }: { hourly: ForecastRun["hourly
 
   return <section className="chart-card rain-chart" aria-labelledby="rain-trend-heading">
     <div className="chart-heading"><div><h2 id="rain-trend-heading">{language === "th" ? "แนวโน้มฝน" : "Rain trend"}</h2><p>{scaleHint}</p></div><div className={"risk-callout" + (peakProbability >= 50 ? " high-risk" : "")}><span>{peakProbability >= 50 ? translations[language].highRisk : language === "th" ? "ช่วงเสี่ยงสูงสุด" : "Peak risk"}</span><strong>{value(peakProbability, "%")}</strong><small>{riskHour}</small></div></div>
+    <ChartInspector hours={hours} timeZone={timeZone} language={language} />
     <div className="chart-body">
       <div className="chart-plot">
         <svg className="trend-svg" viewBox={`0 0 ${width} ${height}`} role="img" aria-labelledby="rain-trend-heading rain-trend-summary" preserveAspectRatio="none">
@@ -384,9 +396,10 @@ export default function Home() {
     <main className={"dashboard-shell" + (forecast && location ? " has-forecast" : "")} aria-busy={busy}>
     <header className="dashboard-header">
       <div className="brand"><span className="brand-weather" role="img" aria-label={summary ? weather(summary.weather_code, language) : language === "th" ? "เมฆ · ยังไม่มีข้อมูลพยากรณ์" : "Cloud · no forecast loaded"}><WeatherArtwork code={summary?.weather_code ?? 3} compact /></span><div><h1>Weather</h1><p className="eyebrow">{ux.intro}</p></div></div>
+      <nav className="dashboard-nav" aria-label={language === "th" ? "เมนูหลัก" : "Main navigation"}><a href="#hourly-heading">{language === "th" ? "พยากรณ์ปัจจุบัน" : "Forecast"}</a><a href="#air-quality-heading">PM2.5</a><button type="button" onClick={() => setMapOpen(true)} disabled={!location}>{language === "th" ? "ดูแผนที่" : "Map"}</button></nav>
       <div>
         {location && <div className="header-location"><div><span aria-hidden="true">⌖</span><strong>{location.subdistrict ?? location.name} · {location.district ?? "—"} · {location.province ?? "—"}</strong><small>{t.retrieved} {forecast ? timeLabel(forecast.retrieved_at, location.timezone) : "—"} · {location.timezone}</small></div><button className="header-location-action" type="button" onClick={handleGps} disabled={busy}>{isGpsBusy ? "…" : ux.update}</button></div>}
-        <div className="header-actions"><button className="utility-button" type="button" onClick={() => setTheme(theme === "light" ? "dark" : "light")} aria-label={theme === "light" ? "Switch to dark theme" : "Switch to light theme"}>{theme === "light" ? "Dark" : "Light"}</button><button className="utility-button" type="button" onClick={() => setLanguage(language === "th" ? "en" : "th")} aria-label={t.lang}>{language === "th" ? "English" : "ไทย"}</button></div>
+        <div className="header-actions"><span className="header-line"><span className={"line-dot" + (lineUserId ? " connected" : "")} aria-hidden="true" />{lineUserId ? t.connectedLine : language === "th" ? "เปิดผ่าน LINE เพื่อเชื่อมต่อ" : "Connect through LINE"}</span><button className="utility-button" type="button" onClick={() => setTheme(theme === "light" ? "dark" : "light")} aria-label={theme === "light" ? "Switch to dark theme" : "Switch to light theme"}>{theme === "light" ? "Dark" : "Light"}</button><button className="utility-button" type="button" onClick={() => setLanguage(language === "th" ? "en" : "th")} aria-label={t.lang}>{language === "th" ? "English" : "ไทย"}</button></div>
         {health !== "online" && <p className={"connection " + health}><span aria-hidden="true" />{health === "loading" ? t.checking : t.offline}</p>}
       </div>
     </header>
@@ -426,19 +439,20 @@ export default function Home() {
 
     {forecast && location && <div className="forecast-layout"><section className="summary-grid" aria-label={t.forecast7}>
       <article className="card primary-summary">
+        <div className="hero-location"><div><p className="eyebrow">{t.monitoredLocation}</p><h2>{[location.subdistrict ?? location.name, location.district, location.province].filter(Boolean).join(", ")}</h2></div><div className="hero-stamp"><span>{t.retrieved}</span><time dateTime={forecast.retrieved_at}>{timeLabel(forecast.retrieved_at, location.timezone)}</time></div></div>
         <div className="weather-hero-copy">
           <p className="eyebrow">{t.nextHour}{summary ? " · " + timeLabel(summary.valid_time, location.timezone) : ""}</p>
-          <strong className="hero-temperature">{summary ? value(summary.temperature_2m, "°") : "—"}</strong>
+          <div className="hero-reading"><strong className="hero-temperature">{summary ? value(summary.temperature_2m) : "—"}<small>°C</small></strong><span className="feels-like">{language === "th" ? "รู้สึกเหมือน" : "Feels like"}<strong>{summary ? value(summary.apparent_temperature, "°C") : "—"}</strong></span></div>
           <p className="hero-condition">{weather(summary?.weather_code ?? null, language)}</p>
           <p className="hero-outlook">{language === "th" ? "โอกาสฝน " : "Rain chance "}{summary ? value(summary.precipitation_probability, "%") : "—"} · {language === "th" ? "พยากรณ์สำหรับพื้นที่ของคุณ" : "Your local outlook"}</p>
         </div>
         <div className="hero-art"><WeatherArtwork code={summary?.weather_code ?? null} compact /></div>
-        <div className="hero-actions"><button className="gps-primary" type="button" onClick={handleGps} disabled={busy}>{isGpsBusy ? progress : ux.update}</button><button className="map-button" type="button" onClick={() => setMapOpen(true)}>{language === "th" ? "ดูแผนที่" : "View map"}</button></div>
       </article>
-      <article className="card metric rain-probability"><span>{t.rainChance}</span><strong>{summary ? value(summary.precipitation_probability, "%") : "—"}</strong></article>
+      <article className="card metric rain-probability"><span>{t.rainChance}</span><strong>{summary ? value(summary.precipitation_probability, "%") : "—"}</strong>{summary?.precipitation_probability != null && <div className="probability-track" aria-hidden="true"><span style={{width: Math.max(0, Math.min(100, summary.precipitation_probability)) + "%"}} /></div>}</article>
       <article className="card metric rainfall"><span>{t.precip} · {summary ? timeLabel(summary.valid_time, location.timezone) : "—"}</span><strong>{summary ? value(summary.precipitation, language === "th" ? " มม." : " mm") : "—"}</strong></article>
       <article className="card metric"><span>{t.wind}</span><strong>{summary ? value(summary.wind_speed_10m, " km/h") : "—"}</strong></article>
       <article className="card metric"><span>{t.humidity}</span><strong>{summary ? value(summary.relative_humidity_2m, "%") : "—"}</strong></article>
+        <div className="hero-actions"><button className="gps-primary" type="button" onClick={handleGps} disabled={busy}><span className="action-icon" aria-hidden="true">⌖</span>{isGpsBusy ? progress : ux.update}</button><button className="map-button" type="button" onClick={() => setMapOpen(true)}>{language === "th" ? "ดูแผนที่" : "View map"}</button></div>
     </section>
     <AirQualityCard key={location.id} locationId={location.id} timeZone={location.timezone} language={language} />
     <section className="line-panel" aria-label="LINE"><span className={"line-dot" + (lineUserId ? " connected" : "")} aria-hidden="true" /><div><h2>{lineUserId ? t.connectedLine : language === "th" ? "การเชื่อมต่อ LINE" : "LINE connection"}</h2><p>{lineUserId ? (language === "th" ? "แจ้งเตือนตามเงื่อนไขของระบบ การเปิดดูหน้าเว็บหรือแผนที่ไม่ส่งข้อความ" : "Alerts follow the existing policy. Viewing the dashboard or map does not send a message.") : ux.lineHint}</p></div></section>
@@ -449,7 +463,7 @@ export default function Home() {
         <time dateTime={hour.valid_time}>{timeLabel(hour.valid_time, location.timezone)}</time>
         <WeatherArtwork code={hour.weather_code} compact /><strong>{value(hour.temperature_2m, "°")}</strong>
         <span>{value(hour.precipitation_probability, "%")}</span>
-        <small>{t.rainChance}</small><small>{value(hour.precipitation, language === "th" ? " มม." : " mm")}</small>
+        <small className="hourly-probability-label">{t.rainChance}</small><small>{value(hour.precipitation, language === "th" ? " มม." : " mm")}</small>
       </article>)}</div>
     </section>
     <section className="forecast-card" aria-labelledby="forecast-heading">
@@ -458,14 +472,10 @@ export default function Home() {
         const rainRisk = rainRiskForDay(day.forecast_date, forecast.hourly, location.timezone);
         const rangeStart = day.temperature_2m_min === null ? 0 : ((day.temperature_2m_min - dailyMin) / Math.max(dailyMax - dailyMin, 1)) * 100;
         const rangeWidth = day.temperature_2m_min === null || day.temperature_2m_max === null ? 0 : ((day.temperature_2m_max - day.temperature_2m_min) / Math.max(dailyMax - dailyMin, 1)) * 100;
-        return <article className="forecast-day" key={day.id}>
-          <div className="daily-condition"><WeatherArtwork code={day.weather_code} compact /><strong>{dateLabel(day.forecast_date, language)}</strong><span>{weather(day.weather_code, language)}</span></div>
-          <div className="temperatures"><span>{value(day.temperature_2m_min, "°")}</span><div className="temperature-range" style={{ "--range-start": `${rangeStart}%`, "--range-width": `${rangeWidth}%` } as CSSProperties} aria-label={`${value(day.temperature_2m_min, "°")} to ${value(day.temperature_2m_max, "°")}`} /><strong>{value(day.temperature_2m_max, "°")}</strong></div>
-          <div className="daily-rain-probability"><span>{t.maxRainChance}</span><strong>{value(rainRisk.maxProbability, "%")}</strong></div>
-          <div><span>{t.rainRiskPeriod}</span><strong>{rainRisk.period ?? "—"}</strong></div>
-          <div className="daily-rainfall"><span>{t.precip}</span><strong>{value(day.precipitation_sum, " mm")}</strong></div>
-          <div><span>{t.wind}</span><strong>{value(day.wind_speed_10m_max, " km/h")}</strong></div>
-        </article>;
+        return <details className="forecast-day" key={day.id}>
+          <summary className="day-summary"><div className="daily-date"><strong>{dateLabel(day.forecast_date, language)}</strong><span>{weather(day.weather_code, language)}</span></div><WeatherArtwork code={day.weather_code} compact /><span className="day-probability">{value(rainRisk.maxProbability, "%")}</span><div className="temperatures"><span>{value(day.temperature_2m_min, "°")}</span><div className="temperature-range" style={{ "--range-start": `${rangeStart}%`, "--range-width": `${rangeWidth}%` } as CSSProperties} /><strong>{value(day.temperature_2m_max, "°")}</strong></div></summary>
+          <dl className="day-details"><div><dt>{t.rainRiskPeriod}</dt><dd>{rainRisk.period ?? "—"}</dd></div><div><dt>{t.precip}</dt><dd>{value(day.precipitation_sum, language === "th" ? " มม." : " mm")}</dd></div><div><dt>{t.wind}</dt><dd>{value(day.wind_speed_10m_max, " km/h")}</dd></div></dl>
+        </details>;
       })}</div>
     </section></div>}
     <footer className="dashboard-footer"><span>{ux.source}</span><span>{lineUserId ? t.connectedLine : ux.lineHint}</span></footer>

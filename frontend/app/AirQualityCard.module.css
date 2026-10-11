@@ -17,3 +17,13 @@
 .source { opacity: .85; }
 .source a { text-decoration: underline; }
 @media (max-width: 520px) { .panel { padding: 18px; } .heading { flex-wrap: wrap; } .metrics { gap: 28px; } }
+
+.panel { padding:24px; }
+.heading h2 { font-size:17px; font-weight:500; }
+.heading p,.panel p,.source { font-size:11px; }
+.metrics { margin:20px 0; gap:32px; }
+.metrics p { font-size:32px; font-weight:400; }
+.metrics span { font-size:11px; }
+.info summary { cursor:pointer; font-size:11px; color:var(--muted); padding:8px 0; }
+.info[open] { animation:stitch-chart-in 200ms ease-out; }
+@media(max-width:520px) { .panel { padding:20px; } .heading h2 { font-size:14px; } .metrics p { font-size:28px; } }

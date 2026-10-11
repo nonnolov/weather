@@ -40,7 +40,7 @@ export function AirQualityCard({ locationId, timeZone, language }: { locationId:
   const hasTrend = hours.filter(row => row.pm25 !== null).length >= 2;
   const max = Math.max(1, ...hours.map(row => row.pm25 ?? 0));
   return <section className={"card " + styles.panel} aria-labelledby="air-quality-heading" aria-busy={loading}>
-    <div className={styles.heading}><div><h2 id="air-quality-heading">{th ? "ฝุ่น PM2.5 และคุณภาพอากาศ" : "PM2.5 & air quality"}</h2><p>{th ? "ค่าประมาณจากแบบจำลอง · ไม่ใช่ค่าตรวจวัด ณ จุดจริง" : "Model estimate · not an at-point measurement"}</p></div>
+    <div className={styles.heading}><div><h2 id="air-quality-heading">{th ? "คุณภาพอากาศ PM2.5" : "PM2.5 & air quality"}</h2><p>{th ? "ค่าประมาณจากแบบจำลอง · ไม่ใช่ค่าตรวจวัด ณ จุดจริง" : "Model estimate · not an at-point measurement"}</p></div>
       <button type="button" className="utility-button" onClick={() => setRevision(n => n + 1)} disabled={loading}>{th ? "โหลดใหม่" : "Reload"}</button></div>
     {loading && !data && <p role="status">{th ? "กำลังโหลดข้อมูลคุณภาพอากาศ…" : "Loading air quality…"}</p>}
     {unavailable && <p role="status">{th ? "ข้อมูลคุณภาพอากาศไม่พร้อมใช้งานชั่วคราว" : "Air quality is temporarily unavailable."}</p>}
@@ -48,13 +48,13 @@ export function AirQualityCard({ locationId, timeZone, language }: { locationId:
       {(data.stale || data.status === "missing") && <p className={styles.notice} role="status">{data.stale ? (th ? "ข้อมูลเดิม: การอัปเดตล่าช้าหรือล้มเหลว" : "Older data: refresh delayed or failed.") : (th ? "ไม่มีค่าครบสำหรับชั่วโมงปัจจุบัน" : "Current-hour data are missing.")}</p>}
       <div className={styles.metrics}><div><span>PM2.5</span><p>{show(data.current?.pm25)} <small>µg/m³</small></p></div>
         <div><span>European AQI</span><p>{show(data.current?.aqi)}</p><span>{category ? labels[category]?.[th ? 0 : 1] ?? "—" : "—"}</span></div></div>
-      <p>{th ? "AQI ใช้เกณฑ์ยุโรป ไม่ใช่ AQI ไทย และรวมมลพิษหลายชนิด" : "European AQI, not Thai AQI; includes several pollutants."}</p>
+      <details className={styles.info}><summary>{th ? "ข้อมูลแบบจำลองและเวลาการอัปเดต" : "Model details & update time"}</summary><p>{th ? "AQI ใช้เกณฑ์ยุโรป ไม่ใช่ AQI ไทย และรวมมลพิษหลายชนิด" : "European AQI, not Thai AQI; includes several pollutants."}</p>
       {data.current && <p>{th ? "เวลาของค่าแบบจำลอง" : "Model valid time"}: <time dateTime={data.current.valid_time}>{stamp(data.current.valid_time)}</time> · {timeZone}</p>}
       {data.retrieved_at && <p>{th ? "ดึงข้อมูลเมื่อ" : "Retrieved"}: <time dateTime={data.retrieved_at}>{stamp(data.retrieved_at)}</time></p>}
       <details className={styles.trend}><summary>{th ? "แนวโน้มแบบจำลอง 24 ชั่วโมง" : "24-hour model outlook"}</summary>
         {hasTrend ? <><div className={styles.bars} aria-hidden="true">{hours.map(row => <span key={row.valid_time} className={row.pm25 === null ? styles.gap : styles.bar} style={{ height: row.pm25 === null ? "4px" : Math.max(2, row.pm25 / max * 80) + "px" }} />)}</div>
           <div className={styles.table}><table><caption>{th ? "ผลลัพธ์รายชั่วโมงจากแบบจำลองต้นทางความถี่ 3 ชั่วโมง" : "Hourly output from a model with 3-hour native resolution"}</caption><thead><tr><th>{th ? "เวลา" : "Time"}</th><th>PM2.5 (µg/m³)</th><th>European AQI</th></tr></thead><tbody>{hours.map(row => <tr key={row.valid_time}><td>{stamp(row.valid_time)}</td><td>{show(row.pm25)}</td><td>{show(row.aqi)}</td></tr>)}</tbody></table></div></> : <p>{th ? "ข้อมูลยังไม่พอแสดงแนวโน้ม" : "Insufficient data for an outlook."}</p>}
-      </details>
+      </details></details>
     </>}
     <p className={styles.source}>{th ? "แหล่งข้อมูล" : "Source"}: <a href="https://open-meteo.com/en/docs/air-quality-api" target="_blank" rel="noreferrer">Open-Meteo</a> · <a href="https://ads.atmosphere.copernicus.eu/datasets/cams-global-atmospheric-composition-forecasts" target="_blank" rel="noreferrer">CAMS Global</a> · {th ? "แบบจำลองกริดประมาณ 45 กม." : "~45 km model grid"}</p>
   </section>;
