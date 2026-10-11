@@ -1,0 +1,36 @@
+{
+  "status": "accepted_and_committed",
+  "recipient_name": "fyn",
+  "location_id": 15,
+  "source_id": 69,
+  "delivery_id": 7,
+  "line_acceptance": {
+    "http_status": 200,
+    "request_id": "72090a68-0f40-4a45-886e-7654793ad593"
+  },
+  "line_push_requests": 1,
+  "exact_message_frozen": true,
+  "evidence_sha256": "631dde3384e90d0c85c0badc186c48cab6073c977766ff2755f9bf358b8bbdf1",
+  "baseline_readable": true,
+  "frozen_hours": 24,
+  "daily_duplicate_suppressed": true,
+  "intraday_preview": {
+    "outcome": "suppress",
+    "reasons": [
+      "identical_content"
+    ]
+  },
+  "synthetic_weather_used": false,
+  "checked_at": "2026-10-11T10:06:55.212005+00:00",
+  "handset_receipt": "awaiting_user_confirmation",
+  "production_code_commit": "6081939274f0dacf21fba9bcc271a1cf44c36ebb",
+  "production_source_verification": {
+    "normalized_python_files_matched": 3,
+    "raw_line_endings_differed": true
+  },
+  "p1_complete": false,
+  "remaining_gates": [
+    "User handset receipt confirmation",
+    "Naturally qualifying intraday LINE acceptance, frozen evidence and post-send replay/cooldown verification"
+  ]
+}
