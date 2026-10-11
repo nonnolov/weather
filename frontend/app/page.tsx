@@ -1,6 +1,7 @@
 "use client";
 
 import Script from "next/script";
+import { MapPreview } from "./MapPreview";
 import { AirQualityCard } from "./AirQualityCard";
 import { WeatherArtwork } from "./WeatherArtwork";
 import { useEffect, useMemo, useState, type CSSProperties } from "react";
@@ -81,8 +82,8 @@ const chartPath = (values: Array<number | null>, min: number, max: number, width
 };
 
 const chartPoint = (value: number, index: number, count: number, min: number, max: number, width: number, height: number, top = 18, bottom = 28) => ({
-  x: count === 1 ? width / 2 : (index / (count - 1)) * width,
-  y: top + (1 - (value - min) / Math.max(max - min, 1)) * (height - top - bottom),
+  cx: count === 1 ? width / 2 : (index / (count - 1)) * width,
+  cy: top + (1 - (value - min) / Math.max(max - min, 1)) * (height - top - bottom),
 });
 
 /* Plot geometry. The viewBox stays close to the rendered aspect so the stretched
@@ -207,6 +208,8 @@ declare global {
 const liffId = process.env.NEXT_PUBLIC_LIFF_ID;
 
 export default function Home() {
+  const [mapOpen, setMapOpen] = useState(false);
+  const [chartTab, setChartTab] = useState<"temperature" | "rain">("temperature");
   const [health, setHealth] = useState<"loading" | "online" | "offline">("loading");
   const [locations, setLocations] = useState<Location[]>([]);
   const [selectedId, setSelectedId] = useState<number | null>(null);
@@ -231,7 +234,7 @@ export default function Home() {
     privacy: "เบราว์เซอร์จะขออนุญาตใช้ตำแหน่งของคุณ", sample: "หรือดูตัวอย่างพยากรณ์",
     choose: "เลือกพื้นที่ตัวอย่าง", locating: "กำลังหาตำแหน่ง", saving: "กำลังระบุพื้นที่",
     forecasting: "กำลังโหลดพยากรณ์", retry: "ลองอีกครั้ง", update: "อัปเดตตำแหน่ง",
-    hourly: "6 ชั่วโมงข้างหน้า", source: "ข้อมูลจาก Open-Meteo", error: "โหลดไม่สำเร็จ",
+    hourly: "พยากรณ์รายชั่วโมง · 24 ชั่วโมงข้างหน้า", source: "ข้อมูลจาก Open-Meteo", error: "โหลดไม่สำเร็จ",
     timeout: "หาตำแหน่งไม่ทันเวลา ลองอีกครั้งในพื้นที่ที่รับสัญญาณ GPS ได้",
     unavailable: "ยังหาตำแหน่งไม่ได้ กรุณาเปิดบริการตำแหน่งแล้วลองอีกครั้ง",
     lineHint: "เปิดผ่าน LINE เพื่อเชื่อมบัญชีสำหรับการแจ้งเตือน", sampleHint: "กำลังดูพื้นที่ตัวอย่าง ไม่ได้เปลี่ยนตำแหน่งของคุณ",
@@ -242,7 +245,7 @@ export default function Home() {
     privacy: "Your browser will ask for permission to use your location.", sample: "Or explore a sample forecast",
     choose: "Choose a sample area", locating: "Finding your location", saving: "Identifying your area",
     forecasting: "Loading your forecast", retry: "Try again", update: "Update location",
-    hourly: "Next 6 hours", source: "Data from Open-Meteo", error: "Could not load",
+    hourly: "Hourly forecast · next 24 hours", source: "Data from Open-Meteo", error: "Could not load",
     timeout: "Location search timed out. Try again where GPS reception is available.",
     unavailable: "Location is unavailable. Enable location services and try again.",
     lineHint: "Open in LINE to connect your account for alerts.", sampleHint: "Sample area; your saved location has not changed.",
@@ -380,7 +383,7 @@ export default function Home() {
     {liffId && <Script src="https://static.line-scdn.net/liff/edge/2/sdk.js" strategy="afterInteractive" onLoad={initializeLiff} />}
     <main className={"dashboard-shell" + (forecast && location ? " has-forecast" : "")} aria-busy={busy}>
     <header className="dashboard-header">
-      <div><p className="eyebrow">WEATHER · {ux.intro}</p><h1>{ux.title}</h1></div>
+      <div className="brand"><span className="brand-mark" aria-hidden="true">W</span><div><h1>Weather</h1><p className="eyebrow">{ux.intro}</p></div></div>
       <div>
         {location && <div className="header-location"><div><span aria-hidden="true">⌖</span><strong>{location.subdistrict ?? location.name} · {location.district ?? "—"} · {location.province ?? "—"}</strong><small>{t.retrieved} {forecast ? timeLabel(forecast.retrieved_at, location.timezone) : "—"} · {location.timezone}</small></div><button className="header-location-action" type="button" onClick={handleGps} disabled={busy}>{isGpsBusy ? "…" : ux.update}</button></div>}
         <div className="header-actions"><button className="utility-button" type="button" onClick={() => setTheme(theme === "light" ? "dark" : "light")} aria-label={theme === "light" ? "Switch to dark theme" : "Switch to light theme"}>{theme === "light" ? "Dark" : "Light"}</button><button className="utility-button" type="button" onClick={() => setLanguage(language === "th" ? "en" : "th")} aria-label={t.lang}>{language === "th" ? "English" : "ไทย"}</button></div>
@@ -429,23 +432,24 @@ export default function Home() {
           <p className="hero-condition">{weather(summary?.weather_code ?? null, language)}</p>
           <p className="hero-outlook">{language === "th" ? "โอกาสฝน " : "Rain chance "}{summary ? value(summary.precipitation_probability, "%") : "—"} · {language === "th" ? "พยากรณ์สำหรับพื้นที่ของคุณ" : "Your local outlook"}</p>
         </div>
-        <div className="hero-art"><WeatherArtwork code={summary?.weather_code ?? null} /></div>
+        <div className="hero-art"><WeatherArtwork code={summary?.weather_code ?? null} compact /></div>
+        <div className="hero-actions"><button className="gps-primary" type="button" onClick={handleGps} disabled={busy}>{isGpsBusy ? progress : ux.update}</button><button className="map-button" type="button" onClick={() => setMapOpen(true)}>{language === "th" ? "ดูแผนที่" : "View map"}</button></div>
       </article>
       <article className="card metric rain-probability"><span>{t.rainChance}</span><strong>{summary ? value(summary.precipitation_probability, "%") : "—"}</strong></article>
-      <article className="card metric rainfall"><span>{t.precip}</span><strong>{summary ? value(summary.precipitation, " mm") : "—"}</strong></article>
+      <article className="card metric rainfall"><span>{t.precip} · {summary ? timeLabel(summary.valid_time, location.timezone) : "—"}</span><strong>{summary ? value(summary.precipitation, language === "th" ? " มม." : " mm") : "—"}</strong></article>
       <article className="card metric"><span>{t.wind}</span><strong>{summary ? value(summary.wind_speed_10m, " km/h") : "—"}</strong></article>
       <article className="card metric"><span>{t.humidity}</span><strong>{summary ? value(summary.relative_humidity_2m, "%") : "—"}</strong></article>
     </section>
     <AirQualityCard key={location.id} locationId={location.id} timeZone={location.timezone} language={language} />
-    <TemperatureTrend hourly={forecast.hourly} timeZone={location.timezone} language={language} />
-    <RainTrend hourly={forecast.hourly} timeZone={location.timezone} language={language} />
+    <section className="line-panel" aria-label="LINE"><span className={"line-dot" + (lineUserId ? " connected" : "")} aria-hidden="true" /><div><h2>{lineUserId ? t.connectedLine : language === "th" ? "การเชื่อมต่อ LINE" : "LINE connection"}</h2><p>{lineUserId ? (language === "th" ? "แจ้งเตือนตามเงื่อนไขของระบบ การเปิดดูหน้าเว็บหรือแผนที่ไม่ส่งข้อความ" : "Alerts follow the existing policy. Viewing the dashboard or map does not send a message.") : ux.lineHint}</p></div></section>
+    <div className="chart-switcher"><div className="chart-tabs" role="group" aria-label={language === "th" ? "เลือกกราฟ" : "Choose chart"}><button type="button" aria-pressed={chartTab === "temperature"} onClick={() => setChartTab("temperature")}>{t.tempTrend}</button><button type="button" aria-pressed={chartTab === "rain"} onClick={() => setChartTab("rain")}>{t.rainTrend}</button></div>{chartTab === "temperature" ? <TemperatureTrend hourly={forecast.hourly} timeZone={location.timezone} language={language} /> : <RainTrend hourly={forecast.hourly} timeZone={location.timezone} language={language} />}</div>
     <section className="card hourly-card" aria-labelledby="hourly-heading">
       <div className="section-heading"><h2 id="hourly-heading">{ux.hourly}</h2></div>
-      <div className="hourly-list">{next24Hours(forecast.hourly).slice(0, 6).map((hour) => <article key={hour.id}>
+      <div className="hourly-list">{next24Hours(forecast.hourly).map((hour) => <article key={hour.id}>
         <time dateTime={hour.valid_time}>{timeLabel(hour.valid_time, location.timezone)}</time>
         <WeatherArtwork code={hour.weather_code} compact /><strong>{value(hour.temperature_2m, "°")}</strong>
         <span>{value(hour.precipitation_probability, "%")}</span>
-        <small>{t.rainChance}</small>
+        <small>{t.rainChance}</small><small>{value(hour.precipitation, language === "th" ? " มม." : " mm")}</small>
       </article>)}</div>
     </section>
     <section className="forecast-card" aria-labelledby="forecast-heading">
@@ -466,5 +470,6 @@ export default function Home() {
     </section></div>}
     <footer className="dashboard-footer"><span>{ux.source}</span><span>{lineUserId ? t.connectedLine : ux.lineHint}</span></footer>
     </main>
+    {mapOpen && location && <MapPreview location={location} language={language} onClose={() => setMapOpen(false)} />}
   </>;
 }
