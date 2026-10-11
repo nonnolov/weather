@@ -1,0 +1,60 @@
+{
+  "code_commit": "6081939274f0dacf21fba9bcc271a1cf44c36ebb",
+  "date": "2026-10-11 Asia/Bangkok",
+  "railway": {
+    "api": {
+      "id": "abcd66b1-378c-4ff9-be31-0115cea09ed4",
+      "status": "SUCCESS",
+      "build_only": false,
+      "cron_schedule": null,
+      "start_command": "sh -c 'python -m app.seeds.locations && exec uvicorn app.main:app --host 0.0.0.0 --port 8000'"
+    },
+    "daily_cron": {
+      "id": "d4ef5752-494a-49b4-afb9-a5bae06b6854",
+      "status": "SUCCESS",
+      "build_only": true,
+      "cron_schedule": "0 23 * * *",
+      "start_command": "python -m app.notifications.cli"
+    },
+    "effective_configuration": {
+      "INTRADAY_SEND_ENABLED": "true",
+      "INTRADAY_PREVIEW_SCHEDULER_ENABLED": "true",
+      "recipient_count": 1,
+      "INTRADAY_POLICY_VERSION": "intraday-v2-candidate"
+    },
+    "native_scheduler_cycle": "2026-10-11 08:51:51,638 INFO app.notifications.scheduled_preview Scheduled intraday live: status=complete locations=1 refreshed=1 fresh=0 refresh_failed=0 processed=1 statuses={'skip': 1} reasons={'no_baseline': 1} truncated=False"
+  },
+  "frontend": {
+    "deployment_id": "dpl_Fi1797i19nGt4WSSbdMa7S9kJBDn",
+    "state": "READY",
+    "stable_url": "https://weather-iota-five-83.vercel.app",
+    "root_http": 200,
+    "health_http": 200,
+    "flood_risk_http": 200,
+    "p4_bundle_verified": true,
+    "source_commit": "6081939274f0dacf21fba9bcc271a1cf44c36ebb"
+  },
+  "production_probes": {
+    "health_http": 200,
+    "registered_forecast_http": 200,
+    "flood_risk_http": 200,
+    "flood_method": "local_rainfall_duration_flood_potential_v1",
+    "assessment_status": "not_assessed",
+    "assessment_reasons": [
+      "urban_threshold_scope_unverified"
+    ],
+    "local_formatter_production_snapshot_preview": true,
+    "preview_periods": 2,
+    "preview_length": 644,
+    "line_requests": 0
+  },
+  "forced_line_messages": 0,
+  "next_daily_run": "2026-10-12T06:00:00+07:00",
+  "schema_migration_added": false,
+  "default_branch_merged": false,
+  "open_limitations": [
+    "Native intraday tick skipped: no_baseline. No synthetic baseline inserted; next accepted daily delivery can establish evidence.",
+    "Chonburi flood screening not assessed: urban threshold boundary unverified.",
+    "Flood screening is not calibrated probability or confirmation; no scored flood backtest."
+  ]
+}

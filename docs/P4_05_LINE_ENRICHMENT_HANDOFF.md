@@ -28,3 +28,7 @@ Production deployment and enabling actual enriched LINE messages are separate re
 Frontend validation: TypeScript noEmit exit 0, ESLint exit 0, Next.js production build exit 0 (static routes generated successfully). No frontend source changes were required for this enrichment step; these checks validate the accumulated P4 UI work before commit.
 
 Final broader regression with isolated PostgreSQL 16: 688 passed, 6 skipped, 18 external-integration cases deselected, 1 existing python_multipart warning; exit 0. The previously failing eight rain-collection cases now execute successfully with the dedicated test URL. Remaining skips require other explicitly configured migration/provenance fixtures. Command: python -m pytest -m 'not integration' -q --show-capture=no with P104_TEST_POSTGRES_URL targeting the temporary loopback cluster. This result validates implementation/regressions, not historical flood prediction accuracy.
+
+## Production release update
+
+P4 backend/API, conditional LINE enrichment and frontend were deployed with daily layout commit 6081939 on 2026-10-11. See docs/DAILY_RAIN_PERIOD_PRODUCTION_RELEASE.json for terminal deployment states, HTTP/bundle checks and remaining baseline/urban-scope/backtest limitations. No real LINE test was forced during this release.
