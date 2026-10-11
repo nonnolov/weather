@@ -17,3 +17,4 @@ __all__ = [
     "User",
     "RainStationFetch",
 ]
+from app.models.forecast_fetch import ForecastFetchCache, ProviderRequestBudget

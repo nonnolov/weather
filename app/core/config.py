@@ -1,5 +1,5 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from pydantic import field_validator, model_validator
+from pydantic import Field, field_validator, model_validator
 from typing import Optional, Literal
 
 
@@ -27,6 +27,16 @@ class Settings(BaseSettings):
     GEOCODER_PROVIDER: str = "arcgis"
     GEOCODER_BASE_URL: str = "https://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer"
     GEOCODER_USER_AGENT: str = "weather-forecasting-system/1.0"
+
+    # Shared forecast acquisition; explicit rollout keeps older environments compatible.
+    FORECAST_SHARING_ENABLED: bool = False
+    FORECAST_REFRESH_SECONDS: int = Field(default=3600, ge=60, le=3600)
+    FORECAST_FAILURE_BACKOFF_SECONDS: int = Field(default=300, ge=60, le=3600)
+    GOOGLE_WEATHER_API_KEY: str | None = None
+    GOOGLE_WEATHER_PREVIEW_ENABLED: bool = False
+    GOOGLE_WEATHER_CONTRACT_VERIFIED: bool = False
+    GOOGLE_WEATHER_MONTHLY_LIMIT: int = Field(default=9000, ge=1, le=9000)
+    GOOGLE_WEATHER_DAILY_LIMIT: int = Field(default=290, ge=1, le=290)
 
     # Ingestion
     FORECAST_DAYS: int = 7

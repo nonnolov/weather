@@ -1,9 +1,11 @@
 """Provider registry — maps provider name strings to provider instances."""
 from app.providers.base import BaseWeatherProvider
 from app.providers.open_meteo import OpenMeteoProvider
+from app.providers.google_weather import GoogleWeatherProvider
 
 _REGISTRY: dict[str, BaseWeatherProvider] = {
     "open_meteo": OpenMeteoProvider(),
+    "google_weather": GoogleWeatherProvider(),
 }
 
 

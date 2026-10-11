@@ -141,6 +141,8 @@ async def ingest_forecast_for_location(
     persist it as an immutable ForecastRun snapshot, and return the run.
     """
     days = forecast_days or settings.FORECAST_DAYS
+    if location.provider == "google_weather":
+        raise IngestionError("Google Weather is transient-only: usage rights and durable alert evidence are unresolved")
 
     try:
         provider = get_provider(location.provider)
@@ -148,14 +150,27 @@ async def ingest_forecast_for_location(
         raise IngestionError(str(exc)) from exc
 
     try:
-        result: ProviderForecastResult = await provider.fetch_forecast(
-            latitude=location.latitude,
-            longitude=location.longitude,
-            forecast_days=days,
-            timezone=location.timezone,
-        )
+        if settings.FORECAST_SHARING_ENABLED:
+            from app.ingestion.fetch_control import fetch_shared_forecast
+            from app.core.database import AsyncSessionLocal
+            result = await fetch_shared_forecast(location, days, provider, AsyncSessionLocal)
+        else:
+            result = await provider.fetch_forecast(
+                latitude=location.latitude, longitude=location.longitude,
+                forecast_days=days, timezone=location.timezone,
+            )
     except Exception as exc:
-        raise IngestionError(f"Provider fetch failed: {exc}") from exc
+        raise IngestionError("Provider fetch failed") from exc
+
+    if result.metadata.get("acquisition_cache_hit"):
+        existing = await db.scalar(select(ForecastRun).where(
+            ForecastRun.location_id == location.id,
+            ForecastRun.provider == result.provider,
+            ForecastRun.forecast_days == days,
+            ForecastRun.retrieved_at == result.retrieved_at,
+        ).order_by(ForecastRun.id.desc()).limit(1))
+        if existing is not None:
+            return existing
 
     # Open-Meteo returns the resolved IANA timezone when timezone=auto was used.
     resolved_timezone = result.metadata.get("timezone") if result.metadata else None
