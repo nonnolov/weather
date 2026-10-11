@@ -31,7 +31,7 @@ def _period_metrics(period, rows):
     end = _local_time(period.end, timezone.utc)
     span = (end - start).total_seconds() / 3600
     if span <= 0 or not span.is_integer():
-        return None, None, None
+        return None, None, None, ()
     expected = {start + timedelta(hours=i) for i in range(1, int(span) + 1)}
     grouped = {}
     for row in rows:
@@ -60,6 +60,8 @@ def _period_metrics(period, rows):
         max(probabilities) if probabilities is not None else None,
         fsum(rainfall) if rainfall is not None else None,
         max(rainfall) if rainfall is not None else None,
+        tuple(end for end, value in zip(sorted(expected), rainfall)
+              if value == max(rainfall)) if rainfall is not None and max(rainfall) > 0 else (),
     )
 
 
@@ -118,15 +120,25 @@ def format_rain_alert(
                 lines.extend(["", "────────────"])
             start = _local_time(period.start, tz)
             end = _local_time(period.end, tz)
-            probability, amount, peak = _period_metrics(period, hourly_rows or [])
+            probability, amount, peak, peak_ends = _period_metrics(period, hourly_rows or [])
             probability_text = f"{probability:.0f}%" if probability is not None else "ข้อมูลไม่ครบ"
             amount_text = f"{_rain_amount(amount)} มม." if amount is not None else "ข้อมูลไม่ครบ"
             peak_text = f"{_rain_amount(peak)} มม." if peak is not None else "ข้อมูลไม่ครบ"
+            if peak is None:
+                peak_hours = "ข้อมูลไม่ครบ"
+            elif not peak_ends:
+                peak_hours = "ไม่มีฝนคาดการณ์ในช่วงนี้"
+            else:
+                peak_hours = ", ".join(
+                    f"{_local_time(instant - timedelta(hours=1), tz):%H:%M}–{_local_time(instant, tz):%H:%M}"
+                    for instant in peak_ends
+                ) + " น."
             lines.extend([
                 f"🕒 {start:%H:%M}–{end:%H:%M} น.",
                 f"💧 โอกาสฝนสูงสุดในช่วง: {probability_text}",
                 f"🌧️ ฝนคาดการณ์รวมในช่วง: {amount_text}",
                 f"⛈️ ฝนสูงสุดต่อชั่วโมง: {peak_text}",
+                f"🕐 ชั่วโมงที่คาดว่าฝนมากที่สุด: {peak_hours}",
             ])
         lines.extend(["", "────────────"])
 
@@ -139,7 +151,7 @@ def format_rain_alert(
     if total is None:
         day_start = datetime.combine(alert_date, datetime.min.time(), tz)
         day_period = RainRiskPeriod(day_start, day_start + timedelta(days=1), 0, 0, 24, 0)
-        _, total, _ = _period_metrics(day_period, hours)
+        _, total, _, _ = _period_metrics(day_period, hours)
     if total is not None:
         if qualifying:
             lines.append(f"📊 ฝนคาดการณ์รวมทั้งวัน: {_rain_amount(total)} มม.")

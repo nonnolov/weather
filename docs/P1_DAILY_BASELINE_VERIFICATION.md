@@ -23,3 +23,5 @@ After commit, read_latest_rain_baseline returned a known baseline for the curren
 Handset receipt awaits user confirmation. P1 remains open until a naturally qualifying intraday change receives LINE API acceptance with committed exact evidence and post-send replay/cooldown verification. A successful manual daily check is not automatic-cron execution evidence or proof of an intraday weather event.
 
 Machine-readable evidence: docs/P1_DAILY_BASELINE_VERIFICATION.json.
+
+User confirmed receipt of the real daily Alert on handset at 2026-10-11 17:09 Asia/Bangkok. The handset gate for this daily verification is closed; the naturally qualifying intraday gate remains open.

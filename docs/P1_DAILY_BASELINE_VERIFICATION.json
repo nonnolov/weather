@@ -22,7 +22,7 @@
   },
   "synthetic_weather_used": false,
   "checked_at": "2026-10-11T10:06:55.212005+00:00",
-  "handset_receipt": "awaiting_user_confirmation",
+  "handset_receipt": "confirmed_by_user",
   "production_code_commit": "6081939274f0dacf21fba9bcc271a1cf44c36ebb",
   "production_source_verification": {
     "normalized_python_files_matched": 3,
@@ -30,7 +30,7 @@
   },
   "p1_complete": false,
   "remaining_gates": [
-    "User handset receipt confirmation",
     "Naturally qualifying intraday LINE acceptance, frozen evidence and post-send replay/cooldown verification"
-  ]
+  ],
+  "handset_receipt_confirmed_at": "2026-10-11T17:09:07+07:00"
 }

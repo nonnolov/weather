@@ -102,3 +102,40 @@ def test_invalid_daily_aggregate_uses_complete_hourly_fallback():
                              precipitation_probability_max=100)]
     rows = [row(hour, 0.1, 80) for hour in range(1, 25)]
     assert "ฝนคาดการณ์รวมทั้งวัน: 2.4 มม." in render(rows, daily=daily)
+
+
+def test_peak_hour_uses_amount_not_highest_probability():
+    text = render([row(3, 1, 100), row(2, 4.9, 80), row(1, 0.1, 90)])
+    assert "ชั่วโมงที่คาดว่าฝนมากที่สุด: 01:00–02:00 น." in text
+
+
+def test_tied_peak_hours_are_all_shown_in_time_order():
+    text = render([row(3, 4.9, 80), row(1, 4.9, 90), row(2, 1, 100)])
+    assert "ชั่วโมงที่คาดว่าฝนมากที่สุด: 00:00–01:00, 02:00–03:00 น." in text
+
+
+def test_display_rounding_does_not_create_false_peak_ties():
+    text = render([row(1, 1.234, 80), row(2, 1.233, 90), row(3, 0, 90)])
+    assert "ฝนสูงสุดต่อชั่วโมง: 1.23 มม." in text
+    assert "ชั่วโมงที่คาดว่าฝนมากที่สุด: 00:00–01:00 น." in text
+
+
+@pytest.mark.parametrize("rows", [
+    [row(1, 1, 80), row(3, 2, 90)],
+    [row(1, 1, 80), row(2, None, 90), row(3, 2, 90)],
+    [row(1, 1, 80), row(2, 1, 90), row(2, 2, 90), row(3, 2, 90)],
+])
+def test_incomplete_rainfall_has_no_guessed_peak_hour(rows):
+    assert "ชั่วโมงที่คาดว่าฝนมากที่สุด: ข้อมูลไม่ครบ" in render(rows)
+
+
+def test_all_zero_rain_has_no_arbitrary_peak_hour():
+    text = render([row(1, 0, 80), row(2, 0, 90), row(3, 0, 90)])
+    assert "ชั่วโมงที่คาดว่าฝนมากที่สุด: ไม่มีฝนคาดการณ์ในช่วงนี้" in text
+
+
+def test_peak_hour_at_midnight_uses_preceding_interval_and_naive_utc():
+    period = RainRiskPeriod(START + timedelta(hours=23), START + timedelta(days=1), 80, 1, 1, 1)
+    last = row(24, 1.2, 80)
+    last.valid_time = last.valid_time.replace(tzinfo=None)
+    assert "ชั่วโมงที่คาดว่าฝนมากที่สุด: 23:00–00:00 น." in render([last], periods=[period])
