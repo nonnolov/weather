@@ -1,0 +1,37 @@
+{
+  "code_commit": "1e68cbfc21f3a08b90846387448f829ea1ce5c1d",
+  "deployments": {
+    "api": {
+      "id": "5d0d1fc2-911c-47d7-9eba-c7d462ed9cfa",
+      "service_id": "89478e29-e136-4a39-9ace-3dc128d01495",
+      "status": "SUCCESS",
+      "build_only": false,
+      "cron_schedule": null
+    },
+    "daily_cron": {
+      "id": "bd07b59b-a031-465e-a798-5f51493b359e",
+      "service_id": "7b46c113-c416-4571-ae05-7b697b4da7ec",
+      "status": "SUCCESS",
+      "build_only": true,
+      "cron_schedule": "0 23 * * *"
+    }
+  },
+  "production_verification": {
+    "deployed_formatter_normalized_hash_match": true,
+    "original_baseline_unchanged": true,
+    "real_frozen_snapshot_preview": [
+      {
+        "period": "🕒 00:00–08:00 น.",
+        "peak_hour": "🕐 ชั่วโมงที่คาดว่าฝนมากที่สุด: 02:00–03:00 น."
+      },
+      {
+        "period": "🕒 16:00–22:00 น.",
+        "peak_hour": "🕐 ชั่วโมงที่คาดว่าฝนมากที่สุด: 18:00–19:00 น."
+      }
+    ],
+    "line_calls": 0,
+    "database_writes": 0,
+    "checked_at": "2026-10-11T10:21:11.262966+00:00",
+    "public_health_http": 200
+  }
+}
