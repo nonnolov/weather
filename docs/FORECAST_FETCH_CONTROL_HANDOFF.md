@@ -43,4 +43,8 @@ Set FORECAST_SHARING_ENABLED=false and redeploy API/daily cron to restore direct
 
 See FORECAST_FETCH_CONTROL_RELEASE.json for final test counts, deployment IDs and production verification.
 
-Validation completed: {'passed': 751, 'skipped': 6, 'deselected': 0} across two independent test groups, with one existing python_multipart warning per process. Dedicated local PostgreSQL concurrency and caller-rollback tests passed. Migration 0009 upgrade/downgrade/upgrade passed against disposable PostgreSQL 16. Earlier runner failures were corrected before this release; the five-minute whole-suite timeout was resolved by split execution. External integration tests were deselected. No real Google/LINE requests in tests.
+Validation completed: {'passed': 751, 'skipped': 6, 'deselected': 0} across two independent test groups, with one existing python_multipart warning per process. Dedicated local PostgreSQL concurrency and caller-rollback tests passed. Migration 0009 upgrade/downgrade/upgrade passed against disposable PostgreSQL 16. Earlier runner failures were corrected before this release; the five-minute whole-suite timeout was resolved by split execution. External API integration cases were excluded (top-level test files, -m not integration). No real Google/LINE requests in tests.
+
+## Production verification
+
+API and daily cron reached SUCCESS. Migration 0009 and the 12-character budget period column are verified. Both services enable sharing and keep Google preview/contract flags false. Cron remains build-only on 0 23 * * * UTC. Normalized source hashes match code commit. The four assigned GPS records map to one acquisition key; sequential real Open-Meteo retrieval/cache reuse returned identical hourly/daily values and original timestamps. Accepted daily delivery 7 evidence was unchanged. Google ingestion is blocked before HTTP. Public proxy health returned 200. No LINE test was sent.
