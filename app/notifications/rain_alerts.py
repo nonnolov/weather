@@ -162,7 +162,7 @@ def _rain_evidence(
     day = next((row for row in daily if row.forecast_date == alert_date), None)
     return {
         "schema_version": 1,
-        "template_version": "rain-daily-v1",
+        "template_version": "rain-daily-periods-v2" if periods else "rain-daily-v1",
         "selection_version": "rain-selection-p0-02-v1",
         "mode": "daily_peak" if daily_peak else "strong_rain" if periods else "below_threshold_daily_summary",
         "alert_local_date": alert_date.isoformat(),

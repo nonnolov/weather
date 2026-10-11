@@ -66,8 +66,8 @@ async def test_rain_and_existing_daily_peak_keep_warning_template(db_session, pr
     assert await send_rain_alert(db_session, run, "U_TEST", client)
     text = client.push_text.await_args.args[1]
     assert "🌧️ แจ้งเตือนฝนวันนี้" in text
-    assert "มีโอกาสฝนถึงเกณฑ์แจ้งเตือน" in text
-    assert "ช่วงที่ควรระวัง:" in text
+    assert "โอกาสฝนสูงสุดในช่วง:" in text
+    assert "ช่วงที่ควรระวังฝน" in text
     assert "แนะนำพกร่มและตรวจพยากรณ์ก่อนออกเดินทาง" in text
 
 
@@ -151,7 +151,8 @@ def test_format_rain_window_uses_preceding_bangkok_hour_and_daily_peak_stays_dai
 
     assert "15:00–16:00" in text
     assert "16:00–17:00" not in text
-    assert "80%" in text
+    assert "โอกาสฝนสูงสุดในช่วง: 63%" in text
+    assert "80%" not in text
 
 
 @pytest.mark.asyncio
