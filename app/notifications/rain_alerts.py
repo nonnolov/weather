@@ -12,6 +12,7 @@ from app.models.location import Location
 from app.models.notification import NotificationDelivery
 from app.models.user import User
 from app.notifications.formatter import format_rain_alert
+from app.notifications.flood_enrichment import flood_enrichment, enrich_rain_message
 from app.notifications.line_client import LineApiError, LineClient
 from app.notifications.rain_risk import (
     RainRiskPeriod,
@@ -116,11 +117,14 @@ async def send_rain_alert(
         hourly_rows=hourly,
         daily_rows=daily,
     )
+    flood = flood_enrichment(run, hourly, location, now=datetime.now(timezone.utc))
+    message = enrich_rain_message(message, flood, source_id=run.id, location_id=run.location_id)
     # Freeze the exact formatter inputs before the network await. Never query
     # the latest run later, or retain references to mutable forecast objects.
     evidence = _rain_evidence(
         run, alert_date, timezone_name, periods, daily_peak, today_hours, daily, message
     )
+    evidence["flood_screening"] = flood
     await client.push_text(recipient_id, message)
     db.add(
         NotificationDelivery(

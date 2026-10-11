@@ -1,5 +1,7 @@
 """Deterministic intraday text and frozen v1 evidence, separate from daily."""
 from dataclasses import dataclass
+from copy import deepcopy
+from app.notifications.flood_enrichment import enrich_rain_message
 from datetime import datetime, timezone
 from decimal import Decimal
 from zoneinfo import ZoneInfo
@@ -33,10 +35,12 @@ def hour_json(hour: Hour) -> dict:
 class RenderedIntraday:
     message: str
     periods: tuple[tuple[Hour, ...], ...]
+    flood_evidence: dict | None = None
 
 
 def format_intraday_alert(candidate: Evidence, decision: Decision, *,
-                          now: datetime, location_name: str) -> RenderedIntraday:
+                          now: datetime, location_name: str,
+                          flood_evidence: dict | None = None) -> RenderedIntraday:
     """Display at most two trigger-containing periods; no full-day totals."""
     if decision.outcome != "notify" or not decision.triggers or not decision.event_id:
         raise ValueError("A locked notify decision is required")
@@ -80,10 +84,11 @@ def format_intraday_alert(candidate: Evidence, decision: Decision, *,
     retrieved = utc(candidate.retrieved_at).astimezone(zone)
     lines.extend([f"อัปเดตพยากรณ์: {_thai_date(retrieved.date())} {retrieved:%H:%M} น.",
                   f"ดูรายละเอียด: {_FORECAST_URL}"])
-    message = "\n".join(lines)
+    message = enrich_rain_message("\n".join(lines), flood_evidence,
+                                  source_id=candidate.source_id, location_id=candidate.scope.location_id)
     if len(message) > 5000:
         raise ValueError("Intraday message exceeds LINE text limit")
-    return RenderedIntraday(message, periods)
+    return RenderedIntraday(message, periods, deepcopy(flood_evidence))
 
 
 def freeze_intraday_evidence(candidate: Evidence, decision: Decision, rendered: RenderedIntraday,
@@ -108,6 +113,7 @@ def freeze_intraday_evidence(candidate: Evidence, decision: Decision, rendered: 
              "max_rainfall_mm": float(max(row.rainfall_mm for row in period)),
              "duration_hours": len(period)} for period in rendered.periods],
         "daily_aggregate": None, "message_text": rendered.message,
+        "flood_screening": deepcopy(rendered.flood_evidence),
         "comparison": {"policy_version": policy_version, "baseline_delivery_id": baseline_delivery_id,
                        "evaluated_at": utc(now).isoformat(), "event_id": decision.event_id,
                        "candidate_fingerprint": decision.candidate_fingerprint,

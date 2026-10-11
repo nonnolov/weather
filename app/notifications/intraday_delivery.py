@@ -14,6 +14,7 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from app.models.forecast import ForecastRun, HourlyForecast
 from app.models.location import Location
+from app.notifications.flood_enrichment import read_flood_snapshot, flood_enrichment
 from app.models.notification import NotificationDelivery
 from app.notifications.intraday_baseline import _adapt, read_latest_rain_baseline
 from app.notifications.intraday_comparison import (
@@ -175,7 +176,11 @@ async def deliver_intraday_update(
             baseline = await read_latest_rain_baseline(db, candidate.scope)
             if not isinstance(baseline, Baseline) or baseline.evidence is None:
                 return IntradayDeliveryResult("skip", Decision("skip", ("baseline_changed",)))
-            # Candidate/source reads may themselves wait. Freeze the final decision
+            location_name = await db.scalar(select(Location.name).where(
+                Location.id == candidate.scope.location_id))
+            snapshot = await read_flood_snapshot(db, candidate.source_id,
+                                                 candidate.scope.location_id)
+            # Candidate/source and flood snapshot reads may themselves wait. Freeze the final decision
             # clock after those locks, then recheck identity before any network await.
             now = clock()
             decision = compare(baseline, candidate, now=now)
@@ -195,8 +200,9 @@ async def deliver_intraday_update(
             replay = await _historical_replay(db, candidate, baseline.delivery_id, now)
             if replay is not None:
                 return IntradayDeliveryResult(replay.outcome, replay)
-            location_name = await db.scalar(select(Location.name).where(Location.id == candidate.scope.location_id))
-            rendered = format_intraday_alert(candidate, decision, now=now, location_name=location_name)
+            flood = None if snapshot is None else flood_enrichment(*snapshot, now=now)
+            rendered = format_intraday_alert(candidate, decision, now=now,
+                                             location_name=location_name, flood_evidence=flood)
             frozen = freeze_intraday_evidence(candidate, decision, rendered, now=now,
                                                baseline_delivery_id=baseline.delivery_id, policy_version=policy_version)
             if dry_run:
