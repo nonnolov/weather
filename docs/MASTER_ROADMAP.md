@@ -54,3 +54,7 @@ P1 update 2026-10-11 17:06 Asia/Bangkok: user-authorized real daily delivery suc
 ## User-selected daily-use scope — 2026-10-11 19:28 Bangkok
 
 The user retained Open-Meteo and prioritized an everyday usable release over completing forecast-accuracy research. See DAILY_USE_RELEASE.md and DAILY_USE_ACCEPTANCE.json for current production checks, the minimum P6/P7 disposition and the original gates explicitly deferred. P2 numerical validation and optional P5 real flood data are not blocking this controlled release. This does not mark all original phases fully verified, expand recipients or claim a calibrated local flood forecast. The existing deployed runtime is retained; the closure adds only a GET-based operator smoke check and release records.
+
+## User scope change — 2026-10-11 21:18 Bangkok
+
+The user removed the accumulated-rain/flood-risk dashboard card and flood-watch text from both daily and intraday LINE alerts. P4 is withdrawn from the everyday product scope, rather than declared fully validated. Standard rain forecast amounts and alert rules remain. See REMOVE_FLOOD_UI_LINE_HANDOFF.md and REMOVE_FLOOD_UI_LINE_RELEASE.json for implementation and production evidence; historical P4 records are retained.

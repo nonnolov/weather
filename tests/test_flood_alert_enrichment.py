@@ -1,5 +1,4 @@
 """Synthetic snapshots and mock sender only: no external APIs or LINE."""
-import copy
 from contextlib import asynccontextmanager
 from dataclasses import replace
 from datetime import datetime, timedelta, timezone
@@ -47,34 +46,21 @@ def test_wrong_source_and_location_never_add_sentence():
     assert enrich_rain_message("base", evidence, source_id=17, location_id=9) == "base"
 
 
-def test_formatter_freezes_exact_enriched_message_and_independent_evidence():
+def test_intraday_formatter_freezes_rain_only_message():
     new = candidate()
-    run = SimpleNamespace(id=12, location_id=101, provider="open_meteo",
-                          retrieved_at=new.retrieved_at)
-    rows = [SimpleNamespace(valid_time=NOW+(i+1)*H, precipitation=40 if i==0 else 0)
-            for i in range(24)]
-    loc = location()
-    loc.id = 101
-    flood = flood_enrichment(run, rows, loc, now=NOW)
     decision = decision_for(new)
-    base = format_intraday_alert(new, decision, now=NOW, location_name="test")
-    rendered = format_intraday_alert(new, decision, now=NOW, location_name="test",
-                                    flood_evidence=flood)
+    rendered = format_intraday_alert(new, decision, now=NOW, location_name="test")
     frozen = freeze_intraday_evidence(new, decision, rendered, now=NOW, baseline_delivery_id=1)
-    assert rendered.message == base.message + "\n\n" + FLOOD_WATCH_TEXT
+    assert FLOOD_WATCH_TEXT not in rendered.message
     assert frozen["message_text"] == rendered.message
     assert frozen["comparison"]["event_id"] == decision.event_id
+    assert "flood_screening" not in frozen
     assert "latitude" not in str(frozen) and "recipient_id" not in str(frozen)
-    flood["trigger_windows"].clear()
-    assert frozen["flood_screening"]["trigger_windows"]
-    assert rendered.flood_evidence["trigger_windows"]
-    with pytest.raises(ValueError, match="limit"):
-        enrich_rain_message("x"*5000, rendered.flood_evidence, source_id=12, location_id=101)
 
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("rain", [0,40])
-async def test_delivery_preview_queries_same_run_full_horizon_and_never_sends(
+async def test_delivery_preview_keeps_rain_only_even_for_heavy_bangkok_rain(
         sessions, monkeypatch, rain):
     new = replace(candidate(), hours=tuple(replace(h, rainfall_mm=rain if i==0 else 0)
                                            for i,h in enumerate(candidate().hours)))
@@ -114,7 +100,7 @@ async def test_delivery_preview_queries_same_run_full_horizon_and_never_sends(
     result = await deliver_intraday_update(sessions, new, clock=lambda:NOW,
                                           client=client, dry_run=True)
     assert result.status == "preview", result.decision.reasons
-    assert (FLOOD_WATCH_TEXT in result.message) is (rain==40)
+    assert FLOOD_WATCH_TEXT not in result.message
     client.push_text.assert_not_awaited()
     async with sessions() as db:
         assert await db.scalar(select(func.count()).select_from(NotificationDelivery)) == 1
@@ -133,7 +119,7 @@ async def test_suppressed_decision_never_reads_flood_or_sends(sessions, monkeypa
         yield SimpleNamespace(session=None, decision=Decision("suppress", ("cooldown",)))
     monkeypatch.setattr("app.notifications.intraday_delivery.locked_intraday_evaluation", suppressed)
     forbidden = AsyncMock(side_effect=AssertionError("Suppression must not enrich"))
-    monkeypatch.setattr("app.notifications.intraday_delivery.read_flood_snapshot", forbidden)
+    monkeypatch.setattr("app.notifications.flood_enrichment.read_flood_snapshot", forbidden)
     client = AsyncMock()
     result = await deliver_intraday_update(sessions, candidate(), clock=lambda:NOW,
                                           client=client, dry_run=True)
@@ -144,7 +130,7 @@ async def test_suppressed_decision_never_reads_flood_or_sends(sessions, monkeypa
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("rain", [0,40])
-async def test_daily_alert_enrichment_is_frozen_and_deduplicated(db_session, monkeypatch, rain):
+async def test_daily_alert_is_rain_only_frozen_and_deduplicated(db_session, monkeypatch, rain):
     import app.notifications.rain_alerts as daily_module
     from app.models.forecast import DailyForecast
     class Clock(datetime):
@@ -170,8 +156,8 @@ async def test_daily_alert_enrichment_is_frozen_and_deduplicated(db_session, mon
     assert await daily_module.send_rain_alert(db_session, run, "U_SYNTHETIC", client)
     saved = await db_session.scalar(select(NotificationDelivery))
     assert saved.rain_evidence["message_text"] == client.push_text.await_args.args[1]
-    assert (FLOOD_WATCH_TEXT in saved.rain_evidence["message_text"]) is (rain==40)
-    assert saved.rain_evidence["flood_screening"]["risk_detected"] is (rain==40)
+    assert FLOOD_WATCH_TEXT not in saved.rain_evidence["message_text"]
+    assert "flood_screening" not in saved.rain_evidence
     assert "latitude" not in str(saved.rain_evidence)
     assert not await daily_module.send_rain_alert(db_session, run, "U_SYNTHETIC", client)
     client.push_text.assert_awaited_once()
@@ -183,7 +169,7 @@ from tests.test_rain_locking_postgres import pg_sessions
 
 @pg
 @pytest.mark.asyncio
-async def test_real_postgres_flood_preview_mock_send_and_replay(source_sessions):
+async def test_real_postgres_heavy_rain_only_preview_mock_send_and_replay(source_sessions):
     from sqlalchemy import update
     new = candidate()
     new = replace(new, hours=tuple(replace(h, rainfall_mm=40 if i==0 else 0)
@@ -204,15 +190,14 @@ async def test_real_postgres_flood_preview_mock_send_and_replay(source_sessions)
     client = AsyncMock()
     preview = await deliver_intraday_update(source_sessions, new, clock=lambda:NOW,
                                            client=client, dry_run=True)
-    assert preview.status == "preview" and FLOOD_WATCH_TEXT in preview.message
+    assert preview.status == "preview" and FLOOD_WATCH_TEXT not in preview.message
     client.push_text.assert_not_awaited()
     sent = await deliver_intraday_update(source_sessions, new, clock=lambda:NOW,
                                         client=client, dry_run=False)
     assert sent.status == "sent" and sent.message == preview.message
     async with source_sessions() as db:
         saved = await db.get(NotificationDelivery, sent.delivery_id)
-        assert saved.rain_evidence["flood_screening"]["risk_detected"] is True
-        assert saved.rain_evidence["flood_screening"]["forecast_run_id"] == 12
+        assert "flood_screening" not in saved.rain_evidence
         assert saved.rain_evidence["message_text"] == sent.message
     replay = await deliver_intraday_update(source_sessions, new, clock=lambda:NOW,
                                           client=client, dry_run=False)

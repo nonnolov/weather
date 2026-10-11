@@ -6,7 +6,7 @@ The user selected the fastest route to a usable everyday project, retained Open-
 ## Ready to use
 - Open the production dashboard: https://weather-iota-five-83.vercel.app/
 - For LINE-linked GPS/alerts, open through the existing LINE/LIFF entry, wait for connection, allow location access and press the location button. When moving to another area, update the location again; the application does not track background movement.
-- The dashboard combines local hourly/7-day weather, rain probability and amount, temperature/rain charts, model PM2.5 and rainfall accumulation/screening.
+- The dashboard combines local hourly/7-day weather, rain probability and amount, temperature/rain charts, model PM2.5.
 - The existing daily job is configured for 06:00 Bangkok. Both rain alerts and below-threshold summaries use the existing daily workflow and duplicate protection.
 - Intraday polling is enabled with 15-minute delays after completed cycles and hourly due-forecast refresh. Sending remains restricted to the existing allowlisted LINE recipient, significant-change policy and duplicate/cooldown rules. A qualifying update can therefore be suppressed; there is no promise of a message every tick.
 - Browser-only identities can load GPS forecasts but are excluded from LINE scheduled refresh/sending. Their stored forecasts may grow old; request GPS/refresh again to retrieve current weather. Sample seed forecasts are historical examples, not an alternative to current GPS retrieval.
@@ -31,7 +31,7 @@ See DAILY_USE_ACCEPTANCE.json for the time-specific HTTP and read-only DB eviden
 | P1 | Daily/intraday features enabled for existing recipient | Natural positive intraday send/receipt remains unobserved |
 | P2 | Collection/report code retained; numerical validation deferred | Eligible measured baseline and verified station interval contract |
 | P3 | Model PM2.5 shown in dashboard | No claim of a local station measurement |
-| P4 | Rain accumulation shown; conditional risk note only for supported positive screening | Local calibration/coverage; unsupported locations stay unassessed |
+| P4 | Withdrawn from dashboard and LINE by user on 2026-10-11 21:18 Bangkok | Historical code/data retained; no active flood assessment feature |
 | P5 | Optional real flood integration deferred | No confirmed flood detection claimed |
 | P6 | Existing combined dashboard satisfies minimum presentation scope | No new dashboard redesign or new-device visual acceptance in this step |
 | P7 | Time-specific production smoke and scoped release record completed | Original end-to-end natural-event and device gates remain open |
@@ -49,3 +49,7 @@ If the check fails, inspect API health, current GPS forecast freshness and nativ
 
 ## Freeze and follow-up
 No new API/provider, infrastructure, paid plan, scheduled message or recipient expansion is added. The existing deployed code remains the runtime baseline; this change adds an operator check and documentation only, so no redeploy is needed. Use the current system and repair demonstrated daily-use defects. P2/P5 research and natural-event observation can continue later without blocking this scoped release or fabricating completion.
+
+## Scope update — 2026-10-11 21:18 Bangkok
+
+The user removed the accumulated-rain/flood-risk card and flood-watch paragraphs from new daily/intraday LINE alerts. Earlier production checks above and DAILY_USE_ACCEPTANCE.json are historical evidence, not an active flood feature. See REMOVE_FLOOD_UI_LINE_HANDOFF.md and REMOVE_FLOOD_UI_LINE_RELEASE.json for this release. Normal rainfall quantities and forecast charts remain. The operator smoke check no longer requests the retired flood card endpoint.

@@ -52,13 +52,6 @@ def main():
         for location_id in args.location_id:
             forecast = get_json(args.base_url, "/api/v1/forecast/" + str(location_id))
             report["checks"].append(check_forecast(forecast, location_id, now))
-            flood = get_json(args.base_url, "/api/v1/flood-risk/" + str(location_id))
-            if flood["location_id"] != location_id or flood["measurement_available"] or flood["flood_occurrence_confirmed"]:
-                raise ValueError("flood_contract_mismatch")
-            if flood["assessment_status"] == "not_assessed" and flood["risk_detected"] is not None:
-                raise ValueError("unassessed_flood_presented_as_result")
-            report["checks"].append({"location_id": location_id, "name": "flood",
-                                     "status": flood["assessment_status"], "data_status": flood["data_status"]})
             air = get_json(args.base_url, "/api/v1/air-quality/" + str(location_id))
             if air["location_id"] != location_id or air["measurement_available"] or air["source"]["source_type"] != "model_estimate":
                 raise ValueError("air_quality_contract_mismatch")

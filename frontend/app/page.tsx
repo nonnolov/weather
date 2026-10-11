@@ -2,7 +2,6 @@
 
 import Script from "next/script";
 import { AirQualityCard } from "./AirQualityCard";
-import { FloodRiskCard } from "./FloodRiskCard";
 import { WeatherArtwork } from "./WeatherArtwork";
 import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import {
@@ -438,7 +437,6 @@ export default function Home() {
       <article className="card metric"><span>{t.humidity}</span><strong>{summary ? value(summary.relative_humidity_2m, "%") : "—"}</strong></article>
     </section>
     <AirQualityCard key={location.id} locationId={location.id} timeZone={location.timezone} language={language} />
-    <FloodRiskCard key={"flood-" + location.id} locationId={location.id} timeZone={location.timezone} language={language} />
     <TemperatureTrend hourly={forecast.hourly} timeZone={location.timezone} language={language} />
     <RainTrend hourly={forecast.hourly} timeZone={location.timezone} language={language} />
     <section className="card hourly-card" aria-labelledby="hourly-heading">
