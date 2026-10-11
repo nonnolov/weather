@@ -66,3 +66,5 @@ Live tests using coordinates/user identity taken from logs were blocked by autom
 - Built-in imagegen generated each asset separately. Prompt: one premium weather dashboard icon, realistic volumetric 3D weather graphic, convincing fluffy cloud texture, centered isolated subject, transparent background, neutral studio lighting readable on black and white, no text or watermark. Subjects: golden sun; sun behind white cumulus; white/silver cumulus; gray rain cloud with blue droplets; dark thundercloud with golden lightning; pale cloud and horizontal mist; white cloud with blue snowflakes.
 - Next Image optimizes assets for the displayed size. Decorative alt text remains empty because adjacent labels describe the weather. Main/hourly/daily sizes increased for legibility.
 - Original PNG bytes verified against SHA-256 after transfer. Local preview only; no production deployment.
+
+- Main condition artwork enlarged to 192px desktop, 160px tablet and 180px mobile, exceeding the 88/72/64px temperature type. Mobile places the graphic above the temperature; other weather icons retain their existing sizes.

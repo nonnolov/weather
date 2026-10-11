@@ -47,8 +47,8 @@
 .hero-temperature small { color:var(--muted); font-size:32px; font-weight:400; letter-spacing:0; }
 .feels-like { display:flex; flex-direction:column; color:var(--muted); font-size:14px; }
 .feels-like strong { color:var(--ink); font-size:20px; font-weight:500; }
-.hero-art { align-self:center; display:flex; align-items:center; gap:10px; padding:12px 14px; border-radius:16px; background:var(--surface-raised); max-width:180px; }
-.hero-art .weather-artwork { width:72px; height:72px; flex-shrink:0; }
+.hero-art { align-self:center; display:flex; flex-direction:column; align-items:center; gap:8px; width:192px; padding:0; text-align:center; }
+.hero-art .weather-artwork { width:192px; height:192px; flex-shrink:0; }
 .hero-condition { font-size:15px; font-weight:500; line-height:1.6; }
 .hero-outlook { font-size:13px; color:var(--muted); margin-top:8px; }
 .metric { display:flex; flex-direction:column; justify-content:space-between; min-width:0; min-height:110px; border:0; box-shadow:none; border-radius:14px; background:var(--surface-raised); padding:14px 12px; }
@@ -156,7 +156,7 @@
 .planned-badge { padding:8px 16px; background:var(--accent-soft); border-radius:99px; font-size:13px; }
 @media(hover:hover) { .hourly-list article:hover { background:var(--surface-raised); transform:translateY(-2px); } .day-summary:hover { background:var(--surface-raised); } .hero-actions .gps-primary:hover .action-icon { transform:rotate(45deg); } .dashboard-nav a:not(:first-child):hover,.dashboard-nav button:hover { background:var(--surface-raised); color:var(--ink); } }
 @media(min-width:1440px) { .header-line { display:flex; align-items:center; gap:6px; max-width:130px; font-size:12px; color:var(--muted); } }
-@media(max-width:1199px) { .dashboard-nav { display:none; } .dashboard-shell { padding-inline:24px; } .summary-grid { padding:24px; grid-template-columns:repeat(2,minmax(0,1fr)); } .hero-art { max-width:145px; } .hero-location h2 { font-size:22px; } .hero-reading { gap:10px; } .hero-temperature { font-size:72px; } }
+@media(max-width:1199px) { .dashboard-nav { display:none; } .dashboard-shell { padding-inline:24px; } .summary-grid { padding:24px; grid-template-columns:repeat(2,minmax(0,1fr)); } .hero-art { width:160px; } .hero-art .weather-artwork { width:160px; height:160px; } .hero-location h2 { font-size:22px; } .hero-reading { gap:10px; } .hero-temperature { font-size:72px; } }
 @media(max-width:899px) { .forecast-layout { grid-template-columns:minmax(0,1fr); grid-template-areas:'hero' 'air' 'line' 'hours' 'chart' 'days'; } .summary-grid { grid-template-columns:repeat(4,minmax(0,1fr)); } .header-location { max-width:180px; } }
 @media(max-width:599px) {
  html { scroll-padding-top:88px; }
@@ -172,9 +172,9 @@
  .hero-location { gap:12px; } .hero-location h2 { font-size:19px; } .hero-location .eyebrow { font-size:12px; }
  .hero-stamp { font-size:11px; } .hero-stamp time { font-size:14px; }
  .primary-summary { gap:16px; grid-template-columns:minmax(0,1fr); }
- .weather-hero-copy { margin:0; } .hero-temperature { font-size:64px; } .hero-temperature small { font-size:26px; }
+ .weather-hero-copy { grid-row:3; margin:0; } .hero-temperature { font-size:64px; } .hero-temperature small { font-size:26px; }
  .feels-like { font-size:12px; } .feels-like strong { font-size:16px; }
- .hero-art { grid-column:1; justify-self:start; max-width:none; padding:8px 12px; } .hero-art .weather-artwork { width:48px; height:48px; }
+ .hero-art { grid-column:1; grid-row:2; justify-self:center; width:180px; padding:0; } .hero-art .weather-artwork { width:180px; height:180px; }
  .hero-condition { font-size:14px; } .hero-outlook { font-size:12px; }
  .metric { min-height:96px; padding:12px; } .metric strong { font-size:22px; }
  .hero-actions { margin-top:8px; flex-wrap:nowrap; } .hero-actions button { flex:1; padding:10px; font-size:13px; }

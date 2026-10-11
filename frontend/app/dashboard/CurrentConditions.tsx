@@ -15,7 +15,7 @@ const {setMapOpen,forecast,location,language,t,ux,isGpsBusy,busy,progress,handle
 
           <p className="hero-outlook">{language === "th" ? "โอกาสฝน " : "Rain chance "}{summary ? value(summary.precipitation_probability, "%") : "—"} · {language === "th" ? "พยากรณ์สำหรับพื้นที่ของคุณ" : "Your local outlook"}</p>
         </div>
-        <div className="hero-art"><WeatherArtwork code={summary?.weather_code ?? null} compact /><p className="hero-condition">{weather(summary?.weather_code ?? null, language)}</p></div>
+        <div className="hero-art"><WeatherArtwork code={summary?.weather_code ?? null} /><p className="hero-condition">{weather(summary?.weather_code ?? null, language)}</p></div>
       </article>
       <article className="card metric rain-probability"><span className="metric-label">{t.rainChance}<UiIcon name="rain" /></span><strong>{summary ? value(summary.precipitation_probability, "%") : "—"}</strong>{summary?.precipitation_probability != null && <div className="probability-track" aria-hidden="true"><span style={{width: Math.max(0, Math.min(100, summary.precipitation_probability)) + "%"}} /></div>}</article>
       <article className="card metric rainfall"><span className="metric-label">{t.precip}<UiIcon name="drop" /></span><strong>{summary ? value(summary.precipitation, language === "th" ? " มม." : " mm") : "—"}</strong></article>
