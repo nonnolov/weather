@@ -32,3 +32,19 @@ Unsupported station names, model accuracy/latency numbers, fake recipients/thres
 Final production build/typecheck/lint completed with exit 0 and no CSS warnings. Browser validation is recorded in the session.
 
 Desktop readability follow-up: at widths >= 1024px, supporting text is 14px, section headings 21px, location title 24px and hero temperature 88px. Mobile sizes are preserved. Air-quality heading can wrap to avoid colliding with the refresh button.
+
+## Dashboard component rebuild — 2026-10-12
+
+Rebuilt the presentation layer around the supplied Stitch desktop/mobile export, with the requested black dark canvas, charcoal cards, weather-dependent cloud branding and larger desktop text.
+
+- `app/page.tsx` now mounts the LIFF script and DashboardView.
+- `app/dashboard/useWeatherDashboard.ts` owns the existing GPS, seed-area, API, browser identity, language/theme and LIFF flows; backend API contracts are unchanged.
+- Header, current conditions, hourly outlook, daily outlook and charts are separate components. Formatting and outline SVG icons are shared.
+- `globals.css` contains shared tokens/primitives, `dashboard/dashboard.css` owns layout and interaction styles, and the air-quality component keeps a scoped CSS module. Superseded stitch.css/fidelity.css were removed instead of retaining override chains.
+- IBM Plex Sans / IBM Plex Sans Thai are self-hosted in public/fonts, including SIL Open Font License notices. No runtime Google Fonts/CDN dependency.
+- Forecast charts support pointer inspection and a keyboard-accessible hour scrubber. Hover/press/fade/ping interactions respect reduced motion.
+- Daily rain probability prefers the daily API field, falling back to hourly-derived probability when the daily field is missing.
+- PM2.5 category badges use the API's European AQI category. No fabricated station readings, Thai AQI thresholds, accuracy percentages, uptime, alert settings or model metadata were copied from the design sample.
+- Map remains a full-screen unavailable state; Leaflet/radar are still pending. No flood card or flood API calls were added.
+- QA uses mocked responses only: Thai/English layouts, six viewport/theme combinations (390/1024/1440/1920px), modal/API isolation, chart controls, reduced motion, missing/stale/failed PM data, empty/failed forecast, GPS denied and GPS success. The GPS success test intercepts both POSTs; no production writes.
+- Preview on the connected PC: http://localhost:3100. This change is not pushed or deployed.

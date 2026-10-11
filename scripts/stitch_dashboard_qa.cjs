@@ -11,7 +11,7 @@ const daily = Array.from({length:7},(_,i)=>({id:i,forecast_date:new Date(Date.no
  const browser=await chromium.launch({executablePath:'C:/Program Files/Google/Chrome/Application/chrome.exe',headless:true});
  const report=[];
  try {
-  for(const {width,theme} of [{width:390,theme:"light"},{width:1440,theme:"light"},{width:390,theme:"dark"},{width:1440,theme:"dark"}]) {
+  for(const {width,theme} of [{width:390,theme:"light"},{width:1440,theme:"light"},{width:390,theme:"dark"},{width:1440,theme:"dark"},{width:1024,theme:"light"},{width:1920,theme:"dark"}]) {
    const context=await browser.newContext({viewport:{width,height:1000}});
    await context.addInitScript(theme=>localStorage.setItem('weather.theme',theme),theme);
    const page=await context.newPage(), errors=[], requests=[];
@@ -42,6 +42,10 @@ const daily = Array.from({length:7},(_,i)=>({id:i,forecast_date:new Date(Date.no
    assert(await page.locator('.temperature-chart').isVisible());
    await page.locator('.chart-inspector input').focus(); await page.keyboard.press('Home'); await page.keyboard.press('ArrowRight');
    assert((await page.locator('.chart-tooltip time').innerText()).length > 0);
+   await page.locator('.chart-plot').scrollIntoViewIfNeeded();
+   const plot=await page.locator('.trend-svg').boundingBox();
+   await page.mouse.move(plot.x+plot.width*0.52,plot.y+plot.height*0.5);
+   assert.equal(await page.locator('.chart-inspector input').inputValue(),'12','Pointer inspection failed');
    await page.locator('.day-summary').first().click();
    assert(await page.locator('.forecast-day[open] .day-details').isVisible());
    if(theme==='dark') assert.equal(await page.evaluate(()=>getComputedStyle(document.body).backgroundColor),'rgb(0, 0, 0)');
@@ -57,6 +61,12 @@ const daily = Array.from({length:7},(_,i)=>({id:i,forecast_date:new Date(Date.no
    await page.evaluate(()=>window.scrollTo(0,0));
    await page.waitForTimeout(400);
    assert.equal(await page.locator('.dashboard-header').evaluate(el=>Math.round(el.getBoundingClientRect().top)),0);
+   await page.evaluate(()=>document.fonts.ready);
+   assert(await page.evaluate(()=>document.fonts.check('400 15px "IBM Plex Sans Thai"')),'Thai font unavailable');
+   await page.getByRole('button',{name:'ภาษา',exact:true}).click();
+   assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'English overflow');
+   await page.getByRole('button',{name:'Language',exact:true}).click();
+   await page.evaluate(()=>document.querySelectorAll('.hourly-list').forEach(el=>el.scrollLeft=0));
    await page.screenshot({path:'stitch-dashboard-'+width+'-'+theme+'.png',fullPage:true});
    report.push({width,theme,status:'passed',hourly:24,daily:7,mapRequests:0,pageErrors:0});
    await context.close();

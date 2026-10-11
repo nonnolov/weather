@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { getAirQuality, type AirQualityReport } from "../lib/api";
+import {UiIcon} from "./dashboard/UiIcon";
 import styles from "./AirQualityCard.module.css";
 
 const labels: Record<string, [string, string]> = {
@@ -40,14 +41,14 @@ export function AirQualityCard({ locationId, timeZone, language }: { locationId:
   const hasTrend = hours.filter(row => row.pm25 !== null).length >= 2;
   const max = Math.max(1, ...hours.map(row => row.pm25 ?? 0));
   return <section className={"card " + styles.panel} aria-labelledby="air-quality-heading" aria-busy={loading}>
-    <div className={styles.heading}><div><h2 id="air-quality-heading">{th ? "คุณภาพอากาศ PM2.5" : "PM2.5 & air quality"}</h2><p>{th ? "ค่าประมาณจากแบบจำลอง · ไม่ใช่ค่าตรวจวัด ณ จุดจริง" : "Model estimate · not an at-point measurement"}</p></div>
+    <div className={styles.heading}><div><h2 id="air-quality-heading"><UiIcon name="air" />{th ? "คุณภาพอากาศ PM2.5" : "PM2.5 & air quality"}</h2><p>{th ? "ค่าประมาณจากแบบจำลอง · ไม่ใช่ค่าตรวจวัด ณ จุดจริง" : "Model estimate · not an at-point measurement"}</p></div>
       <button type="button" className="utility-button" onClick={() => setRevision(n => n + 1)} disabled={loading}>{th ? "โหลดใหม่" : "Reload"}</button></div>
     {loading && !data && <p role="status">{th ? "กำลังโหลดข้อมูลคุณภาพอากาศ…" : "Loading air quality…"}</p>}
     {unavailable && <p role="status">{th ? "ข้อมูลคุณภาพอากาศไม่พร้อมใช้งานชั่วคราว" : "Air quality is temporarily unavailable."}</p>}
     {data && !unavailable && <>
       {(data.stale || data.status === "missing") && <p className={styles.notice} role="status">{data.stale ? (th ? "ข้อมูลเดิม: การอัปเดตล่าช้าหรือล้มเหลว" : "Older data: refresh delayed or failed.") : (th ? "ไม่มีค่าครบสำหรับชั่วโมงปัจจุบัน" : "Current-hour data are missing.")}</p>}
       <div className={styles.metrics}><div><span>PM2.5</span><p>{show(data.current?.pm25)} <small>µg/m³</small></p></div>
-        <div><span>European AQI</span><p>{show(data.current?.aqi)}</p><span>{category ? labels[category]?.[th ? 0 : 1] ?? "—" : "—"}</span></div></div>
+        <div className={styles.aqi}><span>European AQI</span><p>{show(data.current?.aqi)}</p><span className={styles.badge} data-category={category ?? undefined}>{category ? labels[category]?.[th ? 0 : 1] ?? "—" : "—"}</span></div></div>
       <details className={styles.info}><summary>{th ? "ข้อมูลแบบจำลองและเวลาการอัปเดต" : "Model details & update time"}</summary><p>{th ? "AQI ใช้เกณฑ์ยุโรป ไม่ใช่ AQI ไทย และรวมมลพิษหลายชนิด" : "European AQI, not Thai AQI; includes several pollutants."}</p>
       {data.current && <p>{th ? "เวลาของค่าแบบจำลอง" : "Model valid time"}: <time dateTime={data.current.valid_time}>{stamp(data.current.valid_time)}</time> · {timeZone}</p>}
       {data.retrieved_at && <p>{th ? "ดึงข้อมูลเมื่อ" : "Retrieved"}: <time dateTime={data.retrieved_at}>{stamp(data.retrieved_at)}</time></p>}
