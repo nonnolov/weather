@@ -27,3 +27,11 @@
 .info summary { cursor:pointer; font-size:11px; color:var(--muted); padding:8px 0; }
 .info[open] { animation:stitch-chart-in 200ms ease-out; }
 @media(max-width:520px) { .panel { padding:20px; } .heading h2 { font-size:14px; } .metrics p { font-size:28px; } }
+
+@media(min-width:64rem) {
+ .heading { flex-wrap:wrap; }
+ .heading h2 { font-size:21px; }
+ .heading p,.panel p,.source,.metrics span,.info summary { font-size:14px; }
+ .metrics p { font-size:38px; }
+ .metrics small { font-size:14px; }
+}

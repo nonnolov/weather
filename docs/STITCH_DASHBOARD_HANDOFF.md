@@ -30,3 +30,5 @@ Motion follows exported interactions: 150ms pressed button scale, 200ms hour-car
 User-selected weather logo and black/charcoal dark theme remain.
 Unsupported station names, model accuracy/latency numbers, fake recipients/thresholds, and developer simulation controls are excluded. These are deliberate data/product corrections, not a claim of pixel-identical reproduction.
 Final production build/typecheck/lint completed with exit 0 and no CSS warnings. Browser validation is recorded in the session.
+
+Desktop readability follow-up: at widths >= 1024px, supporting text is 14px, section headings 21px, location title 24px and hero temperature 88px. Mobile sizes are preserved. Air-quality heading can wrap to avoid colliding with the refresh button.

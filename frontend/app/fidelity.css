@@ -157,3 +157,37 @@ button:active { transform:scale(.98); }
 @media(hover:hover) { .hero-actions .gps-primary:hover .action-icon { transform:rotate(45deg); } }
 
 .forecast-layout .primary-summary .feels-like strong { font-size:16px; line-height:1.5; color:var(--ink); text-shadow:none; font-weight:500; letter-spacing:0; }
+
+/* Desktop reading sizes; retain the existing compact mobile layout. */
+@media(min-width:64rem) {
+ .dashboard-header { min-height:88px; }
+ .dashboard-shell { padding-top:8rem; }
+ .dashboard-header h1 { font-size:24px; }
+ .dashboard-header .eyebrow,.header-location small { font-size:12px; }
+ .header-location strong,.header-line { font-size:13px; }
+ .dashboard-nav,.dashboard-header .utility-button { font-size:14px; }
+ .header-location { max-width:13rem; }
+ .header-location strong { max-width:13rem; }
+ .hero-location h2 { font-size:24px; }
+ .hero-location .eyebrow,.hero-stamp,.weather-hero-copy > .eyebrow,.feels-like,.hero-outlook { font-size:14px; }
+ .hero-stamp time { font-size:18px; }
+ .forecast-layout .primary-summary .hero-temperature { font-size:88px; }
+ .forecast-layout .primary-summary .feels-like strong { font-size:20px; }
+ .hero-condition { font-size:18px; }
+ .forecast-layout .metric { padding:14px 12px; min-height:112px; }
+ .forecast-layout .metric span { font-size:14px; }
+ .forecast-layout .metric strong { font-size:24px; overflow-wrap:anywhere; }
+ .hero-actions button,.chart-tabs button { font-size:15px; }
+ .line-panel h2 { font-size:17px; }
+ .line-panel p,.chart-heading p,.chart-summary,.chart-tooltip,.dashboard-footer { font-size:14px; }
+ .section-heading h2,.chart-heading h2 { font-size:21px; }
+ .section-heading p { font-size:14px; }
+ .hourly-list article { flex-basis:112px; }
+ .hourly-list time,.hourly-list span { font-size:14px; }
+ .hourly-list small { font-size:13px; }
+ .hourly-list strong { font-size:24px; }
+ .daily-date strong { font-size:16px; }
+ .daily-date span,.day-probability,.day-summary .temperatures,.day-details div { font-size:14px; }
+ .day-summary { grid-template-columns:minmax(0,1fr) 30px 42px minmax(90px,1fr); padding:16px 0; }
+ .chart-scale,.chart-times { font-size:13px; }
+}
