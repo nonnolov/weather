@@ -5,8 +5,8 @@ if (!entry) throw Error('Playwright package missing');
 const { chromium } = require(entry);
 const stamp = new Date().toISOString();
 const location = {id:1,name:'พื้นที่ทดสอบ',slug:'chon-buri-city',timezone:'Asia/Bangkok',subdistrict:'ตำบลชื่อยาวสำหรับทดสอบการจัดวาง',district:'อำเภอเมืองชลบุรี',province:'ชลบุรี',is_active:true};
-const hours = Array.from({length:24},(_,i)=>({id:i,valid_time:new Date(Date.now()+(i+1)*3600000).toISOString(),temperature_2m:28+i%5,apparent_temperature:31+i%5,weather_code:61,precipitation_probability:65,precipitation:1.2,relative_humidity_2m:78,wind_speed_10m:14}));
-const daily = Array.from({length:7},(_,i)=>({id:i,forecast_date:new Date(Date.now()+i*86400000).toISOString().slice(0,10),temperature_2m_min:25,temperature_2m_max:33,weather_code:61,precipitation_sum:8,wind_speed_10m_max:14}));
+const hours = Array.from({length:24},(_,i)=>({id:i,valid_time:new Date(Date.now()+(i+1)*3600000).toISOString(),temperature_2m:28+i%5,apparent_temperature:31+i%5,weather_code:[61,0,2,3,95,45,71][i%7],precipitation_probability:65,precipitation:1.2,relative_humidity_2m:78,wind_speed_10m:14}));
+const daily = Array.from({length:7},(_,i)=>({id:i,forecast_date:new Date(Date.now()+i*86400000).toISOString().slice(0,10),temperature_2m_min:25,temperature_2m_max:33,weather_code:[61,0,2,3,95,45,71][i%7],precipitation_sum:8,wind_speed_10m_max:14}));
 (async()=>{
  const browser=await chromium.launch({executablePath:'C:/Program Files/Google/Chrome/Application/chrome.exe',headless:true});
  const report=[];
@@ -29,6 +29,12 @@ const daily = Array.from({length:7},(_,i)=>({id:i,forecast_date:new Date(Date.no
    await page.locator('.hero-actions').waitFor();
    assert.equal(await page.locator('.hourly-list article').count(),24);
    assert.equal(await page.locator('.forecast-day').count(),7);
+   const artwork=page.locator('img.weather-artwork');
+   await artwork.evaluateAll(images=>images.forEach(img=>img.loading='eager'));
+   await page.waitForFunction(()=>Array.from(document.querySelectorAll('img.weather-artwork')).every(img=>img.complete&&img.naturalWidth>0));
+   const sources=await page.locator('.hourly-list img.weather-artwork').evaluateAll(images=>images.map(img=>new URL(img.src).searchParams.get('url')));
+   for(const name of ['clear','partly-cloudy','cloudy','rain','storm','fog','snow']) assert(sources.includes('/weather/'+name+'.png'),'Missing condition artwork: '+name);
+
    assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'Horizontal overflow');
    const before=requests.length;
    await page.locator('.hero-actions .map-button').click();

@@ -58,3 +58,11 @@ The dashboard hook now distinguishes failures before and after resolving the loc
 Regression QA covers the geocoding failure, forecast failure without saved data, matching saved data, wrong-area saved data and expired coverage. These tests intercept all backend requests.
 
 Live tests using coordinates/user identity taken from logs were blocked by automatic approval review for lack of explicit consent; no such tests were executed. Upstream service recovery is not claimed, and this UI fix has not been deployed.
+
+
+## Realistic weather artwork (2026-10-12)
+
+- Replaced outline weather SVGs with seven transparent generated PNG assets in frontend/public/weather: clear, partly-cloudy, cloudy, rain, storm, fog and snow. Shared WeatherArtwork selects by the existing forecast weather codes; unknown/null uses cloudy.
+- Built-in imagegen generated each asset separately. Prompt: one premium weather dashboard icon, realistic volumetric 3D weather graphic, convincing fluffy cloud texture, centered isolated subject, transparent background, neutral studio lighting readable on black and white, no text or watermark. Subjects: golden sun; sun behind white cumulus; white/silver cumulus; gray rain cloud with blue droplets; dark thundercloud with golden lightning; pale cloud and horizontal mist; white cloud with blue snowflakes.
+- Next Image optimizes assets for the displayed size. Decorative alt text remains empty because adjacent labels describe the weather. Main/hourly/daily sizes increased for legibility.
+- Original PNG bytes verified against SHA-256 after transfer. Local preview only; no production deployment.

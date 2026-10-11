@@ -16,9 +16,7 @@ button { transition:background-color 150ms,transform 150ms,box-shadow 150ms; }
 button:active:not(:disabled) { transform:scale(.98); }
 .card { background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); box-shadow:var(--shadow); }
 .ui-icon { width:20px; height:20px; flex-shrink:0; vertical-align:middle; }
-.weather-artwork { display:block; width:100%; color:var(--muted); }
-.weather-sun { color:var(--warning); }
-.weather-rain { color:var(--rain); }
+.weather-artwork { display:block; width:100%; height:auto; object-fit:contain; }
 .eyebrow { color:var(--muted); font-size:13px; font-weight:500; }
 .gps-primary,.map-button,.utility-button,.retry-button { display:inline-flex; align-items:center; justify-content:center; gap:9px; min-height:44px; padding:10px 18px; border-radius:12px; border:1px solid var(--line-strong); font-size:14px; font-weight:500; white-space:nowrap; }
 .gps-primary,.retry-button { background:var(--accent); color:var(--on-accent); border-color:var(--accent); }

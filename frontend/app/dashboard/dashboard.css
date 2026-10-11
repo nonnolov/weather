@@ -48,7 +48,7 @@
 .feels-like { display:flex; flex-direction:column; color:var(--muted); font-size:14px; }
 .feels-like strong { color:var(--ink); font-size:20px; font-weight:500; }
 .hero-art { align-self:center; display:flex; align-items:center; gap:10px; padding:12px 14px; border-radius:16px; background:var(--surface-raised); max-width:180px; }
-.hero-art .weather-artwork { width:42px; height:42px; flex-shrink:0; }
+.hero-art .weather-artwork { width:72px; height:72px; flex-shrink:0; }
 .hero-condition { font-size:15px; font-weight:500; line-height:1.6; }
 .hero-outlook { font-size:13px; color:var(--muted); margin-top:8px; }
 .metric { display:flex; flex-direction:column; justify-content:space-between; min-width:0; min-height:110px; border:0; box-shadow:none; border-radius:14px; background:var(--surface-raised); padding:14px 12px; }
@@ -78,7 +78,7 @@
 .hourly-list article { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; flex:1 0 104px; padding:18px 12px; border-radius:16px; scroll-snap-align:start; transition:transform 200ms,background-color 200ms; }
 .hourly-list article:first-child { background:var(--surface-raised); }
 .hourly-list time { font-size:13px; white-space:nowrap; }
-.hourly-list .weather-artwork { width:36px; height:36px; }
+.hourly-list .weather-artwork { width:48px; height:48px; }
 .hourly-list strong { font-size:23px; font-weight:500; }
 .hourly-list span { color:var(--rain); background:color-mix(in srgb,var(--rain-bar) 25%,transparent); border-radius:99px; padding:1px 9px; font-size:13px; }
 .hourly-list small { font-size:12px; color:var(--muted); }
@@ -117,12 +117,12 @@
 .forecast-list { padding:0 24px 20px; }
 .forecast-day { border-bottom:1px solid var(--line); }
 .forecast-day:last-child { border-bottom:0; }
-.day-summary { display:grid; grid-template-columns:minmax(0,1fr) 30px 40px minmax(96px,1fr); gap:8px; align-items:center; padding:18px 0; list-style:none; cursor:pointer; border-radius:8px; transition:background-color 150ms; }
+.day-summary { display:grid; grid-template-columns:minmax(0,1fr) 36px 40px minmax(96px,1fr); gap:8px; align-items:center; padding:18px 0; list-style:none; cursor:pointer; border-radius:8px; transition:background-color 150ms; }
 .day-summary::-webkit-details-marker { display:none; }
 .daily-date { display:flex; flex-direction:column; gap:4px; }
 .daily-date strong { font-size:15px; font-weight:500; }
 .daily-date span { font-size:12px; color:var(--muted); }
-.day-summary .weather-artwork { width:28px; height:28px; }
+.day-summary .weather-artwork { width:36px; height:36px; }
 .day-probability { color:var(--rain); font-size:13px; }
 .temperatures { display:grid; grid-template-columns:auto minmax(20px,1fr) auto; gap:6px; align-items:center; font-size:13px; }
 .temperatures > span { color:var(--muted); }
@@ -174,7 +174,7 @@
  .primary-summary { gap:16px; grid-template-columns:minmax(0,1fr); }
  .weather-hero-copy { margin:0; } .hero-temperature { font-size:64px; } .hero-temperature small { font-size:26px; }
  .feels-like { font-size:12px; } .feels-like strong { font-size:16px; }
- .hero-art { grid-column:1; justify-self:start; max-width:none; padding:8px 12px; } .hero-art .weather-artwork { width:28px; height:28px; }
+ .hero-art { grid-column:1; justify-self:start; max-width:none; padding:8px 12px; } .hero-art .weather-artwork { width:48px; height:48px; }
  .hero-condition { font-size:14px; } .hero-outlook { font-size:12px; }
  .metric { min-height:96px; padding:12px; } .metric strong { font-size:22px; }
  .hero-actions { margin-top:8px; flex-wrap:nowrap; } .hero-actions button { flex:1; padding:10px; font-size:13px; }
@@ -184,8 +184,8 @@
  .chart-switcher,.forecast-card { padding-top:20px; } .chart-tabs { margin-inline:20px; max-width:calc(100% - 40px); } .chart-tabs button { font-size:12px; padding:6px 10px; }
  .chart-heading,.chart-body { padding-inline:20px; } .chart-inspector { margin-inline:20px; } .chart-tooltip { font-size:11px; }
  .chart-plot { height:200px; } .chart-summary { margin:12px 20px 20px; font-size:12px; }
- .forecast-list { padding-inline:20px; } .day-summary { grid-template-columns:minmax(0,1.2fr) 24px 32px minmax(80px,1fr); gap:5px; padding:16px 0; }
- .daily-date strong { font-size:13px; } .daily-date span { font-size:11px; } .day-summary .weather-artwork { width:24px; height:24px; } .day-probability,.temperatures { font-size:12px; }
+ .forecast-list { padding-inline:20px; } .day-summary { grid-template-columns:minmax(0,1.2fr) 32px 32px minmax(80px,1fr); gap:5px; padding:16px 0; }
+ .daily-date strong { font-size:13px; } .daily-date span { font-size:11px; } .day-summary .weather-artwork { width:32px; height:32px; } .day-probability,.temperatures { font-size:12px; }
  .dashboard-footer { flex-direction:column; gap:8px; font-size:12px; margin-top:24px; }
  .welcome-card { display:flex; flex-direction:column; text-align:center; padding:32px 24px; gap:0; } .welcome-illustration { width:130px; margin-bottom:16px; } .welcome-card h2 { font-size:26px; }
  .welcome-card .gps-primary { align-self:center; } .status-panel { font-size:13px; flex-wrap:wrap; }
