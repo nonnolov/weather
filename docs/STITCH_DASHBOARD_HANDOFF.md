@@ -20,3 +20,5 @@ Final checks and commit are recorded in the session.
 Not deployed. Leaflet/radar remain unimplemented. Real handset/LIFF visual acceptance remains open. Existing production stays at the flood-removal release.
 
 Final lint, explicit tsc --noEmit and production build all exit 0 after marker/font refinement. A local preview server is started on port 3100 for review; not a production deployment.
+
+Logo follow-up: replace the green W badge with the existing SVG WeatherArtwork, driven by the displayed forecast hour's weather_code. A cloudy icon is shown before data is loaded; descriptive Thai/English accessible text is included. No new image service, dependency or API calls. The forecast art supports clear, cloudy, rain, thunderstorm, snow and fog conditions.

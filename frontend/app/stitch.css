@@ -92,3 +92,7 @@
 }
 
 body { font-family: "Noto Sans Thai", "IBM Plex Sans Thai", "Leelawadee UI", Tahoma, Arial, sans-serif; }
+
+/* Forecast-aware brand artwork. */
+.brand-weather { display:flex; align-items:center; justify-content:center; flex-shrink:0; width:3.75rem; height:3rem; color:var(--ink); }
+.brand-weather .weather-artwork.compact { width:3.75rem; height:3rem; }
