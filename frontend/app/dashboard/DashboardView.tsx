@@ -58,6 +58,6 @@ export function DashboardView({model}:{model:DashboardModel}) {
     <DailyForecast model={model} /></div>}
     <footer className="dashboard-footer"><span>{ux.source}</span><span>{lineUserId ? t.connectedLine : ux.lineHint}</span></footer>
     </main>
-    {mapOpen && location && <MapPreview location={location} language={language} onClose={() => setMapOpen(false)} />}
+    {mapOpen && location && <MapPreview location={location} isSample={selectedId!==null} language={language} onClose={() => setMapOpen(false)} />}
  </>;
 }

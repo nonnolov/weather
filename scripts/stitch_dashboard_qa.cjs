@@ -3,8 +3,9 @@ const cache = path.join(process.env.LOCALAPPDATA, 'npm-cache', '_npx');
 const entry = fs.readdirSync(cache).map(d => path.join(cache,d,'node_modules','playwright')).find(p => fs.existsSync(p));
 if (!entry) throw Error('Playwright package missing');
 const { chromium } = require(entry);
+const {installMapMocks}=require('./map_test_fixtures.cjs');
 const stamp = new Date().toISOString();
-const location = {id:1,name:'พื้นที่ทดสอบ',slug:'chon-buri-city',timezone:'Asia/Bangkok',subdistrict:'ตำบลชื่อยาวสำหรับทดสอบการจัดวาง',district:'อำเภอเมืองชลบุรี',province:'ชลบุรี',is_active:true};
+const location = {id:1,latitude:13.7563,longitude:100.5018,name:'พื้นที่ทดสอบ',slug:'chon-buri-city',timezone:'Asia/Bangkok',subdistrict:'ตำบลชื่อยาวสำหรับทดสอบการจัดวาง',district:'อำเภอเมืองชลบุรี',province:'ชลบุรี',is_active:true};
 const hours = Array.from({length:24},(_,i)=>({id:i,valid_time:new Date(Date.now()+(i+1)*3600000).toISOString(),temperature_2m:28+i%5,apparent_temperature:31+i%5,weather_code:[61,0,2,3,95,45,71][i%7],precipitation_probability:65,precipitation:1.2,relative_humidity_2m:78,wind_speed_10m:14}));
 const daily = Array.from({length:7},(_,i)=>({id:i,forecast_date:new Date(Date.now()+i*86400000).toISOString().slice(0,10),temperature_2m_min:25,temperature_2m_max:33,weather_code:[61,0,2,3,95,45,71][i%7],precipitation_sum:8,wind_speed_10m_max:14}));
 (async()=>{
@@ -23,7 +24,8 @@ const daily = Array.from({length:7},(_,i)=>({id:i,forecast_date:new Date(Date.no
     return route.fulfill({json:body});
    });
    await page.route('https://static.line-scdn.net/**',route=>route.abort());
-   await page.goto('http://localhost:3100');
+   const mapRequests=await installMapMocks(page);
+   await page.goto(process.env.DASHBOARD_QA_URL||'http://localhost:3102');
    await page.locator('.sample-picker summary').click();
    await page.locator('select').selectOption('1');
    await page.locator('.hero-actions').waitFor();
@@ -44,9 +46,12 @@ const daily = Array.from({length:7},(_,i)=>({id:i,forecast_date:new Date(Date.no
    for(const name of ['clear','partly-cloudy','cloudy','rain','storm','fog','snow']) assert(sources.includes('/weather/'+name+'.png'),'Missing condition artwork: '+name);
 
    assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'Horizontal overflow');
+   assert.equal(mapRequests.length,0,'Map requested data before opening');
    const before=requests.length;
    await page.locator('.hero-actions .map-button').click();
-   await page.getByRole('heading',{name:'แผนที่ยังไม่เปิดใช้งาน'}).waitFor();
+   await page.getByRole('region',{name:'แผนที่สภาพอากาศ'}).waitFor();
+   await page.locator('.weather-location-pin').waitFor();
+   assert(await page.locator('.map-dialog input[type=range]').isVisible());
    await page.keyboard.press('Escape');
    await page.locator('dialog').waitFor({state:'detached'});
    assert.equal(requests.length,before,'Map triggered API request');
@@ -82,7 +87,7 @@ const daily = Array.from({length:7},(_,i)=>({id:i,forecast_date:new Date(Date.no
    await page.getByRole('button',{name:'Language',exact:true}).click();
    await page.evaluate(()=>document.querySelectorAll('.hourly-list').forEach(el=>el.scrollLeft=0));
    await page.screenshot({path:'stitch-dashboard-'+width+'-'+theme+'.png',fullPage:true});
-   report.push({width,theme,status:'passed',hourly:24,daily:7,mapRequests:0,pageErrors:0});
+   report.push({width,theme,status:'passed',hourly:24,daily:7,backendMapRequests:0,mapTileData:'mocked',pageErrors:0});
    await context.close();
   }
   console.log(JSON.stringify({status:'passed',mockData:true,productionWrites:0,report},null,2));
