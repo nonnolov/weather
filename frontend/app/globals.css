@@ -1,8 +1,8 @@
 /* Shared primitives only. Dashboard layout lives in dashboard/dashboard.css. */
-:root { --page:#f2fcf2; --surface:#fff; --surface-raised:#ecf6ed; --ink:#151e18; --muted:#68746c; --line:#e2ebe4; --line-strong:#c1c8c2; --accent:#234c3c; --accent-strong:#083526; --accent-soft:#e6f1e7; --rain:#206295; --rain-bar:#a8cde7; --on-accent:#fff; --warning:#a86b19; --focus:#2c6b9e; --radius:20px; --shadow:0 1px 3px #20292305,0 4px 16px #20292304; color-scheme:light; }
+:root { --page:#fff; --surface:#fff; --surface-raised:#ecf6ed; --ink:#151e18; --muted:#68746c; --line:#e2ebe4; --line-strong:#c1c8c2; --accent:#234c3c; --accent-strong:#083526; --accent-soft:#e6f1e7; --rain:#206295; --rain-bar:#a8cde7; --on-accent:#fff; --warning:#a86b19; --focus:#2c6b9e; --radius:20px; --shadow:0 1px 3px #20292305,0 4px 16px #20292304; color-scheme:light; }
 :root[data-theme="dark"] { --page:#000; --surface:#202226; --surface-raised:#2c3035; --ink:#f3f5f4; --muted:#bdc7c1; --line:#454b52; --line-strong:#64736b; --accent:#a4d0bb; --accent-strong:#c0edd6; --accent-soft:#293a32; --rain:#98cbff; --rain-bar:#476985; --on-accent:#13291d; --warning:#ffb964; --focus:#98cbff; --shadow:none; color-scheme:dark; }
 * { box-sizing:border-box; }
-html { scroll-behavior:smooth; scroll-padding-top:112px; }
+html { background:var(--page); scroll-behavior:smooth; scroll-padding-top:112px; }
 body { margin:0; background:var(--page); color:var(--ink); font-family:"IBM Plex Sans Thai","IBM Plex Sans","Leelawadee UI",Tahoma,sans-serif; font-size:15px; line-height:1.65; -webkit-font-smoothing:antialiased; font-variant-numeric:tabular-nums; }
 h1,h2,h3,p { margin:0; }
 h1,h2,h3 { font-weight:500; line-height:1.4; }

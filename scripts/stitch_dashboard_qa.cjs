@@ -12,7 +12,7 @@ const daily = Array.from({length:7},(_,i)=>({id:i,forecast_date:new Date(Date.no
  const report=[];
  try {
   for(const {width,theme} of [{width:320,theme:"dark"},{width:360,theme:"light"},{width:390,theme:"light"},{width:1440,theme:"light"},{width:390,theme:"dark"},{width:1440,theme:"dark"},{width:1024,theme:"light"},{width:1280,theme:"dark"},{width:1366,theme:"dark"},{width:1920,theme:"dark"}]) {
-   const context=await browser.newContext({viewport:{width,height:1000}});
+   const context=await browser.newContext({viewport:{width,height:1000},colorScheme:theme==="light"?"dark":"light"});
    await context.addInitScript(theme=>localStorage.setItem('weather.theme',theme),theme);
    const page=await context.newPage(), errors=[], requests=[];
    page.on('pageerror',e=>errors.push(e.message));
@@ -62,7 +62,10 @@ const daily = Array.from({length:7},(_,i)=>({id:i,forecast_date:new Date(Date.no
    assert.equal(await page.locator('.chart-inspector input').inputValue(),'12','Pointer inspection failed');
    await page.locator('.day-summary').first().click();
    assert(await page.locator('.forecast-day[open] .day-details').isVisible());
-   if(theme==='dark') assert.equal(await page.evaluate(()=>getComputedStyle(document.body).backgroundColor),'rgb(0, 0, 0)');
+   const expected=theme==='dark'?'rgb(0, 0, 0)':'rgb(255, 255, 255)';
+   assert.equal(await page.evaluate(()=>getComputedStyle(document.body).backgroundColor),expected,'Selected theme lost to OS preference');
+   assert.equal(await page.evaluate(()=>getComputedStyle(document.documentElement).backgroundColor),expected,'Scroll canvas theme mismatch');
+   assert.equal(await page.locator('meta[name="theme-color"]').getAttribute('content'),theme==='dark'?'#000000':'#ffffff','Browser bar theme mismatch');
    await page.emulateMedia({reducedMotion:'reduce'});
    assert.equal(await page.locator('.chart-card').evaluate(el=>getComputedStyle(el).animationName),'none');
    await page.emulateMedia({reducedMotion:'no-preference'});
