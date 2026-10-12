@@ -2,6 +2,7 @@
 import dynamic from "next/dynamic";
 import {useEffect,useRef,useState} from "react";
 import type {Location} from "../lib/api";
+import {locationLabels} from "../lib/locationLabels";
 import {useRadar} from "./map/useRadar";
 import type {CoverageState,LayerState} from "./map/MapCanvas";
 const MapCanvas=dynamic(()=>import("./map/MapCanvas").then(module=>module.MapCanvas),{ssr:false,loading:()=> <p className="map-loading" role="status">กำลังเปิดแผนที่ / Loading map…</p>});
@@ -35,7 +36,7 @@ export function MapPreview({location,language,onClose,isSample=false}:{location:
  },[playing,radarOn,frames.length,cadence,radarState,manifest?.stale]);
  const refresh=()=>{setPlaying(false);retry();setRetryTick(value=>value+1);};
  return <dialog ref={dialog} className="map-dialog" onCancel={event=>{event.preventDefault();onClose();}} aria-labelledby="map-title">
-  <header className="map-header"><button className="map-button" type="button" onClick={onClose}>{th?"← กลับ Dashboard":"← Back to Dashboard"}</button><div className="map-heading"><p className="eyebrow">{pointLabel}</p><h1 id="map-title">{[location.subdistrict??location.name,location.district,location.province].filter(Boolean).join(" · ")}</h1></div></header>
+  <header className="map-header"><button className="map-button" type="button" onClick={onClose}>{th?"← กลับ Dashboard":"← Back to Dashboard"}</button><div className="map-heading"><p className="eyebrow">{pointLabel}</p><h1 id="map-title">{locationLabels(location,language).parts.join(" · ")}</h1></div></header>
   <section className="map-workspace">
    {valid?<MapCanvas location={location} language={language} host={manifest?.host} frame={frame} radarOn={radarOn} coverageOn={coverageOn} locateTick={locateTick} retryTick={retryTick} pointLabel={pointLabel} onBase={setBaseState} onRadar={setRadarState} onCoverage={setCoverage} onCadence={setCadence}/>:<p className="map-loading" role="status">{th?"พื้นที่นี้ไม่มีพิกัดที่แสดงบนแผนที่ได้":"This area has no usable map coordinates."}</p>}
    <div className="map-toolbar"><button className="utility-button" type="button" disabled={!manifest||!valid} aria-pressed={radarOn} onClick={()=>{setRadarOn(value=>!value);setPlaying(false);}}>{th?"เรดาร์ฝน":"Rain radar"} <span className={"map-switch"+(radarOn&&manifest?" enabled":"")} aria-hidden="true"/></button><button className="utility-button" type="button" disabled={!valid} onClick={()=>setLocateTick(value=>value+1)}>{th?"⌖ กลับพื้นที่นี้":"⌖ Centre on area"}</button><button className="utility-button" type="button" disabled={loading} onClick={refresh}>{th?"โหลดใหม่":"Reload"}</button></div>

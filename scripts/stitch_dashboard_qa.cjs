@@ -35,7 +35,7 @@ const daily = Array.from({length:7},(_,i)=>({id:i,forecast_date:new Date(Date.no
    if(width>=900) {
     assert(await page.locator('.header-line .line-dot').isVisible(),'Desktop LINE indicator hidden');
     const province=page.locator('.header-location strong');
-    assert.equal(await province.innerText(),location.province);
+    assert.equal(await province.innerText(),"จังหวัด"+location.province);
     assert(await province.evaluate(el=>el.scrollWidth<=el.clientWidth),'Province clipped');
    }
 
