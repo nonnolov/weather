@@ -159,7 +159,10 @@ class FakeClient:
  {"client_id":"wrong","expires_in":10,"scope":"openid profile"},
  {"client_id":"123","expires_in":0,"scope":"openid profile"},
  {"client_id":"123","expires_in":10,"scope":"openid"},
- {"client_id":"123","expires_in":"10","scope":"openid profile"}])
+ {"client_id":"123","expires_in":"10","scope":"openid profile"},
+ {"client_id":"123","expires_in":True,"scope":"openid profile"},
+ {"client_id":"123","expires_in":float("inf"),"scope":"openid profile"},
+ {"client_id":"123","expires_in":float("nan"),"scope":"openid profile"}])
 async def test_access_token_channel_expiry_and_scopes(enabled,data):
     from fastapi import HTTPException
     with patch("app.services.line_identity.httpx.AsyncClient",return_value=FakeClient(data)):
@@ -167,8 +170,9 @@ async def test_access_token_channel_expiry_and_scopes(enabled,data):
     assert error.value.status_code==401
 
 @pytest.mark.asyncio
-async def test_valid_verified_access_token(enabled):
-    with patch("app.services.line_identity.httpx.AsyncClient",return_value=FakeClient({"client_id":"123","expires_in":10,"scope":"openid profile"})):
+@pytest.mark.parametrize("expiry",[10,10.5])
+async def test_valid_verified_access_token(enabled,expiry):
+    with patch("app.services.line_identity.httpx.AsyncClient",return_value=FakeClient({"client_id":"123","expires_in":expiry,"scope":"openid profile"})):
         identity=await verify_line_token("token")
     assert identity.user_id==UID
 

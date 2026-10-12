@@ -7,14 +7,14 @@ const UID='U'+'a'.repeat(32);
  const browser=await chromium.launch({executablePath:'C:/Program Files/Google/Chrome/Application/chrome.exe',headless:true}),report=[];
  try{for(const scenario of [
  {name:'mobile-light',width:360,insecureUuid:true},{name:'mobile-dark',width:390,dark:true},{name:'desktop-light',width:1440},{name:'desktop-dark',width:1440,dark:true},{name:'external-mobile',width:390,external:true},{name:'external-desktop',width:1440,external:true},
- {name:'gps-denied',gpsDenied:true},{name:'friend-service-down',friendFailure:true},{name:'expired-session',expired:true},
+ {name:'gps-denied',gpsDenied:true},{name:'friend-service-down',friendFailure:true},{name:'expired-session',expired:true,external:true},{name:'expired-liff-session',expired:true},{name:'cached-id-token',staleIdToken:true},
  {name:'enable-failed',enableFailure:true},{name:'disable-pending',pendingDisable:true,ready:true},{name:'disable-failed',disableFailure:true,ready:true},{name:'blocked-account',blocked:true,ready:true}
  ]){
  const context=await browser.newContext({viewport:{width:scenario.width||390,height:1000}});
  await context.addInitScript(s=>{
  localStorage.setItem('weather.theme',s.dark?'dark':'light');
  if(s.insecureUuid)Object.defineProperty(crypto,'randomUUID',{value:undefined});
- if(s.friendFailure||s.expired||s.ready)localStorage.setItem('qa.lineSignedIn','1');
+ if(s.friendFailure||s.expired||s.ready||s.staleIdToken)localStorage.setItem('qa.lineSignedIn','1');
  navigator.geolocation.getCurrentPosition=(success,failure)=>s.gpsDenied?failure({code:1}):success({coords:{latitude:13.7563,longitude:100.5018}});
  },scenario);
  const page=await context.newPage(),errors=[],requests=[];
@@ -27,7 +27,7 @@ const UID='U'+'a'.repeat(32);
  const daily=Array.from({length:7},(_,i)=>({id:i,forecast_date:new Date(Date.now()+i*86400000).toISOString().slice(0,10),temperature_2m_min:25,temperature_2m_max:33,weather_code:61,precipitation_sum:5,wind_speed_10m_max:15}));
  const forecast={id:1,location_id:1,provider:'open_meteo',retrieved_at:new Date().toISOString(),hourly,daily};
  const status=()=>({external_user_id:UID,friend,location_verified:located,location_id:located?1:null,enabled,ready:friend&&located&&enabled,consent_version:'weather-alerts-v1',next_step:!friend?'friend':!located?'location':!enabled?'consent':'ready'});
- await page.route('https://static.line-scdn.net/**',route=>route.fulfill({contentType:'application/javascript',body:"window.liff={init:async()=>{},isLoggedIn:()=>localStorage.getItem('qa.lineSignedIn')==='1',login:()=>{localStorage.setItem('qa.lineSignedIn','1');location.reload()},getIDToken:()=> 'mock-id-token',getAccessToken:()=> 'mock-access-token',isInClient:()=>"+(!scenario.external)+",requestFriendship:async()=>{await fetch('/__qa/friend')}};"}));
+ await page.route('https://static.line-scdn.net/**',route=>route.fulfill({contentType:'application/javascript',body:"window.liff={init:async()=>{},isLoggedIn:()=>localStorage.getItem('qa.lineSignedIn')==='1',logout:()=>{localStorage.removeItem('qa.lineSignedIn');localStorage.setItem('qa.reauth','1');localStorage.setItem('qa.logoutCalls',String(Number(localStorage.getItem('qa.logoutCalls')||0)+1))},login:()=>{localStorage.setItem('qa.lineSignedIn','1');localStorage.setItem('qa.loginCalls',String(Number(localStorage.getItem('qa.loginCalls')||0)+1));location.reload()},getIDToken:()=> 'mock-id-token',getAccessToken:()=>localStorage.getItem('qa.reauth')?'mock-fresh-token':'mock-access-token',isInClient:()=>"+(!scenario.external)+",requestFriendship:async()=>{await fetch('/__qa/friend')}};"}));
  await context.route('https://line.me/**',r=>{friend=true;return r.fulfill({contentType:'text/html',body:'<html><body>Mock Weather friend page</body></html>'});});
  await page.route('**/__qa/friend',r=>{friend=true;return r.fulfill({json:{ok:true}})});
  await page.route('**/api/backend/**',r=>{
@@ -35,7 +35,7 @@ const UID='U'+'a'.repeat(32);
  if(url.endsWith('/onboarding/config'))return r.fulfill({json:{enabled:true,add_friend_url:'https://line.me/R/ti/p/%40weather'}});
  if(url.endsWith('/line/auth'))return r.fulfill({json:{external_user_id:UID}});
  if(url.endsWith('/line/onboarding')){
- if(scenario.expired)return r.fulfill({status:401,json:{detail:'session expired'}});
+ if(scenario.expired&&r.request().headers().authorization!=='Bearer mock-fresh-token')return r.fulfill({status:401,json:{detail:'session expired'}});
  if(scenario.friendFailure)return r.fulfill({status:503,json:{detail:'friend service unavailable'}});
  return r.fulfill({json:status()});
  }
@@ -59,10 +59,23 @@ const UID='U'+'a'.repeat(32);
  throw Error('Unmocked backend route '+url);
  });
  await installMapMocks(page);
- await page.goto('http://localhost:3103');
+ await page.route('https://liff.line.me/**',r=>r.fulfill({contentType:'text/html',body:'<html><body>Mock LIFF relaunch</body></html>'}));
+ await page.goto(process.env.LINE_ONBOARDING_QA_URL||'http://localhost:3103');
  const panel=page.locator('.line-onboarding');
  await panel.waitFor();await page.waitForTimeout(400);
- if(scenario.friendFailure||scenario.expired){await panel.getByRole('alert').waitFor();assert(!enabled);assert.equal(await panel.locator('.line-ready-badge.ready').count(),0);}
+ if(scenario.friendFailure){await panel.getByRole('alert').waitFor();assert(!enabled);assert.equal(await panel.locator('.line-ready-badge.ready').count(),0);}
+ else if(scenario.expired){
+  await panel.getByRole('alert').waitFor();
+  await panel.locator('.line-onboarding-steps li:first-child button').click();
+  if(scenario.external){
+   await panel.locator('.line-status .line-dot.connected').waitFor();
+   assert.equal(await page.evaluate(()=>localStorage.getItem('qa.logoutCalls')),'1');
+   assert.equal(await page.evaluate(()=>localStorage.getItem('qa.loginCalls')),'1');
+   assert(requests.some(r=>r.url.endsWith('/line/onboarding')));
+  }else{await page.waitForURL('https://liff.line.me/**');assert(await page.getByText('Mock LIFF relaunch').isVisible());}
+  assert(!enabled);
+ }
+ else if(scenario.staleIdToken){await panel.locator('.line-status .line-dot.connected').waitFor();assert(!requests.some(r=>r.url.endsWith('/line/auth')),'Unnecessary cached ID-token verification');}
  else if(scenario.blocked){await panel.getByRole('button',{name:'เพิ่มเพื่อน',exact:true}).waitFor();assert.equal(await panel.locator('.line-ready-badge.ready').count(),0);assert(await panel.getByRole('button',{name:'เปิดรับแจ้งเตือน',exact:true}).isDisabled());}
  else if(scenario.pendingDisable){await panel.getByRole('button',{name:'ปิดแจ้งเตือน',exact:true}).click();await held;const before=requests.filter(r=>r.url.endsWith('/line/onboarding')).length;await page.evaluate(()=>document.dispatchEvent(new Event('visibilitychange')));await page.waitForTimeout(200);assert.equal(requests.filter(r=>r.url.endsWith('/line/onboarding')).length,before,'Refresh raced with opt-out');enabled=false;await heldDisable.fulfill({json:status()});await panel.locator('.line-consent input').waitFor();assert.equal(await panel.locator('.line-ready-badge.ready').count(),0);}
  else if(scenario.disableFailure){await panel.getByRole('button',{name:'ปิดแจ้งเตือน',exact:true}).click();await panel.getByRole('alert').waitFor();assert.equal(await panel.locator('.line-ready-badge.ready').count(),0);assert(enabled,'Failed disable should not pretend server succeeded');assert(await panel.getByRole('button',{name:'ปิดแจ้งเตือน',exact:true}).isVisible(),'Cannot retry failed disable');scenario.disableFailure=false;await panel.getByRole('button',{name:'ปิดแจ้งเตือน',exact:true}).click();await panel.locator('.line-consent input').waitFor();assert(!enabled);}

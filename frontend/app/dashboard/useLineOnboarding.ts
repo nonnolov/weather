@@ -1,11 +1,11 @@
 "use client";
 import {useCallback,useEffect,useRef,useState} from "react";
-import {authenticateLine,ApiError} from "../../lib/api";
+import {ApiError} from "../../lib/api";
 import {getLineConfig,getLineStatus,setLineSubscription,type LineConfig,type LineStatus} from "../../lib/line";
 export function useLineOnboarding(language:"th"|"en"){
  const [userId,setUserId]=useState<string|null>(null),[status,setStatus]=useState<LineStatus|null>(null);
  const [config,setConfig]=useState<LineConfig|null>(null),[busy,setBusy]=useState(false),[sdkReady,setSdkReady]=useState(false),[error,setError]=useState("");
- const initialized=useRef(false),mounted=useRef(true),revision=useRef(0),writing=useRef(false);
+ const initialized=useRef(false),mounted=useRef(true),revision=useRef(0),writing=useRef(false),needsRelogin=useRef(false);
  const explain=useCallback((problem:unknown)=>{
   const code=problem instanceof ApiError?problem.status:0;
   return language==="th"?(code===401?"กรุณาล็อกอิน LINE อีกครั้ง":code===409?"กรุณาตรวจการเพิ่มเพื่อนและพื้นที่ก่อนเปิดแจ้งเตือน":code===503||code===404?"ระบบสมัครแจ้งเตือนยังไม่เปิดใช้งาน":"ตรวจสถานะ LINE ไม่สำเร็จ กรุณาลองอีกครั้ง"):
@@ -16,8 +16,8 @@ export function useLineOnboarding(language:"th"|"en"){
   if(!window.liff?.isLoggedIn()||writing.current)return;
   const requestId=++revision.current;
   setBusy(true);setError("");
-  try{const value=await getLineStatus();if(mounted.current&&requestId===revision.current){setStatus(value);setUserId(value.external_user_id);}}
-  catch(problem){if(mounted.current&&requestId===revision.current){setStatus(previous=>previous?{...previous,ready:false}:null);if(problem instanceof ApiError&&problem.status===401){setUserId(null);setStatus(null);}setError(explain(problem));}}
+  try{const value=await getLineStatus();if(mounted.current&&requestId===revision.current){needsRelogin.current=false;setStatus(value);setUserId(value.external_user_id);}}
+  catch(problem){if(mounted.current&&requestId===revision.current){setStatus(previous=>previous?{...previous,ready:false}:null);if(problem instanceof ApiError&&problem.status===401){needsRelogin.current=true;setUserId(null);setStatus(null);}setError(explain(problem));}}
   finally{if(mounted.current&&requestId===revision.current)setBusy(false);}
  },[explain]);
  const initialize=useCallback(async()=>{
@@ -28,9 +28,8 @@ export function useLineOnboarding(language:"th"|"en"){
    if(!mounted.current)return;
    setSdkReady(true);
    if(window.liff.isLoggedIn()){
-    const token=window.liff.getIDToken();if(!token)throw new Error("No LINE session");
-    const result=await authenticateLine(token);
-    if(mounted.current)setUserId(result.external_user_id);
+    // Status verifies the access token and returns the server-confirmed identity.
+    // A cached one-hour ID token must not block a still-valid access-token session.
     await refresh();
    }
   }catch(problem){initialized.current=false;if(mounted.current){setStatus(null);setError(explain(problem));}}
@@ -43,7 +42,16 @@ export function useLineOnboarding(language:"th"|"en"){
  const login=()=>{
   if(!sdkReady||!window.liff)return;
   window.localStorage.setItem("weather.language",language);
-  if(window.liff.isLoggedIn())void refresh();else window.liff.login();
+  const sdk=window.liff;
+  if(needsRelogin.current){
+   ++revision.current;setUserId(null);setStatus(null);setError("");
+   if(sdk.isInClient?.()){
+    window.location.assign("https://liff.line.me/"+encodeURIComponent(process.env.NEXT_PUBLIC_LIFF_ID!));
+    return;
+   }
+   sdk.logout?.();
+   sdk.login({redirectUri:window.location.origin+window.location.pathname});
+  }else if(sdk.isLoggedIn())void refresh();else sdk.login();
  };
  const addFriend=async()=>{
   setError("");
@@ -64,7 +72,7 @@ export function useLineOnboarding(language:"th"|"en"){
   if(!enabled)setStatus(previous=>previous?{...previous,ready:false}:null);
   setBusy(true);setError("");
   try{const value=await setLineSubscription(enabled);if(mounted.current&&requestId===revision.current)setStatus(value);}
-  catch(problem){if(mounted.current&&requestId===revision.current){setStatus(previous=>previous?{...previous,ready:false}:null);if(problem instanceof ApiError&&problem.status===401){setUserId(null);setStatus(null);}setError(explain(problem));}}
+  catch(problem){if(mounted.current&&requestId===revision.current){setStatus(previous=>previous?{...previous,ready:false}:null);if(problem instanceof ApiError&&problem.status===401){needsRelogin.current=true;setUserId(null);setStatus(null);}setError(explain(problem));}}
   finally{writing.current=false;if(mounted.current&&requestId===revision.current)setBusy(false);}
  };
  return{userId,status,config,busy,sdkReady,error,initialize,login,addFriend,refresh,subscribe};

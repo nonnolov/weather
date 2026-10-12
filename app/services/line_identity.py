@@ -3,6 +3,8 @@ from dataclasses import dataclass
 import httpx
 import logging
 import re
+import math
+logger = logging.getLogger(__name__)
 from fastapi import Depends, HTTPException, Request
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from app.core.config import settings
@@ -26,6 +28,7 @@ async def _get(client, path, **kwargs):
         if path == "/friendship/v1/status" and response.status_code == 400:
             raise HTTPException(503, "Weather friendship verification is not configured.")
         if response.status_code in (400, 401, 403):
+            logger.warning("LINE credential rejected endpoint=%s status=%s", path, response.status_code)
             raise HTTPException(401, "LINE session expired or required permission missing.")
         if response.status_code != 200:
             raise HTTPException(502, "LINE verification is temporarily unavailable.")
@@ -43,9 +46,15 @@ async def verify_line_token(token: str) -> LineIdentity:
         verified = await _get(client, "/oauth2/v2.1/verify", params={"access_token": token})
         scopes = set(str(verified.get("scope", "")).split())
         expiry = verified.get("expires_in")
-        if (str(verified.get("client_id")) != settings.LINE_LOGIN_CHANNEL_ID
-                or type(expiry) is not int or expiry <= 0
-                or not {"openid", "profile"}.issubset(scopes)):
+        reason = None
+        if str(verified.get("client_id")) != settings.LINE_LOGIN_CHANNEL_ID:
+            reason = "channel_mismatch"
+        elif type(expiry) not in (int, float) or not math.isfinite(expiry) or expiry <= 0:
+            reason = "invalid_expiry"
+        elif not {"openid", "profile"}.issubset(scopes):
+            reason = "missing_scopes"
+        if reason:
+            logger.warning("LINE credential rejected reason=%s openid=%s profile=%s", reason, "openid" in scopes, "profile" in scopes)
             raise HTTPException(401, "LINE token channel or permissions do not match.")
         profile = await _get(client, "/oauth2/v2.1/userinfo", headers={"Authorization": "Bearer " + token})
     subject = profile.get("sub")
