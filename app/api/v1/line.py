@@ -4,7 +4,10 @@ import hmac
 import logging
 
 import httpx
-from fastapi import APIRouter, HTTPException, Request, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
+from sqlalchemy.ext.asyncio import AsyncSession
+from app.core.database import get_db
+from app.api.v1.line_onboarding import router as onboarding_router, apply_friend_events
 from pydantic import BaseModel
 
 from app.core.config import settings
@@ -12,6 +15,7 @@ from app.core.config import settings
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
+router.include_router(onboarding_router)
 
 
 class LineAuthRequest(BaseModel):
@@ -36,7 +40,7 @@ def _validate_signature(body: bytes, signature: str | None) -> bool:
 
 
 @router.post("/webhook")
-async def line_webhook(request: Request) -> dict[str, Any]:
+async def line_webhook(request: Request, db: AsyncSession = Depends(get_db)) -> dict[str, Any]:
     """Accept authenticated LINE webhook events for integration testing."""
     body = await request.body()
     if not _validate_signature(body, request.headers.get("x-line-signature")):
@@ -45,14 +49,25 @@ async def line_webhook(request: Request) -> dict[str, Any]:
             detail="Invalid LINE signature",
         )
 
-    payload = await request.json()
+    try:
+        payload = await request.json()
+    except ValueError as exc:
+        raise HTTPException(400, 'Invalid LINE event payload') from exc
+    if not isinstance(payload, dict) or not isinstance(payload.get("events", []), list):
+        raise HTTPException(400, "Invalid LINE event payload")
+    if settings.LINE_SUBSCRIPTIONS_ENABLED:
+        await apply_friend_events(db, payload.get("events", []))
     user_ids: list[str] = []
     for event in payload.get("events", []):
+        if not isinstance(event, dict):
+            raise HTTPException(400, "Invalid LINE event payload")
         source = event.get("source") or {}
+        if not isinstance(source, dict):
+            raise HTTPException(400, "Invalid LINE event payload")
         user_id = source.get("userId")
         if user_id:
             user_ids.append(user_id)
-            logger.info("LINE webhook userId=%s event=%s", user_id, event.get("type"))
+            logger.info("LINE webhook event=%s", event.get("type"))
 
     return {"status": "ok", "user_ids": user_ids}
 

@@ -1,0 +1,18 @@
+{
+  "date": "2026-10-12",
+  "source": "6ab6e81",
+  "candidate": "https://weather-11cajwy2v-weather-9c1f.vercel.app",
+  "stable": "https://weather-iota-five-83.vercel.app",
+  "frontendBuild": "passed",
+  "mockedSignupBrowserCases": 15,
+  "refreshMethod": "POST",
+  "signupEnabled": true,
+  "anonymousStatusHttp": 401,
+  "dailySendingPaused": true,
+  "intradaySendingPaused": true,
+  "realLineMessagesSent": 0,
+  "realUserForecastRetry": "pending",
+  "apiDeployment": "c81ceedb-1595-4c03-8b2e-023add82aa5e",
+  "mockedRefreshSuccessHttp": 201,
+  "publicBundlePostMethodVerified": true
+}

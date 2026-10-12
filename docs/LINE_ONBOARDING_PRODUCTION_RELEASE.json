@@ -1,0 +1,80 @@
+{
+  "date": "2026-10-12",
+  "timezone": "Asia/Bangkok",
+  "status": "signup_live_sending_paused_pending_enrollment",
+  "release": {
+    "source": "9045131",
+    "apiDeployment": "c32839a9-4735-4a35-b6c3-ade137e7e163",
+    "cronDeployment": "bb2bbc14-d8eb-4d38-903b-4d467f10485e",
+    "candidate": "https://weather-jcala0ojv-weather-9c1f.vercel.app",
+    "stable": "https://weather-iota-five-83.vercel.app",
+    "signupEnabled": true,
+    "anonymousStatusHttp": 401,
+    "dailySendingPaused": true,
+    "intradaySendingPaused": true,
+    "realLineMessagesSent": 0
+  },
+  "webhook": {
+    "health": 200,
+    "configHttp": 200,
+    "unsignedWebhookHttp": 400,
+    "signedEmptyWebhookHttp": 200,
+    "officialLineWebhookTest": {
+      "http": 200,
+      "success": true,
+      "statusCode": 200,
+      "reason": "OK"
+    },
+    "previousWebhook": "https://faces-eastern-brands-bloomberg.trycloudflare.com/api/v1/line/webhook",
+    "currentWebhook": {
+      "endpoint": "https://weather-api-production-9152.up.railway.app/api/v1/line/webhook",
+      "active": true
+    },
+    "lineMessagesSent": 0
+  },
+  "migration": {
+    "from": "0009",
+    "to": "0010",
+    "verifiedBy": "successful pre-deploy migration log and SUCCESS deployment"
+  },
+  "anonymousBrowserSmoke": {
+    "status": "passed",
+    "realSdk": true,
+    "actualUserLoginTested": false,
+    "lineMessagesSent": 0,
+    "results": [
+      {
+        "width": 360,
+        "signupVisible": true,
+        "loginButtonEnabled": true,
+        "realSdkInitialized": true,
+        "backendWrites": 0,
+        "pageErrors": 0
+      },
+      {
+        "width": 1440,
+        "signupVisible": true,
+        "loginButtonEnabled": true,
+        "realSdkInitialized": true,
+        "backendWrites": 0,
+        "pageErrors": 0
+      }
+    ]
+  },
+  "restoreAfterEnrollment": {
+    "apiIntradaySendEnabled": "true",
+    "dailyStartCommand": "python -m app.notifications.cli",
+    "dailySchedule": "0 23 * * *"
+  },
+  "remainingAcceptance": [
+    "Existing recipient explicitly enrolls",
+    "New user real Login/friend/location/consent/opt-out acceptance",
+    "Restore daily/intraday after enrollment verification",
+    "Authorized real LINE delivery and handset confirmation"
+  ],
+  "notes": [
+    "GitHub-source switch via Railway connector was denied; exact committed source was deployed via CLI upload",
+    "Do not auto-deploy the obsolete default branch; it lacks the current migration chain",
+    "Keep migration 0010 and consent records on rollback; disable the feature on the compatible current backend instead of deploying an old migration tree"
+  ]
+}

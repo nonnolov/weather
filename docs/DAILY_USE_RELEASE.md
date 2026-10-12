@@ -1,5 +1,7 @@
 # Daily-use release — 2026-10-11 Asia/Bangkok
 
+Current status 2026-10-12 Asia/Bangkok: consent-based LINE signup and Map are live. Daily sending has resumed at 06:00 Bangkok and intraday sending is enabled with existing policy, cooldown and duplicate protection. Only consented, befriended users with verified notification areas are eligible. The first intraday cycle completed and skipped one recipient for no_baseline; the first daily delivery and handset receipt remain pending. See LINE_LIVE_SENDING_RELEASE.json.
+
 ## Authorized minimum scope
 The user selected the fastest route to a usable everyday project, retained Open-Meteo, and deferred forecast-accuracy research. This is a controlled daily-use release for the existing LINE recipient, not a declaration that every original P0–P7 acceptance gate has passed.
 

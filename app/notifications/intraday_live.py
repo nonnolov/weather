@@ -18,7 +18,13 @@ async def send_committed_snapshots(sessions, recipient_ids, *,
     if not settings.INTRADAY_SEND_ENABLED:
         return ()
     allowed = {x.strip() for x in settings.INTRADAY_SEND_RECIPIENT_IDS.split(",") if x.strip()}
-    if not settings.LINE_CHANNEL_ACCESS_TOKEN or not allowed or any(not x.startswith("U") for x in allowed):
+    if settings.LINE_SUBSCRIPTIONS_ENABLED:
+        from sqlalchemy import select
+        from app.models.user import User
+        from app.notifications.subscriptions import recipient_condition
+        async with sessions() as db:
+            allowed = set((await db.scalars(select(User.external_id).where(recipient_condition()))).all())
+    if not settings.LINE_CHANNEL_ACCESS_TOKEN or (not allowed and not settings.LINE_SUBSCRIPTIONS_ENABLED) or any(not x.startswith("U") for x in allowed):
         raise ValueError("Live intraday token and explicit LINE allowlist required")
     client = LineClient(settings.LINE_CHANNEL_ACCESS_TOKEN, settings.LINE_API_BASE_URL)
     results = []
