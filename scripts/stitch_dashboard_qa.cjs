@@ -11,7 +11,7 @@ const daily = Array.from({length:7},(_,i)=>({id:i,forecast_date:new Date(Date.no
  const browser=await chromium.launch({executablePath:'C:/Program Files/Google/Chrome/Application/chrome.exe',headless:true});
  const report=[];
  try {
-  for(const {width,theme} of [{width:390,theme:"light"},{width:1440,theme:"light"},{width:390,theme:"dark"},{width:1440,theme:"dark"},{width:1024,theme:"light"},{width:1280,theme:"dark"},{width:1366,theme:"dark"},{width:1920,theme:"dark"}]) {
+  for(const {width,theme} of [{width:320,theme:"dark"},{width:360,theme:"light"},{width:390,theme:"light"},{width:1440,theme:"light"},{width:390,theme:"dark"},{width:1440,theme:"dark"},{width:1024,theme:"light"},{width:1280,theme:"dark"},{width:1366,theme:"dark"},{width:1920,theme:"dark"}]) {
    const context=await browser.newContext({viewport:{width,height:1000}});
    await context.addInitScript(theme=>localStorage.setItem('weather.theme',theme),theme);
    const page=await context.newPage(), errors=[], requests=[];
@@ -29,6 +29,7 @@ const daily = Array.from({length:7},(_,i)=>({id:i,forecast_date:new Date(Date.no
    await page.locator('.hero-actions').waitFor();
    assert.equal(await page.locator('.hourly-list article').count(),24);
    assert.equal(await page.locator('.forecast-day').count(),7);
+   if(width<900) assert(await page.locator('.header-line-mobile .line-dot').isVisible(),'Mobile LINE indicator hidden');
    if(width>=900) {
     assert(await page.locator('.header-line .line-dot').isVisible(),'Desktop LINE indicator hidden');
     const province=page.locator('.header-location strong');
