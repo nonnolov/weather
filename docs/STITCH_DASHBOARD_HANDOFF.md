@@ -77,3 +77,8 @@ Live tests using coordinates/user identity taken from logs were blocked by autom
 ## Production release completed — 2026-10-12 Bangkok
 
 The frontend-only release branch at 77bf624 was deployed with production configuration, checked before promotion and assigned to https://weather-iota-five-83.vercel.app. Vercel reports READY for dpl_HbSvuo9pf7GcdBcZ5Bu3gQ4zQmwF. Root/proxy health and all seven optimized assets pass; 8 viewport/theme and 12 mocked flow cases pass against the public URL with no production writes or LINE sends. The Map button remains visible with the explicit unavailable dialog. Backend/schema/scheduler/recipient policy are unchanged. Next.js dependency fixes and rollback details are documented in DASHBOARD_RELEASE_PREP.md and DASHBOARD_PRODUCTION_RELEASE.json. Real handset GPS/LIFF acceptance remains pending. Earlier not-deployed notes above describe the development stage, not the current production state.
+
+
+## Mobile LINE follow-up deployed — 2026-10-12 Bangkok
+
+User retained the original Light palette and authorized only the mobile LINE UI. The white theme/browser-color commit was reverted before deployment. Source 7508ea2 changes only header markup/styles and QA from the prior production release: real LINE status is displayed beneath Weather below 900px. Vercel dpl_Hs32ooEBzhcTXuPUrAdQFro9PGkM is READY and assigned to the existing stable URL. Candidate health/markup/CSS and public 10 viewport/theme cases pass. Public light remains rgb(242,252,242), including with OS dark and saved light. No backend or actual user/GPS/LINE operations changed. See MOBILE_LINE_PRODUCTION_RELEASE.json for current verification and immediate rollback target.
