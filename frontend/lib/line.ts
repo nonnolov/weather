@@ -2,11 +2,19 @@ import {apiUrl,ApiError,type UserLocationResponse,type IngestResponse,type Forec
 export const LINE_CONSENT_VERSION="weather-alerts-v1";
 export type LineStatus={external_user_id:string;friend:boolean;location_verified:boolean;location_id:number|null;enabled:boolean;ready:boolean;consent_version:string;next_step:"friend"|"location"|"consent"|"ready"};
 export type LineConfig={enabled:boolean;add_friend_url:string|null};
+export class LineRequestError extends ApiError {
+ constructor(status:number,public readonly reason:"friendship"|"disabled"|"other") {super("LINE signup request failed",status);}
+}
+async function lineFailure(response:Response):Promise<LineRequestError>{
+ let detail="";try{const body=await response.json();if(typeof body?.detail==="string")detail=body.detail;}catch{}
+ const reason=detail==="Weather friendship verification is not configured."||detail==="LINE friendship could not be verified."?"friendship":detail==="LINE notification signup is not available yet."?"disabled":"other";
+ return new LineRequestError(response.status,reason);
+}
 async function lineRequest<T>(path:string,init?:RequestInit):Promise<T>{
  const token=window.liff?.getAccessToken?.();
  if(!token)throw new ApiError("LINE session unavailable",401);
  const response=await fetch(apiUrl("/api/v1/line"+path),{...init,cache:"no-store",headers:{"Content-Type":"application/json",Authorization:"Bearer "+token,...init?.headers}});
- if(!response.ok)throw new ApiError("LINE signup request failed",response.status);
+ if(!response.ok)throw await lineFailure(response);
  return response.json() as Promise<T>;
 }
 export async function getLineConfig():Promise<LineConfig>{

@@ -1,17 +1,23 @@
 "use client";
 import {useCallback,useEffect,useRef,useState} from "react";
 import {ApiError} from "../../lib/api";
-import {getLineConfig,getLineStatus,setLineSubscription,type LineConfig,type LineStatus} from "../../lib/line";
+import {LineRequestError,getLineConfig,getLineStatus,setLineSubscription,type LineConfig,type LineStatus} from "../../lib/line";
 export function useLineOnboarding(language:"th"|"en"){
  const [userId,setUserId]=useState<string|null>(null),[status,setStatus]=useState<LineStatus|null>(null);
  const [config,setConfig]=useState<LineConfig|null>(null),[busy,setBusy]=useState(false),[sdkReady,setSdkReady]=useState(false),[error,setError]=useState("");
  const initialized=useRef(false),mounted=useRef(true),revision=useRef(0),writing=useRef(false),needsRelogin=useRef(false);
  const explain=useCallback((problem:unknown)=>{
-  const code=problem instanceof ApiError?problem.status:0;
-  return language==="th"?(code===401?"กรุณาล็อกอิน LINE อีกครั้ง":code===409?"กรุณาตรวจการเพิ่มเพื่อนและพื้นที่ก่อนเปิดแจ้งเตือน":code===503||code===404?"ระบบสมัครแจ้งเตือนยังไม่เปิดใช้งาน":"ตรวจสถานะ LINE ไม่สำเร็จ กรุณาลองอีกครั้ง"):
-  (code===401?"Please sign in with LINE again":code===409?"Check friendship and location before enabling alerts":code===503||code===404?"Notification signup is not available yet":"Could not verify LINE. Please retry.");
+  const code=problem instanceof ApiError?problem.status:0,th=language==="th";
+  if(code===401)return th?"กรุณาล็อกอิน LINE อีกครั้ง":"Please sign in with LINE again";
+  if(code===409)return th?"กรุณาตรวจสถานะเพื่อนและตั้งพื้นที่ก่อนเปิดแจ้งเตือน":"Check friendship and location before enabling alerts";
+  if(problem instanceof LineRequestError&&problem.reason==="friendship")return th?"ตรวจสถานะเพื่อน Weather ไม่สำเร็จ กรุณาลองใหม่ หากยังมีปัญหาให้ติดต่อผู้ดูแล":"Could not verify your friendship with Weather. Retry or contact support.";
+  if(problem instanceof LineRequestError&&problem.reason==="disabled")return th?"ระบบสมัครแจ้งเตือนยังไม่เปิดใช้งาน":"Notification signup is not available yet";
+  if(code===404)return th?"ไม่พบบริการสมัครแจ้งเตือน กรุณาลองใหม่หรือติดต่อผู้ดูแล":"Notification signup service was not found. Retry or contact support.";
+  return th?"เชื่อมต่อบริการ LINE ไม่สำเร็จชั่วคราว กรุณาลองใหม่":"Could not connect to the LINE service. Please retry.";
  },[language]);
- useEffect(()=>{mounted.current=true;void getLineConfig().then(value=>{if(mounted.current)setConfig(value);}).catch(()=>{if(mounted.current)setConfig({enabled:false,add_friend_url:null});});return()=>{mounted.current=false;};},[]);
+ const configError=language==="th"?"โหลดสถานะระบบสมัครแจ้งเตือนไม่สำเร็จ กรุณาเปิดหน้านี้ใหม่":"Could not load notification signup availability. Reopen this page.";
+ const [configFailed,setConfigFailed]=useState(false);
+ useEffect(()=>{mounted.current=true;void getLineConfig().then(value=>{if(mounted.current){setConfig(value);setConfigFailed(false);}}).catch(()=>{if(mounted.current){setConfig(null);setConfigFailed(true);}});return()=>{mounted.current=false;};},[]);
  const refresh=useCallback(async()=>{
   if(!window.liff?.isLoggedIn()||writing.current)return;
   const requestId=++revision.current;
@@ -75,5 +81,5 @@ export function useLineOnboarding(language:"th"|"en"){
   catch(problem){if(mounted.current&&requestId===revision.current){setStatus(previous=>previous?{...previous,ready:false}:null);if(problem instanceof ApiError&&problem.status===401){needsRelogin.current=true;setUserId(null);setStatus(null);}setError(explain(problem));}}
   finally{writing.current=false;if(mounted.current&&requestId===revision.current)setBusy(false);}
  };
- return{userId,status,config,busy,sdkReady,error,initialize,login,addFriend,refresh,subscribe};
+ return{userId,status,config,busy,sdkReady,error:error||(configFailed?configError:""),initialize,login,addFriend,refresh,subscribe};
 }

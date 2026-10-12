@@ -7,14 +7,14 @@ const UID='U'+'a'.repeat(32);
  const browser=await chromium.launch({executablePath:'C:/Program Files/Google/Chrome/Application/chrome.exe',headless:true}),report=[];
  try{for(const scenario of [
  {name:'mobile-light',width:360,insecureUuid:true},{name:'mobile-dark',width:390,dark:true},{name:'desktop-light',width:1440},{name:'desktop-dark',width:1440,dark:true},{name:'external-mobile',width:390,external:true},{name:'external-desktop',width:1440,external:true},
- {name:'gps-denied',gpsDenied:true},{name:'friend-service-down',friendFailure:true},{name:'expired-session',expired:true,external:true},{name:'expired-liff-session',expired:true},{name:'cached-id-token',staleIdToken:true},
+ {name:'friend-config-error',friendConfigFailure:true},{name:'config-load-error',configLoadFailure:true},{name:'signup-disabled',signupDisabled:true},{name:'gps-denied',gpsDenied:true},{name:'friend-service-down',friendFailure:true},{name:'expired-session',expired:true,external:true},{name:'expired-liff-session',expired:true},{name:'cached-id-token',staleIdToken:true},
  {name:'enable-failed',enableFailure:true},{name:'disable-pending',pendingDisable:true,ready:true},{name:'disable-failed',disableFailure:true,ready:true},{name:'blocked-account',blocked:true,ready:true}
  ]){
  const context=await browser.newContext({viewport:{width:scenario.width||390,height:1000}});
  await context.addInitScript(s=>{
  localStorage.setItem('weather.theme',s.dark?'dark':'light');
  if(s.insecureUuid)Object.defineProperty(crypto,'randomUUID',{value:undefined});
- if(s.friendFailure||s.expired||s.ready||s.staleIdToken)localStorage.setItem('qa.lineSignedIn','1');
+ if(s.friendConfigFailure||s.friendFailure||s.expired||s.ready||s.staleIdToken)localStorage.setItem('qa.lineSignedIn','1');
  navigator.geolocation.getCurrentPosition=(success,failure)=>s.gpsDenied?failure({code:1}):success({coords:{latitude:13.7563,longitude:100.5018}});
  },scenario);
  const page=await context.newPage(),errors=[],requests=[];
@@ -32,10 +32,11 @@ const UID='U'+'a'.repeat(32);
  await page.route('**/__qa/friend',r=>{friend=true;return r.fulfill({json:{ok:true}})});
  await page.route('**/api/backend/**',r=>{
  const url=new URL(r.request().url()).pathname.replace('/api/backend',''),method=r.request().method();requests.push({url,method,body:r.request().postData()});
- if(url.endsWith('/onboarding/config'))return r.fulfill({json:{enabled:true,add_friend_url:'https://line.me/R/ti/p/%40weather'}});
+ if(url.endsWith('/onboarding/config'))return scenario.configLoadFailure?r.fulfill({status:503,json:{detail:'proxy unavailable'}}):r.fulfill({json:{enabled:!scenario.signupDisabled,add_friend_url:'https://line.me/R/ti/p/%40weather'}});
  if(url.endsWith('/line/auth'))return r.fulfill({json:{external_user_id:UID}});
  if(url.endsWith('/line/onboarding')){
  if(scenario.expired&&r.request().headers().authorization!=='Bearer mock-fresh-token')return r.fulfill({status:401,json:{detail:'session expired'}});
+ if(scenario.friendConfigFailure)return r.fulfill({status:503,json:{detail:'Weather friendship verification is not configured.'}});
  if(scenario.friendFailure)return r.fulfill({status:503,json:{detail:'friend service unavailable'}});
  return r.fulfill({json:status()});
  }
@@ -65,7 +66,10 @@ const UID='U'+'a'.repeat(32);
  await page.goto(process.env.LINE_ONBOARDING_QA_URL||'http://localhost:3103');
  const panel=page.locator('.line-onboarding');
  await panel.waitFor();await page.waitForTimeout(400);
- if(scenario.friendFailure){await panel.getByRole('alert').waitFor();assert(!enabled);assert.equal(await panel.locator('.line-ready-badge.ready').count(),0);}
+ if(scenario.configLoadFailure){await panel.getByRole('alert').waitFor();assert((await panel.getByRole('alert').innerText()).includes('โหลดสถานะระบบสมัครแจ้งเตือนไม่สำเร็จ'));assert.equal(await panel.locator('[role="status"]').count(),0,'Config network error claimed feature disabled');assert(await panel.locator('.gps-primary').isDisabled());}
+ else if(scenario.signupDisabled){await panel.locator('[role="status"]').waitFor();assert(await panel.locator('.gps-primary').isDisabled());}
+ else if(scenario.friendConfigFailure){await panel.getByRole('alert').waitFor();assert((await panel.getByRole('alert').innerText()).includes('ตรวจสถานะเพื่อน Weather ไม่สำเร็จ'));assert(!(await panel.getByRole('alert').innerText()).includes('ระบบสมัครแจ้งเตือนยังไม่เปิดใช้งาน'));assert(!enabled);}
+ else if(scenario.friendFailure){await panel.getByRole('alert').waitFor();assert(!(await panel.getByRole('alert').innerText()).includes('ระบบสมัครแจ้งเตือนยังไม่เปิดใช้งาน'));assert(!enabled);assert.equal(await panel.locator('.line-ready-badge.ready').count(),0);}
  else if(scenario.expired){
   await panel.getByRole('alert').waitFor();
   await panel.locator('.line-onboarding-steps li:first-child button').click();
