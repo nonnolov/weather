@@ -11,5 +11,6 @@ api_router.include_router(users.router, prefix="/users", tags=["users"])
 api_router.include_router(rain_reference.router, tags=["rain-reference"])
 api_router.include_router(flood_risk.router)
 
-from app.api.v1 import air_quality
+from app.api.v1 import air_quality, audience
 api_router.include_router(air_quality.router)
+api_router.include_router(audience.router)

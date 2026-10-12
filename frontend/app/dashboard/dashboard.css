@@ -212,3 +212,17 @@
 .line-onboarding .line-onboarding-error { color:var(--warning); font-size:12px; line-height:1.6; }
 .line-onboarding .line-area-note,.line-onboarding .line-onboarding-footnote { font-size:11px; line-height:1.6; margin-top:10px; }
 @media(max-width:599px) { .line-onboarding { gap:10px; padding:18px 16px; } .line-onboarding .line-symbol { width:28px; height:28px; } .line-onboarding h2 { font-size:16px; } .line-onboarding-steps li { flex-wrap:wrap; } .line-onboarding-steps li > div { min-width:100px; } }
+
+/* Audience totals follow the brand tagline without crowding header actions. */
+.brand-meta { display:flex; align-items:center; flex-wrap:wrap; gap:3px 14px; }
+.audience-stats { display:flex; flex-wrap:wrap; gap:4px 12px; color:var(--muted); font-size:11px; line-height:1.5; }
+.audience-stats > span { display:inline-flex; align-items:baseline; gap:5px; white-space:nowrap; }
+.audience-stats strong { color:var(--ink); font-size:12px; font-weight:500; font-variant-numeric:tabular-nums; }
+@media(max-width:1199px) { .brand-meta { flex-direction:column; align-items:flex-start; gap:2px; } }
+@media(max-width:599px) {
+ .brand { min-width:0; flex-shrink:1; } .brand > div { min-width:0; }
+ .brand-weather { flex-shrink:0; }
+ .audience-stats { gap:2px 8px; font-size:9px; }
+ .audience-stats strong { font-size:10px; } .audience-stats > span { gap:3px; }
+ .dashboard-shell { padding-top:108px; } html { scroll-padding-top:108px; }
+}
