@@ -1,0 +1,107 @@
+{
+  "checked_at": "2026-10-12T07:19:19.922141+00:00",
+  "code_commit": "77bf62408e5d8c27d2ecbb131902340497aa31a8",
+  "release_branch": "release/dashboard-20261012",
+  "pull_request": "https://github.com/nonnolov/weather/pull/1",
+  "frontend_production": {
+    "deployment_id": "dpl_HbSvuo9pf7GcdBcZ5Bu3gQ4zQmwF",
+    "state": "READY",
+    "project_id": "prj_K6LybtzdJhZhL4ajYrD0755JRJGV",
+    "candidate_url": "https://weather-74fxa30vv-weather-9c1f.vercel.app",
+    "stable_url": "https://weather-iota-five-83.vercel.app",
+    "promoted": true,
+    "legacy_alias_verified": true,
+    "root_http": 200,
+    "proxy_health_http": 200
+  },
+  "candidate_checks": {
+    "status": "passed",
+    "candidate": "https://weather-74fxa30vv-weather-9c1f.vercel.app",
+    "health": "ok",
+    "root": "Dashboard HTML",
+    "images": [
+      {
+        "name": "clear",
+        "bytes": 31592,
+        "status": "passed"
+      },
+      {
+        "name": "partly-cloudy",
+        "bytes": 22925,
+        "status": "passed"
+      },
+      {
+        "name": "cloudy",
+        "bytes": 15714,
+        "status": "passed"
+      },
+      {
+        "name": "rain",
+        "bytes": 24789,
+        "status": "passed"
+      },
+      {
+        "name": "storm",
+        "bytes": 27911,
+        "status": "passed"
+      },
+      {
+        "name": "fog",
+        "bytes": 16100,
+        "status": "passed"
+      },
+      {
+        "name": "snow",
+        "bytes": 24891,
+        "status": "passed"
+      }
+    ],
+    "bundle_flood_request_absent": true,
+    "production_writes": 0
+  },
+  "public_validation": {
+    "optimized_weather_assets": 7,
+    "viewport_theme_cases": 8,
+    "flow_cases": 12,
+    "browser_api_data": "mocked",
+    "page_errors": 0,
+    "production_user_writes": 0,
+    "line_messages_sent": 0,
+    "map_requests": 0
+  },
+  "dependencies": {
+    "next": "15.5.27",
+    "eslint_config_next": "15.5.27",
+    "postcss": "8.5.29",
+    "sharp": "0.35.5",
+    "production_audit_vulnerabilities": 0,
+    "development_audit_high_findings": 5
+  },
+  "backend_changed": false,
+  "database_migrations": 0,
+  "scheduler_changed": false,
+  "recipients_changed": false,
+  "map": {
+    "button_visible": true,
+    "status": "explicit_unavailable",
+    "leaflet_implemented": false,
+    "radar_implemented": false
+  },
+  "rollback": {
+    "deployment_id": "dpl_G5wmjDJjXMkkmYdXw6mbpquaK56L",
+    "url": "https://weather-g2i5ysabl-weather-9c1f.vercel.app",
+    "aliases": [
+      "weather-iota-five-83.vercel.app",
+      "weather-weather-9c1f.vercel.app"
+    ]
+  },
+  "remaining": [
+    "Real handset LINE/LIFF login and permission acceptance",
+    "User-initiated GPS refresh on handset",
+    "Natural positive intraday acceptance remains a separate gate"
+  ],
+  "limitations": [
+    "Public HTTP and mocked browser checks do not verify a real user forecast or physical GPS/LINE receipt.",
+    "No private coordinates/user identity from logs were reused."
+  ]
+}

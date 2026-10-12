@@ -26,8 +26,8 @@ Production dependency audit reports 0 vulnerabilities. Full audit retains 5 high
 - Existing Vercel project weather, ID prj_K6LybtzdJhZhL4ajYrD0755JRJGV, scope weather-9c1f, Root Directory frontend, configured Node 24.x.
 - Existing API_BASE_URL, NEXT_PUBLIC_API_BASE_URL and NEXT_PUBLIC_LIFF_ID are configured for Production only. Values were not copied to committed files. Preview environments do not establish real LIFF readiness.
 
-## Production change still pending
-No new Vercel production candidate or domain promotion was created in this preparation step.
+## Production release completed
+Preparation was followed by the user-authorized production release. Deployment dpl_HbSvuo9pf7GcdBcZ5Bu3gQ4zQmwF is READY and the existing stable alias has been switched and verified. See DASHBOARD_PRODUCTION_RELEASE.json. The commands below remain the reusable release/rollback procedure.
 After authorization, deploy this release directory to the existing project with Production configuration but keep domains unchanged:
 ```powershell
 vercel deploy --project prj_K6LybtzdJhZhL4ajYrD0755JRJGV --scope weather-9c1f --prod --skip-domain --yes

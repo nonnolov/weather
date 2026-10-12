@@ -72,3 +72,8 @@ Live tests using coordinates/user identity taken from logs were blocked by autom
 - Desktop header shows the province in full, district beneath, and update time. LINE indicator is visible from 900px; connected status has a green breathing glow, disconnected status stays gray. Reduced-motion keeps a static halo.
 
 - Restored subdistrict beside district beneath the province in the header; long local names wrap without ellipsis.
+
+
+## Production release completed — 2026-10-12 Bangkok
+
+The frontend-only release branch at 77bf624 was deployed with production configuration, checked before promotion and assigned to https://weather-iota-five-83.vercel.app. Vercel reports READY for dpl_HbSvuo9pf7GcdBcZ5Bu3gQ4zQmwF. Root/proxy health and all seven optimized assets pass; 8 viewport/theme and 12 mocked flow cases pass against the public URL with no production writes or LINE sends. The Map button remains visible with the explicit unavailable dialog. Backend/schema/scheduler/recipient policy are unchanged. Next.js dependency fixes and rollback details are documented in DASHBOARD_RELEASE_PREP.md and DASHBOARD_PRODUCTION_RELEASE.json. Real handset GPS/LIFF acceptance remains pending. Earlier not-deployed notes above describe the development stage, not the current production state.
