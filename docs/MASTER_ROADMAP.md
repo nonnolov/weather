@@ -1,5 +1,7 @@
 # Current master roadmap (P0-P7)
 
+Audience-card release 2026-10-13 Asia/Bangkok: saved user GPS-location and unique browser totals are live as rounded header cards. API/cron SUCCESS, schema 0011, Vercel READY and public mobile/desktop checks passed. Counting begins at activation, without historical backfill. See AUDIENCE_COUNTERS_RELEASE.json.
+
 Current status 2026-10-12 Asia/Bangkok: consent-based LINE signup and Map are live. Daily sending has resumed at 06:00 Bangkok and intraday sending is enabled with existing policy, cooldown and duplicate protection. Only consented, befriended users with verified notification areas are eligible. The first intraday cycle completed and skipped one recipient for no_baseline; the first daily delivery and handset receipt remain pending. See LINE_LIVE_SENDING_RELEASE.json.
 
 Source: user Master prompt in the "ใช้ Remote Desktop" conversation, 2026-10-09. This numbering supersedes the repository's initial six implementation milestones.

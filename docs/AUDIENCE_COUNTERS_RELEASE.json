@@ -1,0 +1,64 @@
+{
+  "release_date": "2026-10-13",
+  "timezone": "Asia/Bangkok",
+  "source_commit": "f01b9d2",
+  "feature": "Saved user GPS-location totals and unique browser visitor cards",
+  "production_url": "https://weather-iota-five-83.vercel.app",
+  "frontend": {
+    "deployment": "https://weather-c33htncal-weather-9c1f.vercel.app",
+    "status": "READY",
+    "alias_promoted": true,
+    "previous": "https://weather-fpto4b3tx-weather-9c1f.vercel.app"
+  },
+  "api": {
+    "deployment_id": "3b9f7717-e7ca-4328-bde4-85f1379c36b0",
+    "status": "SUCCESS",
+    "migration": "0010 -> 0011",
+    "migration_log_observed": true,
+    "public_totals_http": 200
+  },
+  "daily_cron": {
+    "deployment_id": "e3db46a5-10be-415c-88a4-36e63b504ccc",
+    "status": "SUCCESS",
+    "start_command": "python -m app.notifications.cli",
+    "schedule_utc": "0 23 * * *",
+    "schedule_bangkok": "06:00"
+  },
+  "validation": {
+    "backend_passed": 50,
+    "local_mocked_browser_cases": 6,
+    "production_browser_widths": [
+      1440,
+      360
+    ],
+    "production_cards_visible": true,
+    "production_page_errors": 0,
+    "same_browser_profile_reloaded": true,
+    "counts_observed": {
+      "received_locations": 0,
+      "website_visitors": 1
+    },
+    "observed_browser_count_includes_this_real_smoke_visit": true,
+    "line_signup_enabled": true,
+    "anonymous_line_status": 401,
+    "health_http": 200,
+    "forecast_or_gps_production_writes": false,
+    "manual_line_messages": 0
+  },
+  "runtime_scheduler": {
+    "mode": "live",
+    "status": "complete",
+    "locations": 1,
+    "refreshed": 1,
+    "refresh_failed": 0,
+    "processed": 1,
+    "skip_reason": "no_baseline",
+    "log_time_utc": "2026-10-12T18:10:58Z"
+  },
+  "counting": {
+    "historical_backfill": false,
+    "locations": "Unique successful user GPS-location registrations from release onward; samples and scheduled forecast refreshes excluded.",
+    "visitors": "Unique browser profiles; reload deduplicated, not verified unique people."
+  },
+  "rollback": "Frontend may use previous alias while retaining API/cron builds that recognize migration 0011; do not deploy older default-branch migration trees."
+}

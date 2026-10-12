@@ -55,3 +55,15 @@ Light/Dark, with visible totals, reload deduplication, no horizontal overflow,
 no overlap with header controls and sufficient main-content clearance. Desktop Light
 and mobile Dark screenshots were visually inspected. These mock totals are not real
 production audience counts. Local preview uses its separate SQLite database at port 3111.
+
+## Production release (supersedes local-only status above)
+User authorized deployment on 2026-10-13. API and daily cron reached SUCCESS; migration
+0010 -> 0011 completed, and the frontend reached READY with its stable alias promoted.
+Real public browser checks at 1440/360 px show both rounded cards without page errors.
+One real smoke-test browser registered once across reloads; this is included in the
+observed visitor total, not a claim of an external human audience. Location total was zero
+because historical GPS rows and scheduled refreshes are not backfilled/count events.
+Health and LINE config returned 200; signup remains enabled and anonymous protected
+onboarding returns 401. Intraday live cycle completed, refreshed one location and skipped
+no_baseline with no refresh failure. No manual LINE message or production GPS update was
+performed. See AUDIENCE_COUNTERS_RELEASE.json for deployment IDs and evidence.
