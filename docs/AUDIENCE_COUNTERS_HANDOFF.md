@@ -49,3 +49,9 @@ Deploy compatible API and daily-cron source containing 0011 before promoting the
 Preserve notification flags, consent and cron schedule. Verify terminal status, health and
 public totals. A frontend rollback may hide cards while retaining data. A backend rollback
 must still recognize revision 0011; do not drop audience records to hide the cards.
+
+Browser completion: all six mocked card scenarios passed at 360/768/1440 px in
+Light/Dark, with visible totals, reload deduplication, no horizontal overflow,
+no overlap with header controls and sufficient main-content clearance. Desktop Light
+and mobile Dark screenshots were visually inspected. These mock totals are not real
+production audience counts. Local preview uses its separate SQLite database at port 3111.

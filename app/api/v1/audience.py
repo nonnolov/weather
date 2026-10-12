@@ -1,4 +1,4 @@
-"""Public aggregate statistics. Browser input can never register a LINE account."""
+"""Public totals; visitor input cannot directly supply a location total."""
 from fastapi import APIRouter, Depends, Response
 from pydantic import BaseModel, ConfigDict, UUID4
 from sqlalchemy.ext.asyncio import AsyncSession
