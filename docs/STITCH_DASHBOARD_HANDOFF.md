@@ -70,3 +70,5 @@ Live tests using coordinates/user identity taken from logs were blocked by autom
 - Main condition artwork enlarged to 192px desktop, 160px tablet and 180px mobile, exceeding the 88/72/64px temperature type. Mobile places the graphic above the temperature; other weather icons retain their existing sizes.
 
 - Desktop header shows the province in full, district beneath, and update time. LINE indicator is visible from 900px; connected status has a green breathing glow, disconnected status stays gray. Reduced-motion keeps a static halo.
+
+- Restored subdistrict beside district beneath the province in the header; long local names wrap without ellipsis.
