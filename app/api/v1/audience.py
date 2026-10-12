@@ -12,7 +12,7 @@ class VisitorRegistration(BaseModel):
     visitor_id: UUID4
 
 class AudienceCounts(BaseModel):
-    line_accounts: int
+    received_locations: int
     website_visitors: int
 
 @router.get("", response_model=AudienceCounts)

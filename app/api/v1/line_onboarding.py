@@ -16,7 +16,6 @@ from app.schemas.forecast import ForecastRunDetail, IngestResponse
 from app.services.line_identity import LineIdentity, require_line_identity, line_friendship
 from app.services.geocoding import ReverseGeocoder, get_reverse_geocoder
 from app.notifications.subscriptions import CONSENT_VERSION
-from app.services.audience import record_member
 from app.api.v1.users import set_user_location_from_gps, get_user_forecast, refresh_user_forecast
 router = APIRouter()
 
@@ -71,7 +70,6 @@ async def onboarding_config():
 async def onboarding_status(identity: LineIdentity = Depends(require_line_identity), db: AsyncSession = Depends(get_db)):
     user = await locked_user(db, identity.user_id)
     friend = await line_friendship(identity)
-    await record_member(db, "line", identity.user_id)
     record = await subscription(db, identity.user_id)
     if record:
         record.friend = friend

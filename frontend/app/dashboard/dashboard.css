@@ -213,16 +213,28 @@
 .line-onboarding .line-area-note,.line-onboarding .line-onboarding-footnote { font-size:11px; line-height:1.6; margin-top:10px; }
 @media(max-width:599px) { .line-onboarding { gap:10px; padding:18px 16px; } .line-onboarding .line-symbol { width:28px; height:28px; } .line-onboarding h2 { font-size:16px; } .line-onboarding-steps li { flex-wrap:wrap; } .line-onboarding-steps li > div { min-width:100px; } }
 
-/* Audience totals follow the brand tagline without crowding header actions. */
-.brand-meta { display:flex; align-items:center; flex-wrap:wrap; gap:3px 14px; }
-.audience-stats { display:flex; flex-wrap:wrap; gap:4px 12px; color:var(--muted); font-size:11px; line-height:1.5; }
-.audience-stats > span { display:inline-flex; align-items:baseline; gap:5px; white-space:nowrap; }
-.audience-stats strong { color:var(--ink); font-size:12px; font-weight:500; font-variant-numeric:tabular-nums; }
-@media(max-width:1199px) { .brand-meta { flex-direction:column; align-items:flex-start; gap:2px; } }
+/* Compact rounded usage cards follow the brand and adapt into a mobile row. */
+.dashboard-header { display:grid; grid-template-columns:auto auto minmax(0,1fr); gap:24px; }
+.dashboard-header > div:last-child { justify-self:end; }
+.audience-stats { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; min-width:240px; }
+.audience-card { min-width:0; padding:9px 16px; text-align:center; border:1px solid var(--line); border-radius:16px; background:var(--surface); box-shadow:0 2px 8px rgb(0 0 0 / .025); }
+.audience-card strong { display:block; color:var(--accent); font-size:21px; font-weight:500; line-height:1.2; font-variant-numeric:tabular-nums; overflow-wrap:anywhere; }
+.audience-label { display:block; color:var(--muted); font-size:11px; line-height:1.4; margin-top:3px; }
+@media(max-width:1199px) {
+ .dashboard-header { grid-template-columns:minmax(0,1fr) auto; gap:10px 20px; }
+ .dashboard-header > .brand { grid-column:1; grid-row:1; }
+ .dashboard-header > div:last-child { grid-column:2; grid-row:1; }
+ .audience-stats { grid-column:1/-1; grid-row:2; width:100%; min-width:0; }
+ .audience-card { padding:7px 14px; }
+ .audience-card strong { font-size:20px; }
+ .dashboard-shell { padding-top:176px; } html { scroll-padding-top:176px; }
+}
 @media(max-width:599px) {
  .brand { min-width:0; flex-shrink:1; } .brand > div { min-width:0; }
  .brand-weather { flex-shrink:0; }
- .audience-stats { gap:2px 8px; font-size:9px; }
- .audience-stats strong { font-size:10px; } .audience-stats > span { gap:3px; }
- .dashboard-shell { padding-top:108px; } html { scroll-padding-top:108px; }
+ .dashboard-header { gap:10px; }
+ .audience-stats { gap:10px; }
+ .audience-card { padding:8px 12px; border-radius:14px; }
+ .audience-label { font-size:11px; }
+ .dashboard-shell { padding-top:152px; } html { scroll-padding-top:152px; }
 }

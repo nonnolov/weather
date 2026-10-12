@@ -1,4 +1,4 @@
-"""One entry per browser or server-verified LINE account; retries are idempotent."""
+"""One entry per browser or successfully saved GPS-location record."""
 import hashlib
 from datetime import datetime, timezone
 from sqlalchemy import func, select
@@ -17,4 +17,4 @@ async def audience_counts(db):
     rows = (await db.execute(select(AudienceMember.kind, func.count())
         .group_by(AudienceMember.kind))).all()
     counts = dict(rows)
-    return {"line_accounts": counts.get("line", 0), "website_visitors": counts.get("browser", 0)}
+    return {"received_locations": counts.get("location", 0), "website_visitors": counts.get("browser", 0)}
