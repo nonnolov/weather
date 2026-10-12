@@ -1,6 +1,6 @@
 # Current master roadmap (P0-P7)
 
-Current status 2026-10-12 Asia/Bangkok: Map and the consent-based LINE signup Dashboard are live. Daily/intraday sending is temporarily paused pending explicit enrollment and real-user verification; the earlier sending/allowlist descriptions below are historical. See LINE_ONBOARDING_PRODUCTION_RELEASE.json and LINE_ONBOARDING_HANDOFF.md.
+Current status 2026-10-12 Asia/Bangkok: consent-based LINE signup and Map are live. Daily sending has resumed at 06:00 Bangkok and intraday sending is enabled with existing policy, cooldown and duplicate protection. Only consented, befriended users with verified notification areas are eligible. The first intraday cycle completed and skipped one recipient for no_baseline; the first daily delivery and handset receipt remain pending. See LINE_LIVE_SENDING_RELEASE.json.
 
 Source: user Master prompt in the "ใช้ Remote Desktop" conversation, 2026-10-09. This numbering supersedes the repository's initial six implementation milestones.
 
