@@ -25,7 +25,7 @@ export function LineOnboarding({model}:{model:DashboardModel}){
    <div className="line-onboarding-actions">{ready||status?.enabled?<button type="button" className="utility-button" disabled={waiting} onClick={()=>{setConsent(false);void line.subscribe(false);}}>{th?"ปิดแจ้งเตือน":"Turn off alerts"}</button>:<button type="button" className="gps-primary" disabled={!consent||!friend||!located||!available||waiting} onClick={()=>void line.subscribe(true)}>{th?"เปิดรับแจ้งเตือน":"Enable alerts"}</button>}{connected&&<button type="button" className="utility-button" disabled={waiting||!available} onClick={()=>void line.refresh()}>{line.busy?(th?"กำลังตรวจ…":"Checking…"):(th?"ตรวจสถานะ":"Check status")}</button>}{ready&&<button type="button" className="utility-button" onClick={handleGps} disabled={waiting}>{th?"เปลี่ยนพื้นที่":"Change area"}</button>}</div>
    {line.error&&<p className="line-onboarding-error" role="alert">{line.error}</p>}
    {line.config&&!available&&<p className="line-area-note" role="status">{th?"ระบบสมัครแจ้งเตือนสำหรับผู้ใช้ใหม่ยังไม่เปิดใช้งาน":"Notification signup for new users is not available yet."}</p>}
-   <p className="line-onboarding-footnote">{th?"ไฟเขียวคือเชื่อมบัญชีแล้ว · รับแจ้งเตือนได้เมื่อสถานะเป็น “พร้อมรับแจ้งเตือน”":"Green means your account is connected. Alerts require the “Alerts enabled” status."}</p>
+   <p className="line-onboarding-footnote">{th?"รับแจ้งเตือนได้เมื่อสถานะเป็น “พร้อมรับแจ้งเตือน”":"Alerts require the “Alerts enabled” status."}</p>
   </div>
  </section>;
 }
