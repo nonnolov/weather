@@ -26,12 +26,12 @@ const UID='U'+'a'.repeat(32);
  const hourly=Array.from({length:24},(_,i)=>({id:i,valid_time:new Date(Date.now()+(i+1)*3600000).toISOString(),temperature_2m:29,apparent_temperature:32,weather_code:61,precipitation_probability:50,precipitation:1,relative_humidity_2m:70,wind_speed_10m:10}));
  const daily=Array.from({length:7},(_,i)=>({id:i,forecast_date:new Date(Date.now()+i*86400000).toISOString().slice(0,10),temperature_2m_min:25,temperature_2m_max:33,weather_code:61,precipitation_sum:5,wind_speed_10m_max:15}));
  const forecast={id:1,location_id:1,provider:'open_meteo',retrieved_at:new Date().toISOString(),hourly,daily};
- const status=()=>({external_user_id:UID,friend,location_verified:located,location_id:located?1:null,enabled,ready:friend&&located&&enabled,consent_version:'weather-alerts-v1',next_step:!friend?'friend':!located?'location':!enabled?'consent':'ready'});
+ const status=()=>({external_user_id:UID,friend,location_verified:located,location_id:located?loc.id:null,enabled,ready:friend&&located&&enabled,consent_version:'weather-alerts-v1',next_step:!friend?'friend':!located?'location':!enabled?'consent':'ready'});
  await page.route('https://static.line-scdn.net/**',route=>route.fulfill({contentType:'application/javascript',body:"window.liff={init:async()=>{},isLoggedIn:()=>localStorage.getItem('qa.lineSignedIn')==='1',logout:()=>{localStorage.removeItem('qa.lineSignedIn');localStorage.setItem('qa.reauth','1');localStorage.setItem('qa.logoutCalls',String(Number(localStorage.getItem('qa.logoutCalls')||0)+1))},login:()=>{localStorage.setItem('qa.lineSignedIn','1');localStorage.setItem('qa.loginCalls',String(Number(localStorage.getItem('qa.loginCalls')||0)+1));location.reload()},getIDToken:()=> 'mock-id-token',getAccessToken:()=>localStorage.getItem('qa.reauth')?'mock-fresh-token':'mock-access-token',isInClient:()=>"+(!scenario.external)+",requestFriendship:async()=>{await fetch('/__qa/friend')}};"}));
  await context.route('https://line.me/**',r=>{friend=true;return r.fulfill({contentType:'text/html',body:'<html><body>Mock Weather friend page</body></html>'});});
  await page.route('**/__qa/friend',r=>{friend=true;return r.fulfill({json:{ok:true}})});
  await page.route('**/api/backend/**',r=>{
- const url=new URL(r.request().url()).pathname.replace('/api/backend',''),method=r.request().method();requests.push({url,method});
+ const url=new URL(r.request().url()).pathname.replace('/api/backend',''),method=r.request().method();requests.push({url,method,body:r.request().postData()});
  if(url.endsWith('/onboarding/config'))return r.fulfill({json:{enabled:true,add_friend_url:'https://line.me/R/ti/p/%40weather'}});
  if(url.endsWith('/line/auth'))return r.fulfill({json:{external_user_id:UID}});
  if(url.endsWith('/line/onboarding')){
@@ -40,6 +40,7 @@ const UID='U'+'a'.repeat(32);
  return r.fulfill({json:status()});
  }
  if(url.endsWith('/line/subscription')){
+ assert.equal(method,'PUT');
  assert.equal(r.request().headers().authorization,'Bearer mock-access-token');
  const body=r.request().postDataJSON();
  if((body.enabled&&scenario.enableFailure)||(!body.enabled&&scenario.disableFailure))return r.fulfill({status:502,json:{detail:'temporarily unavailable'}});
@@ -48,10 +49,11 @@ const UID='U'+'a'.repeat(32);
  enabled=body.enabled;return r.fulfill({json:status()});
  }
  if(url.endsWith('/line/location/from-gps')){
+ assert.equal(method,'POST');
  assert.equal(r.request().headers().authorization,'Bearer mock-access-token');
  located=true;return r.fulfill({json:{external_user_id:UID,location:loc}});
  }
- if(url.endsWith('/line/forecast/refresh')){assert.equal(method,'POST','Forecast refresh must use POST');assert.equal(r.request().headers().authorization,'Bearer mock-access-token');return r.fulfill({status:201,json:{location_id:1,timezone:loc.timezone}}); }
+ if(url.endsWith('/line/forecast/refresh')){assert.equal(method,'POST','Forecast refresh must use POST');assert.equal(r.request().headers().authorization,'Bearer mock-access-token');return r.fulfill({status:201,json:{location_id:loc.id,timezone:loc.timezone}}); }
  if(url.endsWith('/line/forecast'))return r.fulfill({json:forecast});
  if(url.endsWith('/health'))return r.fulfill({json:{status:'ok'}});
  if(url.endsWith('/locations'))return r.fulfill({json:[loc]});
@@ -100,6 +102,25 @@ const UID='U'+'a'.repeat(32);
  const headerDot=page.locator((scenario.width||390)<900?'.header-line-mobile .line-dot':'.header-line .line-dot');
  assert.equal(await headerDot.evaluate(el=>getComputedStyle(el).backgroundColor),'rgb(36, 200, 121)');
  assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'Horizontal overflow');
+ const actions=panel.locator('.line-onboarding-actions button');
+ assert.equal(await actions.count(),3,'Ready state must expose all three actions');
+ let checked=page.waitForResponse(r=>r.url().endsWith('/line/onboarding')&&r.request().method()==='GET');
+ await actions.nth(1).click();
+ let checkedState=await (await checked).json();assert(checkedState.ready&&checkedState.enabled,'Status check changed consent');
+ await actions.nth(2).waitFor({state:'visible'});await page.waitForFunction(()=>!document.querySelector('.line-onboarding-actions button:last-child').disabled);
+ loc.id=2;forecast.location_id=2;
+ await page.evaluate(()=>{navigator.geolocation.getCurrentPosition=success=>success({coords:{latitude:13.7,longitude:100.4}})});
+ const changed=page.waitForResponse(r=>r.url().endsWith('/line/forecast')&&r.request().method()==='GET');
+ await actions.nth(2).click();
+ assert.equal((await (await changed).json()).location_id,2,'Changed area forecast was not loaded');
+ assert.equal(JSON.parse(requests.filter(r=>r.url.endsWith('/line/location/from-gps')).at(-1).body).latitude,13.7,'Change area did not use new GPS coordinates');
+ await page.waitForFunction(()=>!document.querySelector('.line-onboarding-actions button:nth-child(2)').disabled);
+ checked=page.waitForResponse(r=>r.url().endsWith('/line/onboarding')&&r.request().method()==='GET');
+ await actions.nth(1).click();checkedState=await (await checked).json();
+ assert.equal(checkedState.location_id,2,'Changed notification area was not retained');
+ assert(checkedState.ready&&checkedState.enabled,'Change area lost enabled consent');
+ await page.waitForFunction(()=>!document.querySelector('.line-onboarding-actions button:first-child').disabled);
+
  await page.screenshot({path:path.join(process.env.TEMP,'line-onboarding-'+scenario.name+'.png'),fullPage:true});
  await panel.getByRole('button',{name:'ปิดแจ้งเตือน',exact:true}).click();
  await panel.locator('.line-consent input').waitFor();assert(!enabled);assert(!(await panel.locator('.line-consent input').isChecked()));

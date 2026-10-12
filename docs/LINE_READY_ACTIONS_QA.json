@@ -1,0 +1,28 @@
+{
+  "date": "2026-10-12 Asia/Bangkok",
+  "runtimeSource": "6ab6e81",
+  "mockedBrowserCasesPassed": 15,
+  "threeActionCoverage": ["mobile-light", "mobile-dark", "desktop-light", "desktop-dark", "external-mobile", "external-desktop"],
+  "focusedBackendCasesPassed": 4,
+  "checks": {
+    "turnOff": "PUT subscription false removes ready state, clears consent checkbox and permits later explicit enrollment; failure remains retryable",
+    "checkStatus": "GET onboarding returns current readiness without changing enabled consent",
+    "changeArea": "POST GPS with new coordinates, retained notification location, POST refresh and GET forecast for new location; enabled consent preserved"
+  },
+  "productionEvidence": {
+    "observedAt": "2026-10-12T22:12:44+07:00 through 22:13:07+07:00",
+    "locationWriteHttp": 200,
+    "forecastRefreshHttp": 201,
+    "forecastReadHttp": 200,
+    "subscriptionWriteHttp": 200,
+    "subsequentStatusReadHttp": 200,
+    "subsequentAreaChangeHttp": 200,
+    "subsequentForecastRefreshHttp": 201,
+    "note": "Request results only; no credentials, account identifier, coordinates or response payloads captured. User reported ready-state buttons. Real opt-out was not performed by the assistant."
+  },
+  "productionWritesByQa": 0,
+  "realLineMessagesSentByQa": 0,
+  "dailySendingPaused": true,
+  "intradaySendingPaused": true,
+  "runtimeCodeChangedForThisCheck": false
+}
