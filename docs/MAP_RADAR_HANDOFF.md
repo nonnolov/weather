@@ -32,7 +32,7 @@ Attribution: OpenStreetMap contributors and Weather data by RainViewer remain vi
 
 ## Preview and release
 Remote PC preview: http://localhost:3102 (LAN http://192.168.1.7:3102).
-Production remains the deployed mobile LINE Dashboard at source 7508ea2. Map has not been pushed, promoted or deployed.
+Production Map deployed from feature/map-radar-20261012 at source e540bc0 on 2026-10-12. The Vercel candidate https://weather-pz2no1s30-weather-9c1f.vercel.app was verified and aliased to https://weather-iota-five-83.vercel.app; the page and /api/radar both returned HTTP 200. The previous production frontend commit 7508ea2 is included in the deployed branch ancestry.
 Backend, database, schedules, LIFF configuration, LINE recipient, GPS accuracy and Light/Dark palette are unchanged.
 Preview does not contain production LIFF configuration; live LINE authentication must be verified on a configured deployment.
 

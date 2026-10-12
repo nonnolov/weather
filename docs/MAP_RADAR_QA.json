@@ -25,7 +25,7 @@
   ],
   "gpsCallsFromMap": 0,
   "backendWritesFromMap": 0,
-  "productionDeploy": false,
+  "productionDeploy": true,
   "preview": "http://localhost:3102",
   "notes": [
     "Focus returns to Map button on close",
@@ -45,6 +45,13 @@
       "ttlMinutes": 30,
       "newNetworkStartsPerMinute": 80
     },
-    "productionDeployed": false
+    "productionDeployed": true
+  },
+  "deploymentCommit": "e540bc0",
+  "deploymentUrl": "https://weather-pz2no1s30-weather-9c1f.vercel.app",
+  "stableUrl": "https://weather-iota-five-83.vercel.app",
+  "productionSmoke": {
+    "page": "HTTP 200",
+    "radarApi": "HTTP 200"
   }
 }
