@@ -1,0 +1,33 @@
+{
+  "checked_at": "2026-10-12T07:59:27.340442+00:00",
+  "code_commit": "7508ea2e622dd771d6b41fc6411e7646303c4fcb",
+  "deployment_id": "dpl_Hs32ooEBzhcTXuPUrAdQFro9PGkM",
+  "state": "READY",
+  "candidate_url": "https://weather-qr0p585gr-weather-9c1f.vercel.app",
+  "stable_url": "https://weather-iota-five-83.vercel.app",
+  "promotion_verified": true,
+  "candidate_checks": {
+    "candidate": "https://weather-qr0p585gr-weather-9c1f.vercel.app",
+    "status": "passed",
+    "health": "ok",
+    "mobile_status_markup": true,
+    "mobile_status_css": true,
+    "original_light_palette": true,
+    "production_user_writes": 0
+  },
+  "public_health_http": 200,
+  "public_viewport_theme_cases": 10,
+  "browser_api_data": "mocked",
+  "production_user_writes": 0,
+  "line_messages_sent": 0,
+  "light_background": "#f2fcf2",
+  "white_theme_change_deployed": false,
+  "theme_color_change_deployed": false,
+  "mobile_header_status_visible": true,
+  "backend_changed": false,
+  "rollback": {
+    "deployment_id": "dpl_HbSvuo9pf7GcdBcZ5Bu3gQ4zQmwF",
+    "url": "https://weather-74fxa30vv-weather-9c1f.vercel.app"
+  },
+  "remaining": "Physical handset LINE/LIFF connection acceptance; Samsung forced-dark behavior is not overridden."
+}

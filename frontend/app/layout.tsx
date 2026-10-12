@@ -1,16 +1,13 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import "./globals.css";
+import "./fonts.css";
+import "./dashboard/dashboard.css";
 
 export const metadata: Metadata = {
-  title: "Weather Forecasting System",
-  description: "Weather Forecasting System dashboard",
+  title: "Weather · พยากรณ์อากาศ",
+  description: "พยากรณ์อากาศรายชั่วโมง 7 วัน และค่าฝุ่น PM2.5 จากแบบจำลอง",
 };
-
 export default function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
-  return (
-    <html lang="en">
-      <body>{children}</body>
-    </html>
-  );
+  return <html lang="th"><body>{children}</body></html>;
 }
