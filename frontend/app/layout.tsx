@@ -7,7 +7,7 @@ import "./dashboard/dashboard.css";
 import "./map/map.css";
 
 export const metadata: Metadata = {
-  title: "Weather · พยากรณ์อากาศ",
+  title: "WeatherNow · พยากรณ์อากาศ",
   description: "พยากรณ์อากาศรายชั่วโมง 7 วัน และค่าฝุ่น PM2.5 จากแบบจำลอง",
 };
 export default function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
