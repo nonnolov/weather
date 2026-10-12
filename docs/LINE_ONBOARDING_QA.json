@@ -57,11 +57,11 @@
     ]
   },
   "production": {
-    "writes": 0,
     "migrationsApplied": false,
     "lineMessagesSent": 0,
     "deployments": 0,
-    "recipientExpansion": false
+    "recipientExpansion": false,
+    "databaseWrites": 0
   },
   "preview": {
     "remotePc": "http://localhost:3103",
@@ -74,5 +74,29 @@
     "Existing recipient and new test account explicitly enroll",
     "Authorized real LINE delivery and handset confirmation",
     "Restore scheduler sending after controlled verification"
-  ]
+  ],
+  "liveConfigurationReadiness": {
+    "botName": "Weather!",
+    "officialAccountId": "@920nlhuf",
+    "loginChannelId": "2011847040",
+    "liffId": "2011847040-61ygrOXm",
+    "liffMatchesLoginChannel": true,
+    "messagingSecretConfigured": false,
+    "currentWebhookUsesTemporaryCloudflareUrl": true,
+    "targetWebhook": "https://weather-api-production-9152.up.railway.app/api/v1/line/webhook",
+    "configurationUpdates": {
+      "services": [
+        "weather-api",
+        "weather-alert-cron"
+      ],
+      "keys": [
+        "LINE_OFFICIAL_ACCOUNT_ID",
+        "LINE_LOGIN_CHANNEL_ID",
+        "LINE_SUBSCRIPTIONS_ENABLED"
+      ],
+      "subscriptionsEnabled": false,
+      "skipDeploys": true
+    },
+    "realLineMessagesSent": 0
+  }
 }

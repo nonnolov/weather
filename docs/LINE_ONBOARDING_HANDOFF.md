@@ -49,7 +49,7 @@ https://developers.line.biz/en/reference/liff/
 https://developers.line.biz/en/docs/line-login/link-a-bot/
 
 ## Release risks and acceptance gates
-No public recipient expansion, production DB migration, account-console change, real LINE message, push or deployment was performed.
+No public recipient expansion, production DB migration, account-console change, real LINE message or signup deployment has been performed. The implementation is published for review on its dedicated branch.
 Enabling the subscription feature replaces legacy recipient selection. Existing recipients must explicitly complete the new consent flow; they are not silently opted in.
 For a controlled rollout, pause live sends, migrate/configure, enable signup, have the existing account complete enrollment, verify a new account end-to-end, then restore the send schedules after authorization.
 Operator must confirm the linked Weather OA and Login/Messaging provider alignment. A wrong/missing link stays unavailable rather than treating login as delivery readiness.
@@ -75,3 +75,22 @@ Final focused backend verification covers 68 cases, including 32 signup/security
 Final browser signup suite passed 13 scenarios; existing Dashboard (10), GPS/data flows (12) and Map (10) also passed against the new frontend. Final frontend build passed TypeScript/compilation/lint.
 The broader backend run passed 777 cases with 10 environment-dependent skips before the final signup guards; the affected backend paths were subsequently rechecked with the 68-case focused suite.
 Rollback should disable the signup feature and restore the compatible sender/frontend release while retaining the subscription table and consent evidence.
+
+
+## Live setup readiness - 2026-10-12 Asia/Bangkok
+Read-only LINE checks identified the existing bot as Weather! (@920nlhuf).
+Production Login channel: 2011847040. Production LIFF app: 2011847040-61ygrOXm; its channel prefix matches the configured Login channel.
+The existing Messaging API token successfully read bot info and webhook settings; no message was sent and no token was printed or persisted in this record.
+LINE's active webhook still targets a temporary trycloudflare.com address. Do not repoint it until the production API has its Messaging channel secret and the new code.
+The intended production webhook is https://weather-api-production-9152.up.railway.app/api/v1/line/webhook.
+The API and daily cron have now been configured with the verified OA ID, Login channel ID and LINE_SUBSCRIPTIONS_ENABLED=false using skip-deploy. These updates take effect on their next deploy.
+No database migration, source switch, scheduler change, real LINE message or live signup activation was performed.
+
+Remaining operator setup:
+1. Obtain the existing Weather Messaging API channel secret from LINE Developers Basic settings and set LINE_CHANNEL_SECRET securely on weather-api and weather-alert-cron. Do not rotate an existing secret.
+2. In Login channel 2011847040, confirm Weather OA is linked and both Login/Messaging channels use the same provider. Confirm the Login channel is published for new users.
+3. In LIFF 2011847040-61ygrOXm, confirm openid/profile scopes, Full view and HTTPS endpoint https://weather-iota-five-83.vercel.app/. External browser friend-link fallback is implemented.
+4. During the controlled rollout, pause sends, deploy compatible API/cron code with flag false and migration 0010, verify the signed webhook, move LINE webhook to the permanent API endpoint, then activate signup.
+5. Existing recipient and a new test account must explicitly enroll before restoring subscription-based sending. A real test message/handset check requires explicit message-test authorization.
+
+The administrative-prefix UI update is included in da7d053. That frontend change is already production-released independently; this branch's signup feature remains undeployed.
