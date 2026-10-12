@@ -10,10 +10,10 @@
 .dashboard-nav a,.dashboard-nav button { text-decoration:none; font-size:14px; border:0; border-radius:10px; background:transparent; color:var(--muted); padding:10px 14px; min-height:44px; white-space:nowrap; }
 .dashboard-nav a:first-child { background:var(--accent); color:var(--on-accent); }
 .dashboard-header > div:last-child { display:flex; align-items:center; gap:14px; min-width:0; }
-.header-location { max-width:200px; background:var(--surface-raised); border-radius:999px; padding:6px 14px; }
+.header-location { max-width:260px; min-width:180px; flex-shrink:1; background:var(--surface-raised); border-radius:999px; padding:6px 14px; }
 .header-location > div { display:grid; grid-template-columns:20px minmax(0,1fr); gap:0 8px; }
-.header-location strong { font-size:13px; font-weight:500; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; }
-.header-location small { grid-column:2; font-size:11px; color:var(--muted); }
+.header-location strong { font-size:13px; font-weight:500; white-space:normal; overflow-wrap:anywhere; }
+.header-location small { grid-column:2; font-size:11px; color:var(--muted); overflow-wrap:anywhere; }
 .header-location-action { display:none; }
 .header-actions { display:flex; align-items:center; gap:6px; }
 .header-line { display:none; }
@@ -67,9 +67,9 @@
 .line-panel h2 { font-size:19px; }
 .line-panel p { font-size:14px; color:var(--muted); margin-top:10px; line-height:1.8; }
 .line-status { display:flex; align-items:center; gap:7px; color:var(--muted); font-size:12px; margin-top:4px; }
-.line-dot { display:inline-block; width:7px; height:7px; border-radius:50%; background:var(--muted); flex-shrink:0; }
-.line-dot.connected { background:var(--accent); position:relative; }
-.line-dot.connected::after { content:''; position:absolute; inset:0; background:var(--accent); border-radius:50%; animation:stitch-ping 2s cubic-bezier(0,0,.2,1) infinite; }
+.line-dot { display:inline-block; width:9px; height:9px; border-radius:50%; background:var(--muted); flex-shrink:0; box-shadow:0 0 0 3px color-mix(in srgb,var(--muted) 15%,transparent); }
+.line-dot.connected { background:#24c879; box-shadow:0 0 0 3px #24c87925,0 0 10px #24c87980; animation:line-glow 2.4s ease-in-out infinite; }
+@keyframes line-glow { 0%,100% { box-shadow:0 0 0 3px #24c87925,0 0 10px #24c87980; } 50% { box-shadow:0 0 0 5px #24c87918,0 0 18px #24c879b3; } }
 .hourly-card { grid-area:hours; overflow:hidden; padding:24px 0 16px; }
 .section-heading { display:flex; align-items:center; gap:10px; padding:0 24px 18px; }
 .section-heading h2 { font-size:21px; }
@@ -155,7 +155,7 @@
 .map-unavailable p { max-width:500px; color:var(--muted); }
 .planned-badge { padding:8px 16px; background:var(--accent-soft); border-radius:99px; font-size:13px; }
 @media(hover:hover) { .hourly-list article:hover { background:var(--surface-raised); transform:translateY(-2px); } .day-summary:hover { background:var(--surface-raised); } .hero-actions .gps-primary:hover .action-icon { transform:rotate(45deg); } .dashboard-nav a:not(:first-child):hover,.dashboard-nav button:hover { background:var(--surface-raised); color:var(--ink); } }
-@media(min-width:1440px) { .header-line { display:flex; align-items:center; gap:6px; max-width:130px; font-size:12px; color:var(--muted); } }
+@media(min-width:900px) { .header-line { display:flex; align-items:center; gap:9px; padding:8px 10px; white-space:nowrap; font-size:12px; color:var(--muted); } }
 @media(max-width:1199px) { .dashboard-nav { display:none; } .dashboard-shell { padding-inline:24px; } .summary-grid { padding:24px; grid-template-columns:repeat(2,minmax(0,1fr)); } .hero-art { width:160px; } .hero-art .weather-artwork { width:160px; height:160px; } .hero-location h2 { font-size:22px; } .hero-reading { gap:10px; } .hero-temperature { font-size:72px; } }
 @media(max-width:899px) { .forecast-layout { grid-template-columns:minmax(0,1fr); grid-template-areas:'hero' 'air' 'line' 'hours' 'chart' 'days'; } .summary-grid { grid-template-columns:repeat(4,minmax(0,1fr)); } .header-location { max-width:180px; } }
 @media(max-width:599px) {
