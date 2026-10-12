@@ -32,5 +32,19 @@
     "Immediate close after zoom verified",
     "Original dirty worktree untouched",
     "No GPS accuracy UI added"
-  ]
+  ],
+  "radarCacheImprovement": {
+    "status": "passed",
+    "build": "passed",
+    "cacheCases": 8,
+    "mapBrowserCasesRerun": 10,
+    "providerNetwork": "mocked",
+    "limits": {
+      "images": 64,
+      "bytes": 8388608,
+      "ttlMinutes": 30,
+      "newNetworkStartsPerMinute": 80
+    },
+    "productionDeployed": false
+  }
 }

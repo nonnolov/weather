@@ -46,3 +46,10 @@ Automated browser tests stub all OSM/RainViewer tile requests; screenshots show 
 One manual feasibility request used fixed public Bangkok coordinates; real provider metadata and PNG tiles returned successfully. No private user location was retrieved for provider tests.
 
 Accessibility/cleanup: keyboard focus returns to the invoking Map button, and viewport screenshots were reviewed at 360 and 1440 pixels. Leaflet zoom tween is disabled to avoid delayed zoom callbacks after modal unmount; panning and zoom controls remain functional.
+
+## Radar image cache improvement — 2026-10-12
+Repeated zoom/pan previously queued the same image again and counted it toward the 80/minute budget even when browser caching might satisfy it. A saturated queue could delay already viewed tiles until the minute window expired.
+The loader now shares in-flight requests by tile URL and retains successful image blobs in a bounded LRU cache (64 images / 8 MiB, 30-minute TTL). Cached images bypass the network budget. Only actual new fetches count toward 80/minute. No prefetch added.
+Each displayed image gets a temporary blob URL which is revoked on load/cancel. Failed images are not retained. When the last subscriber disappears, queued/in-flight requests are cancelled; shared requests continue for remaining visible subscribers.
+First load of a new area still depends on provider/network latency and the network budget. Images remain keyed by immutable radar frame path, so changing frame does not silently display an old timestamp's image.
+Additional verification: radar_tile_cache_qa.cjs checks request deduplication, reuse, expiry, shared cancellation, failed retry, budget cap, cached image under saturated quota and queued cleanup (8 cases with mocked network).
