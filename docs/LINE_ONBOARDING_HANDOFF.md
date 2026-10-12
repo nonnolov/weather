@@ -110,3 +110,13 @@ Daily and intraday SENDING ARE TEMPORARILY PAUSED for initial enrollment. API IN
 The existing recipient must explicitly enroll; no existing user was silently opted in. After user enrollment is verified, restore the recorded intraday flag and daily command using the current backend build. No manual message was sent.
 See LINE_ONBOARDING_PRODUCTION_RELEASE.json for deployment IDs, acceptance evidence and restoration settings.
 Keep migration 0010/consent records during rollback. Use the current compatible backend with signup disabled; older source/default branches cannot run alembic upgrade head against this revision.
+
+
+## LINE login recovery repair - 2026-10-12 Asia/Bangkok
+Current frontend/API source is 095fbe8, deployed at https://weather-oabn6iqlo-weather-9c1f.vercel.app and promoted to the stable domain. API deployment c81ceedb-1595-4c03-8b2e-023add82aa5e is SUCCESS. Daily cron remains the paused bb2bbc14-d8eb-4d38-903b-4d467f10485e release.
+A real phone attempt showed POST ID-token verification returning 400, while subsequent access-token verification returned 200 and the application's channel/expiry/scope gate still returned 401. Original logs did not distinguish that gate's exact reason; do not claim a specific permission/expiry mismatch was observed.
+Initialization now uses the access-token-protected status endpoint, which returns the server-verified identity. It no longer requires the separately cached one-hour ID token.
+Explicit retry after 401 renews LINE's in-app/external browser session using logout/login; inside the LIFF browser it relaunches the canonical LIFF URL because liff.login is not supported there.
+Positive finite fractional expires_in is accepted under LINE's Number contract. Wrong channel, missing openid/profile, invalid identity, expired/non-numeric/non-finite/bool expiry remain rejected. Failure logs record only categories and whitelisted scope presence, never credentials.
+Verification: 39 backend auth/signup cases, 15 mocked signup browser scenarios, frontend build and real anonymous 360/1440 SDK smoke passed. Real user phone retry/enrollment remains required. Sending remains paused, no LINE message sent.
+See LINE_SESSION_RECOVERY_RELEASE.json. Retry entry: https://liff.line.me/2011847040-61ygrOXm.

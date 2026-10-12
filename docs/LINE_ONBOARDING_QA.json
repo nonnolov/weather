@@ -64,8 +64,9 @@
     "databaseWrites": 0,
     "signupEnabled": true,
     "sendingPaused": true,
-    "sourceCommit": "9045131",
-    "releaseRecord": "LINE_ONBOARDING_PRODUCTION_RELEASE.json"
+    "sourceCommit": "095fbe8",
+    "releaseRecord": "LINE_ONBOARDING_PRODUCTION_RELEASE.json",
+    "sessionRecoveryRecord": "LINE_SESSION_RECOVERY_RELEASE.json"
   },
   "preview": {
     "remotePc": "http://localhost:3103",
@@ -126,5 +127,13 @@
         "pageErrors": 0
       }
     ]
+  },
+  "sessionRecovery": {
+    "source": "095fbe8",
+    "backendCases": 39,
+    "mockedBrowserCases": 15,
+    "build": "passed",
+    "productionSmoke": "passed",
+    "realAccountAcceptance": "pending"
   }
 }
