@@ -53,3 +53,6 @@ The loader now shares in-flight requests by tile URL and retains successful imag
 Each displayed image gets a temporary blob URL which is revoked on load/cancel. Failed images are not retained. When the last subscriber disappears, queued/in-flight requests are cancelled; shared requests continue for remaining visible subscribers.
 First load of a new area still depends on provider/network latency and the network budget. Images remain keyed by immutable radar frame path, so changing frame does not silently display an old timestamp's image.
 Additional verification: radar_tile_cache_qa.cjs checks request deduplication, reuse, expiry, shared cancellation, failed retry, budget cap, cached image under saturated quota and queued cleanup (8 cases with mocked network).
+
+## Dashboard header simplification — 2026-10-12
+Removed the duplicate Forecast / PM2.5 / Map navigation row from the header in both languages and its unused CSS. The Map action in the current weather card remains. Header weather logo, area labels, LINE indicator, theme and language controls remain available.

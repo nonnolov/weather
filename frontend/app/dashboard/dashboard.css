@@ -6,9 +6,6 @@
 .brand .eyebrow { font-size:12px; margin-top:2px; }
 .brand-weather { display:flex; width:36px; height:36px; align-items:center; }
 .brand-weather .weather-artwork { color:var(--accent); }
-.dashboard-nav { display:flex; gap:4px; align-items:center; }
-.dashboard-nav a,.dashboard-nav button { text-decoration:none; font-size:14px; border:0; border-radius:10px; background:transparent; color:var(--muted); padding:10px 14px; min-height:44px; white-space:nowrap; }
-.dashboard-nav a:first-child { background:var(--accent); color:var(--on-accent); }
 .dashboard-header > div:last-child { display:flex; align-items:center; gap:14px; min-width:0; }
 .header-location { max-width:260px; min-width:180px; flex-shrink:1; background:var(--surface-raised); border-radius:999px; padding:6px 14px; }
 .header-location > div { display:grid; grid-template-columns:20px minmax(0,1fr); gap:0 8px; }
@@ -141,9 +138,9 @@
 .welcome-description { color:var(--muted); margin:14px 0 24px; }
 .welcome-card .gps-primary { justify-self:start; }
 .permission-note { color:var(--muted); font-size:12px; margin-top:12px; }
-@media(hover:hover) { .hourly-list article:hover { background:var(--surface-raised); transform:translateY(-2px); } .day-summary:hover { background:var(--surface-raised); } .hero-actions .gps-primary:hover .action-icon { transform:rotate(45deg); } .dashboard-nav a:not(:first-child):hover,.dashboard-nav button:hover { background:var(--surface-raised); color:var(--ink); } }
+@media(hover:hover) { .hourly-list article:hover { background:var(--surface-raised); transform:translateY(-2px); } .day-summary:hover { background:var(--surface-raised); } .hero-actions .gps-primary:hover .action-icon { transform:rotate(45deg); } }
 @media(min-width:900px) { .header-line { display:flex; align-items:center; gap:9px; padding:8px 10px; white-space:nowrap; font-size:12px; color:var(--muted); } }
-@media(max-width:1199px) { .dashboard-nav { display:none; } .dashboard-shell { padding-inline:24px; } .summary-grid { padding:24px; grid-template-columns:repeat(2,minmax(0,1fr)); } .hero-art { width:160px; } .hero-art .weather-artwork { width:160px; height:160px; } .hero-location h2 { font-size:22px; } .hero-reading { gap:10px; } .hero-temperature { font-size:72px; } }
+@media(max-width:1199px) { .dashboard-shell { padding-inline:24px; } .summary-grid { padding:24px; grid-template-columns:repeat(2,minmax(0,1fr)); } .hero-art { width:160px; } .hero-art .weather-artwork { width:160px; height:160px; } .hero-location h2 { font-size:22px; } .hero-reading { gap:10px; } .hero-temperature { font-size:72px; } }
 @media(max-width:899px) { .header-line-mobile { display:flex; align-items:center; gap:8px; margin-top:3px; font-size:11px; line-height:1.35; color:var(--muted); white-space:nowrap; } .brand .eyebrow { display:none; } .forecast-layout { grid-template-columns:minmax(0,1fr); grid-template-areas:'hero' 'air' 'line' 'hours' 'chart' 'days'; } .summary-grid { grid-template-columns:repeat(4,minmax(0,1fr)); } .header-location { max-width:180px; } }
 @media(max-width:599px) {
  html { scroll-padding-top:88px; }
