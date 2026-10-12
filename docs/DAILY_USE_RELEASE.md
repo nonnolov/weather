@@ -1,5 +1,7 @@
 # Daily-use release — 2026-10-11 Asia/Bangkok
 
+Current status 2026-10-12 Asia/Bangkok: Map and the consent-based LINE signup Dashboard are live. Daily/intraday sending is temporarily paused pending explicit enrollment and real-user verification; the earlier sending/allowlist descriptions below are historical. See LINE_ONBOARDING_PRODUCTION_RELEASE.json and LINE_ONBOARDING_HANDOFF.md.
+
 ## Authorized minimum scope
 The user selected the fastest route to a usable everyday project, retained Open-Meteo, and deferred forecast-accuracy research. This is a controlled daily-use release for the existing LINE recipient, not a declaration that every original P0–P7 acceptance gate has passed.
 

@@ -94,3 +94,19 @@ Remaining operator setup:
 5. Existing recipient and a new test account must explicitly enroll before restoring subscription-based sending. A real test message/handset check requires explicit message-test authorization.
 
 The administrative-prefix UI update is included in da7d053. That frontend change is already production-released independently; this branch's signup feature remains undeployed.
+
+
+## Production signup release - 2026-10-12 Asia/Bangkok
+This section supersedes the earlier pre-release readiness statements.
+Frontend https://weather-iota-five-83.vercel.app now runs the LINE signup Dashboard from source 9045131, candidate https://weather-jcala0ojv-weather-9c1f.vercel.app.
+API c32839a9-4735-4a35-b6c3-ade137e7e163 and daily cron bb2bbc14-d8eb-4d38-903b-4d467f10485e are SUCCESS. The current backend was uploaded from the clean committed worktree via Railway CLI; the Railway connector could not switch the GitHub source.
+Migration 0009 -> 0010 is confirmed in the successful pre-deploy log.
+The Messaging channel secret is configured on both services. A real LINE server webhook test passed HTTP 200; unsigned requests return 400 and signed empty requests return 200.
+LINE's active webhook now points to https://weather-api-production-9152.up.railway.app/api/v1/line/webhook.
+LINE_SUBSCRIPTIONS_ENABLED is true. The public config returns enabled=true; protected status without a LINE identity returns 401.
+Anonymous real-browser checks at 360 and 1440 pixels passed: real LIFF SDK initialized, signup visible, login button enabled, no backend writes or page errors. Actual human Login/consent and handset receipt are still outstanding.
+
+Daily and intraday SENDING ARE TEMPORARILY PAUSED for initial enrollment. API INTRADAY_SEND_ENABLED=false; the daily cron start command prints a paused notice instead of sending. Its 06:00 Bangkok schedule remains configured.
+The existing recipient must explicitly enroll; no existing user was silently opted in. After user enrollment is verified, restore the recorded intraday flag and daily command using the current backend build. No manual message was sent.
+See LINE_ONBOARDING_PRODUCTION_RELEASE.json for deployment IDs, acceptance evidence and restoration settings.
+Keep migration 0010/consent records during rollback. Use the current compatible backend with signup disabled; older source/default branches cannot run alembic upgrade head against this revision.

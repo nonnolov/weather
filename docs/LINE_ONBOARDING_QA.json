@@ -57,11 +57,15 @@
     ]
   },
   "production": {
-    "migrationsApplied": false,
+    "migrationsApplied": true,
     "lineMessagesSent": 0,
-    "deployments": 0,
+    "deployments": 4,
     "recipientExpansion": false,
-    "databaseWrites": 0
+    "databaseWrites": 0,
+    "signupEnabled": true,
+    "sendingPaused": true,
+    "sourceCommit": "9045131",
+    "releaseRecord": "LINE_ONBOARDING_PRODUCTION_RELEASE.json"
   },
   "preview": {
     "remotePc": "http://localhost:3103",
@@ -69,11 +73,10 @@
     "liveSignupAvailable": false
   },
   "remainingAcceptance": [
-    "Configure real Weather OA ID / linked Login channel / LIFF scopes and HTTPS endpoint",
-    "Apply migration 0010 during an authorized rollout",
-    "Existing recipient and new test account explicitly enroll",
-    "Authorized real LINE delivery and handset confirmation",
-    "Restore scheduler sending after controlled verification"
+    "Existing recipient explicitly enrolls",
+    "New user real Login/friend/location/consent/opt-out acceptance",
+    "Restore daily/intraday after enrollment verification",
+    "Authorized real LINE delivery and handset confirmation"
   ],
   "liveConfigurationReadiness": {
     "botName": "Weather!",
@@ -81,8 +84,8 @@
     "loginChannelId": "2011847040",
     "liffId": "2011847040-61ygrOXm",
     "liffMatchesLoginChannel": true,
-    "messagingSecretConfigured": false,
-    "currentWebhookUsesTemporaryCloudflareUrl": true,
+    "messagingSecretConfigured": true,
+    "currentWebhookUsesTemporaryCloudflareUrl": false,
     "targetWebhook": "https://weather-api-production-9152.up.railway.app/api/v1/line/webhook",
     "configurationUpdates": {
       "services": [
@@ -94,9 +97,34 @@
         "LINE_LOGIN_CHANNEL_ID",
         "LINE_SUBSCRIPTIONS_ENABLED"
       ],
-      "subscriptionsEnabled": false,
+      "subscriptionsEnabled": true,
       "skipDeploys": true
     },
-    "realLineMessagesSent": 0
+    "realLineMessagesSent": 0,
+    "officialWebhookTest": "passed HTTP 200"
+  },
+  "liveAnonymousBrowser": {
+    "status": "passed",
+    "realSdk": true,
+    "actualUserLoginTested": false,
+    "lineMessagesSent": 0,
+    "results": [
+      {
+        "width": 360,
+        "signupVisible": true,
+        "loginButtonEnabled": true,
+        "realSdkInitialized": true,
+        "backendWrites": 0,
+        "pageErrors": 0
+      },
+      {
+        "width": 1440,
+        "signupVisible": true,
+        "loginButtonEnabled": true,
+        "realSdkInitialized": true,
+        "backendWrites": 0,
+        "pageErrors": 0
+      }
+    ]
   }
 }

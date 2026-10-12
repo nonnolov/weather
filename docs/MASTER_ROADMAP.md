@@ -1,5 +1,7 @@
 # Current master roadmap (P0-P7)
 
+Current status 2026-10-12 Asia/Bangkok: Map and the consent-based LINE signup Dashboard are live. Daily/intraday sending is temporarily paused pending explicit enrollment and real-user verification; the earlier sending/allowlist descriptions below are historical. See LINE_ONBOARDING_PRODUCTION_RELEASE.json and LINE_ONBOARDING_HANDOFF.md.
+
 Source: user Master prompt in the "ใช้ Remote Desktop" conversation, 2026-10-09. This numbering supersedes the repository's initial six implementation milestones.
 
 | Phase | User-defined scope |
