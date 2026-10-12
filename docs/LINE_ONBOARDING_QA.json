@@ -1,0 +1,78 @@
+{
+  "date": "2026-10-12",
+  "branch": "feature/line-onboarding-20261012",
+  "backendBase": "79fca06",
+  "baselineCommit": "1b28c25",
+  "status": "passed_local",
+  "frontendBuild": {
+    "typecheck": "passed",
+    "compile": "passed",
+    "lint": "passed",
+    "testLiffId": "dummy; no real credentials embedded"
+  },
+  "backendRegression": {
+    "passed": 777,
+    "skipped": 10,
+    "errors": 0,
+    "stage": "Full regression before final config/webhook-order guards; affected tests rerun below",
+    "externalProviderIntegration": "excluded",
+    "postgres": "dedicated localhost PostgreSQL 16 with disposable schemas"
+  },
+  "finalFocusedBackend": {
+    "passed": 68,
+    "skipped": 0,
+    "signupSecurityCases": 32,
+    "postgresSignupCases": 9,
+    "includes": [
+      "configuration prerequisites",
+      "consent prerequisites",
+      "token channel/scopes/expiry",
+      "signed friend events",
+      "event/consent ordering",
+      "opt-out serialization",
+      "source-area recheck",
+      "migration round trip",
+      "live adapter opt-in gate"
+    ]
+  },
+  "browser": {
+    "signupCases": 13,
+    "dashboardViewportCases": 10,
+    "gpsForecastAirQualityCases": 12,
+    "mapCases": 10,
+    "allPassed": true,
+    "lineSdkAndApis": "mocked",
+    "providerMapTiles": "mocked",
+    "includes": [
+      "explicit login",
+      "mobile and desktop Light/Dark",
+      "external browser friend link",
+      "GPS permission",
+      "consent and opt-out",
+      "retry failed opt-out",
+      "suspend refresh during opt-out",
+      "token expiration",
+      "block state",
+      "HTTP randomUUID fallback"
+    ]
+  },
+  "production": {
+    "writes": 0,
+    "migrationsApplied": false,
+    "lineMessagesSent": 0,
+    "deployments": 0,
+    "recipientExpansion": false
+  },
+  "preview": {
+    "remotePc": "http://localhost:3103",
+    "lan": "http://192.168.1.7:3103",
+    "liveSignupAvailable": false
+  },
+  "remainingAcceptance": [
+    "Configure real Weather OA ID / linked Login channel / LIFF scopes and HTTPS endpoint",
+    "Apply migration 0010 during an authorized rollout",
+    "Existing recipient and new test account explicitly enroll",
+    "Authorized real LINE delivery and handset confirmation",
+    "Restore scheduler sending after controlled verification"
+  ]
+}

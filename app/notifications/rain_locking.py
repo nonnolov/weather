@@ -115,6 +115,9 @@ async def locked_intraday_evaluation(
                         reason = "inactive_location"
                     elif location.timezone is None or location.timezone.strip() != scope.timezone.strip():
                         reason = "scope_mismatch"
+                from app.notifications.subscriptions import recipient_eligible
+                if not reason and not await recipient_eligible(db, scope.recipient_id, lock=True):
+                    reason = "subscription_not_ready"
                 if reason:
                     yield LockedEvaluation(Decision("skip", (reason,)), db)
                     return

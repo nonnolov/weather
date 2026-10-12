@@ -1,9 +1,10 @@
 "use client";
 import {useEffect,useMemo,useState} from "react";
+import {useLineOnboarding} from "./useLineOnboarding";
+import {getLineForecast,setLineLocation,refreshLineForecast} from "../../lib/line";
 import {translations,nearestHourly,type Language} from "./format";
 import {
   ApiError,
-  authenticateLine,
   getHealth,
   getLatestForecast,
   getLocations,
@@ -19,6 +20,9 @@ type LiffClient = {
   isLoggedIn: () => boolean;
   login: (options?: { redirectUri?: string }) => void;
   getIDToken: () => string | null;
+  getAccessToken?: () => string | null;
+  isInClient?: () => boolean;
+  requestFriendship?: () => Promise<void>;
 };
 
 declare global {
@@ -40,7 +44,6 @@ export function useWeatherDashboard() {
   const [gpsState, setGpsState] = useState<"idle" | "locating" | "saving" | "forecasting" | "success" | "error">("idle");
   const [message, setMessage] = useState("");
   const [seedLoading, setSeedLoading] = useState(false);
-  const [lineUserId, setLineUserId] = useState<string | null>(null);
   const [theme, setTheme] = useState<"light" | "dark">("light");
   const [language, setLanguage] = useState<Language>(() => {
     if (typeof window === "undefined") return "th";
@@ -49,6 +52,8 @@ export function useWeatherDashboard() {
     const saved = window.localStorage.getItem("weather.language");
     return saved === "th" || saved === "en" ? saved : "th";
   });
+  const line=useLineOnboarding(language);
+  const lineUserId=line.userId;
   const t = translations[language];
   const ux = language === "th" ? {
     title: "อากาศวันนี้ ใกล้คุณ", intro: "เตรียมพร้อมก่อนออกจากบ้าน",
@@ -113,7 +118,8 @@ export function useWeatherDashboard() {
     const key = "weather.external_user_id";
     let id = window.localStorage.getItem(key);
     if (!id) {
-      id = "browser-" + crypto.randomUUID();
+      const randomId=typeof crypto.randomUUID==="function"?crypto.randomUUID():Array.from(crypto.getRandomValues(new Uint8Array(16)),byte=>byte.toString(16).padStart(2,"0")).join("");
+      id = "browser-" + randomId;
       window.localStorage.setItem(key, id);
     }
     return id;
@@ -128,27 +134,12 @@ export function useWeatherDashboard() {
     }).catch(() => setLocations([]));
   }, []);
 
-  const initializeLiff = async () => {
-    if (!liffId || !window.liff) return;
-    try {
-      await window.liff.init({ liffId });
-      if (!window.liff.isLoggedIn()) {
-        window.localStorage.setItem("weather.language", language);
-        window.liff.login();
-        return;
-      }
-      const token = window.liff.getIDToken();
-      if (!token) throw new Error("LINE ID token unavailable.");
-      const auth = await authenticateLine(token);
-      setLineUserId(auth.external_user_id);
-      setMessage(t.connectedLine);
-    } catch {
-      setMessage(t.lineUnavailable);
-    }
-  };
+  const initializeLiff = line.initialize;
 
   const activeUserId = lineUserId ?? userId;
 
+  const secureLine=Boolean(lineUserId && line.config?.enabled);
+  const readUserForecast=()=>secureLine?getLineForecast():getUserForecast(activeUserId);
   const handleGps = () => {
     setSelectedId(null);
     if (!navigator.geolocation) {
@@ -163,11 +154,12 @@ export function useWeatherDashboard() {
         let resolvedLocation: Location | null = null;
         try {
           setGpsState("saving");
-          const result = await setUserLocationFromGps(activeUserId, position.coords.latitude, position.coords.longitude);
+          const result = await (secureLine?setLineLocation(position.coords.latitude, position.coords.longitude):setUserLocationFromGps(activeUserId, position.coords.latitude, position.coords.longitude));
           resolvedLocation = result.location;
+          if(secureLine)await line.refresh();
           setGpsState("forecasting");
-          const refresh = await refreshUserForecast(activeUserId);
-          const data = await getUserForecast(activeUserId);
+          const refresh = await (secureLine?refreshLineForecast():refreshUserForecast(activeUserId));
+          const data = await readUserForecast();
           // Publish location and forecast together so old weather never labels a new place.
           setLocation({ ...result.location, timezone: refresh.timezone });
           setForecast(data);
@@ -178,7 +170,7 @@ export function useWeatherDashboard() {
           // must match the newly resolved location and still cover future hours.
           if (resolvedLocation) {
             try {
-              const saved = await getUserForecast(activeUserId);
+              const saved = await readUserForecast();
               if (saved.location_id === resolvedLocation.id &&
                   saved.hourly.some(hour => new Date(hour.valid_time).getTime() >= Date.now())) {
                 setLocation(resolvedLocation);
@@ -224,6 +216,6 @@ export function useWeatherDashboard() {
 
   const summary = forecast ? nearestHourly(forecast.hourly) : undefined;
 
-  return {mapOpen,setMapOpen,chartTab,setChartTab,health,selectedId,forecast,location,gpsState,message,seedLoading,lineUserId,theme,setTheme,language,setLanguage,t,ux,isGpsBusy,busy,progress,sampleLocations,initializeLiff,handleGps,selectSeedLocation,summary};
+  return {line,mapOpen,setMapOpen,chartTab,setChartTab,health,selectedId,forecast,location,gpsState,message,seedLoading,lineUserId,theme,setTheme,language,setLanguage,t,ux,isGpsBusy,busy,progress,sampleLocations,initializeLiff,handleGps,selectSeedLocation,summary};
 }
 export type DashboardModel = ReturnType<typeof useWeatherDashboard>;

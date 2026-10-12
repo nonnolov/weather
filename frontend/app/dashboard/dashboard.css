@@ -188,3 +188,27 @@
 /* Match scroll-snap offsets to the hourly card gutters. */
 .hourly-list { scroll-padding-inline:24px; }
 @media(max-width:599px) { .hourly-list { scroll-padding-inline:20px; } }
+
+.line-onboarding { align-self:start; }
+.line-onboarding-body { min-width:0; flex:1; }
+.dashboard-shell > .line-onboarding { max-width:880px; margin:0 auto 24px; }
+.line-onboarding-heading { display:flex; flex-wrap:wrap; align-items:center; gap:8px; }
+.line-ready-badge { display:inline-flex; border-radius:99px; padding:3px 8px; background:var(--surface-raised); color:var(--muted); font-size:10px; white-space:nowrap; }
+.line-ready-badge.ready { color:var(--accent); background:var(--accent-soft); }
+.line-onboarding .line-onboarding-intro { font-size:12px; line-height:1.6; margin-top:12px; }
+.line-onboarding-steps { list-style:none; padding:0; margin:12px 0; display:grid; gap:12px; }
+.line-onboarding-steps li { display:flex; gap:8px; align-items:center; }
+.line-step-number { display:grid; place-items:center; border:1px solid var(--line-strong); border-radius:50%; width:24px; height:24px; flex-shrink:0; font-size:11px; color:var(--muted); }
+.line-onboarding-steps .complete .line-step-number { background:var(--accent-soft); color:var(--accent); border-color:var(--accent); }
+.line-onboarding-steps li > div { flex:1; min-width:0; }
+.line-onboarding-steps strong { display:block; font-size:12px; font-weight:500; }
+.line-onboarding-steps small { display:block; font-size:11px; color:var(--muted); overflow-wrap:anywhere; }
+.line-onboarding-steps .utility-button { font-size:11px; padding:6px 8px; min-height:36px; flex-shrink:0; }
+.line-consent { display:flex; align-items:flex-start; gap:8px; font-size:12px; color:var(--muted); line-height:1.6; margin:12px 0; }
+.line-consent input { accent-color:var(--accent); margin-top:4px; flex-shrink:0; }
+.line-onboarding-actions { display:flex; flex-wrap:wrap; gap:8px; margin-top:12px; }
+.line-onboarding-actions button { font-size:12px; padding:8px 10px; min-height:40px; }
+.line-friend-link { font-size:12px; display:inline-block; padding:4px 0; }
+.line-onboarding .line-onboarding-error { color:var(--warning); font-size:12px; line-height:1.6; }
+.line-onboarding .line-area-note,.line-onboarding .line-onboarding-footnote { font-size:11px; line-height:1.6; margin-top:10px; }
+@media(max-width:599px) { .line-onboarding { gap:10px; padding:18px 16px; } .line-onboarding .line-symbol { width:28px; height:28px; } .line-onboarding h2 { font-size:16px; } .line-onboarding-steps li { flex-wrap:wrap; } .line-onboarding-steps li > div { min-width:100px; } }

@@ -41,7 +41,7 @@ const forecast={id:1,location_id:1,provider:'open_meteo',retrieved_at:stamp,hour
    }
    return r.fulfill({json:data});
   });
-  await page.goto('http://localhost:3102');
+  await page.goto(process.env.DASHBOARD_QA_URL||'http://localhost:3103');
   if(mode.startsWith('gps-')){
    await page.locator('.welcome-card .gps-primary').click();
    if(mode==='gps-denied'){

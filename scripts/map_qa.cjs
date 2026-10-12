@@ -22,7 +22,7 @@ const {chromium}=require(entry),{installMapMocks}=require('./map_test_fixtures.c
  await page.route('**/api/backend/**',r=>{const url=r.request().url();backend.push(r.request().method());return r.fulfill({json:url.endsWith('/health')?{status:'ok'}:url.endsWith('/locations')?[loc]:url.includes('/air-quality/')?{status:'unavailable'}:{id:1,provider:'open_meteo',retrieved_at:new Date().toISOString(),hourly,daily}});});
  await page.route('https://static.line-scdn.net/**',r=>r.abort());
  const requests=await installMapMocks(page,scenario);
- await page.goto('http://localhost:3102');await page.locator('.sample-picker summary').click();await page.locator('select').selectOption('1');await page.locator('.hero-actions').waitFor();
+ await page.goto(process.env.DASHBOARD_QA_URL||'http://localhost:3103');await page.locator('.sample-picker summary').click();await page.locator('select').selectOption('1');await page.locator('.hero-actions').waitFor();
  assert.equal(requests.length,0);const before=backend.length;
  await page.locator('.hero-actions .map-button').click();await page.locator('.map-dialog').waitFor();
  await page.waitForTimeout(250);const rect=await page.locator('.map-dialog').boundingBox();assert.equal(Math.round(rect.y),0);assert.equal(Math.round(rect.height),900);

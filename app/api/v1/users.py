@@ -23,7 +23,8 @@ from app.services.geocoding import (
 )
 
 
-router = APIRouter()
+from app.services.line_identity import protect_line_user_path
+router = APIRouter(dependencies=[Depends(protect_line_user_path)])
 
 
 @router.post(

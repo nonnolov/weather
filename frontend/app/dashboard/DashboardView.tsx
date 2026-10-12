@@ -6,6 +6,7 @@ import {TemperatureTrend,RainTrend} from "./ForecastCharts";
 import {UiIcon} from "./UiIcon";
 import type {DashboardModel} from "./useWeatherDashboard";
 
+import {LineOnboarding} from "./LineOnboarding";
 import {DashboardHeader} from "./DashboardHeader";
 import {CurrentConditions} from "./CurrentConditions";
 import {HourlyForecast} from "./HourlyForecast";
@@ -40,6 +41,8 @@ export function DashboardView({model}:{model:DashboardModel}) {
       {gpsState === "error" && <button type="button" className="retry-button" onClick={() => selectedId !== null ? selectSeedLocation(selectedId) : handleGps()}>{ux.retry}</button>}
     </div>}
 
+    {!forecast && <LineOnboarding model={model} />}
+
     {sampleLocations.length > 0 && <details className="sample-picker">
       <summary>{ux.sample}</summary>
       <label className="select-label">{ux.choose}
@@ -52,7 +55,7 @@ export function DashboardView({model}:{model:DashboardModel}) {
 
     {forecast && location && <div className="forecast-layout"><CurrentConditions model={model} />
     <AirQualityCard key={location.id} locationId={location.id} timeZone={location.timezone} language={language} />
-    <section className="line-panel" aria-label="LINE"><span className="line-symbol"><UiIcon name="message" /></span><div><h2>LINE Official Account</h2><div className="line-status"><span className={"line-dot" + (lineUserId ? " connected" : "")} aria-hidden="true" />{lineUserId ? t.connectedLine : language === "th" ? "ยังไม่ได้เชื่อมต่อ" : "Not connected"}</div><p>{lineUserId ? (language === "th" ? "รับการแจ้งเตือนสภาพอากาศตามเงื่อนไขที่ตั้งไว้" : "Weather alerts follow your configured policy.") : ux.lineHint}</p></div></section>
+<LineOnboarding model={model} />
     <div className="chart-switcher"><div className="chart-tabs" role="group" aria-label={language === "th" ? "เลือกกราฟ" : "Choose chart"}><button type="button" aria-pressed={chartTab === "temperature"} onClick={() => setChartTab("temperature")}>{t.tempTrend}</button><button type="button" aria-pressed={chartTab === "rain"} onClick={() => setChartTab("rain")}>{t.rainTrend}</button></div>{chartTab === "temperature" ? <TemperatureTrend hourly={forecast.hourly} timeZone={location.timezone} language={language} /> : <RainTrend hourly={forecast.hourly} timeZone={location.timezone} language={language} />}</div>
     <HourlyForecast model={model} />
     <DailyForecast model={model} /></div>}

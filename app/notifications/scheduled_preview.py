@@ -9,6 +9,7 @@ from sqlalchemy import func, select, text
 from sqlalchemy.ext.asyncio import AsyncEngine, async_sessionmaker
 
 from app.core.config import settings
+from app.notifications.subscriptions import recipient_condition
 from app.models import ForecastRun, Location, User
 from app.notifications.intraday_formatter import utc
 
@@ -54,7 +55,7 @@ async def _refresh_if_due(sessions, location_id, clock):
             select(Location).where(Location.id == location_id).with_for_update()
         )
         assigned = await db.scalar(select(User.external_id).where(
-            User.current_location_id == location_id, User.external_id.startswith("U")
+            User.current_location_id == location_id, recipient_condition()
         ).limit(1))
         if location is None or not location.is_active or assigned is None:
             return "out_of_scope"
@@ -84,7 +85,7 @@ async def _cycle(sessions, clock, report):
             ids = list((await coordinator.scalars(
                 select(Location.id).join(User, User.current_location_id == Location.id)
                 .outerjoin(ForecastRun, ForecastRun.location_id == Location.id)
-                .where(Location.is_active.is_(True), User.external_id.startswith("U"))
+                .where(Location.is_active.is_(True), recipient_condition())
                 .group_by(Location.id)
                 .order_by(func.max(ForecastRun.retrieved_at).asc().nullsfirst(), Location.id)
                 .limit(MAX_LOCATIONS + 1)
@@ -109,7 +110,7 @@ async def _cycle(sessions, clock, report):
                 recipients = list((await reader.scalars(
                     select(User.external_id).join(Location, Location.id == User.current_location_id)
                     .where(User.current_location_id.in_(eligible), Location.is_active.is_(True),
-                           User.external_id.startswith("U"))
+                           recipient_condition())
                     .order_by(User.external_id).limit(MAX_RECIPIENTS + 1)
                 )).all())
             report.truncated |= len(recipients) > MAX_RECIPIENTS
