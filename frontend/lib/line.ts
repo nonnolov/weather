@@ -18,7 +18,7 @@ export const getLineStatus=()=>lineRequest<LineStatus>("/onboarding");
 export const setLineSubscription=(enabled:boolean)=>lineRequest<LineStatus>("/subscription",{method:"PUT",body:JSON.stringify({enabled,consent_version:enabled?LINE_CONSENT_VERSION:undefined})});
 export const setLineLocation=(latitude:number,longitude:number)=>lineRequest<UserLocationResponse>("/location/from-gps",{method:"POST",body:JSON.stringify({latitude,longitude})});
 export const getLineForecast=()=>lineRequest<ForecastRun>("/forecast");
-export const refreshLineForecast=()=>lineRequest<IngestResponse>("/forecast/refresh");
+export const refreshLineForecast=()=>lineRequest<IngestResponse>("/forecast/refresh",{method:"POST"});
 export function lineSessionHeaders():HeadersInit{
  const token=typeof window!=="undefined"?window.liff?.getAccessToken?.():null;
  return token?{Authorization:"Bearer "+token}:{};

@@ -51,7 +51,7 @@ const UID='U'+'a'.repeat(32);
  assert.equal(r.request().headers().authorization,'Bearer mock-access-token');
  located=true;return r.fulfill({json:{external_user_id:UID,location:loc}});
  }
- if(url.endsWith('/line/forecast/refresh'))return r.fulfill({json:{location_id:1,timezone:loc.timezone}});
+ if(url.endsWith('/line/forecast/refresh')){assert.equal(method,'POST','Forecast refresh must use POST');assert.equal(r.request().headers().authorization,'Bearer mock-access-token');return r.fulfill({status:201,json:{location_id:1,timezone:loc.timezone}}); }
  if(url.endsWith('/line/forecast'))return r.fulfill({json:forecast});
  if(url.endsWith('/health'))return r.fulfill({json:{status:'ok'}});
  if(url.endsWith('/locations'))return r.fulfill({json:[loc]});
