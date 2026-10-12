@@ -11,17 +11,22 @@
   },
   "dependencies": {
     "@line/liff": "2.31.1",
-    "next": "15.5.9",
+    "leaflet": "1.9.4",
+    "next": "15.5.27",
     "react": "19.1.0",
     "react-dom": "19.1.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "3.3.1",
+    "@types/leaflet": "1.9.21",
     "@types/node": "22.18.6",
     "@types/react": "19.1.13",
     "@types/react-dom": "19.1.9",
     "eslint": "9.36.0",
-    "eslint-config-next": "15.5.9",
+    "eslint-config-next": "15.5.27",
     "typescript": "5.9.2"
+  },
+  "overrides": {
+    "postcss": "8.5.29"
   }
 }

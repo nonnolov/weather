@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
+import "leaflet/dist/leaflet.css";
 import "./globals.css";
 import "./fonts.css";
 import "./dashboard/dashboard.css";
+import "./map/map.css";
 
 export const metadata: Metadata = {
   title: "Weather · พยากรณ์อากาศ",
