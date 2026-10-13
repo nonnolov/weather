@@ -35,6 +35,8 @@ pytestmark = pytest.mark.skipif(not PG_URL, reason="Explicit local P104_TEST_POS
 
 @pytest_asyncio.fixture
 async def pg_sessions():
+    if not PG_URL:
+        pytest.skip("Explicit local P104_TEST_POSTGRES_URL required")
     url = make_url(PG_URL)
     # Dedicated test instance only; never borrow the user's normal local server.
     assert url.drivername == "postgresql+asyncpg"

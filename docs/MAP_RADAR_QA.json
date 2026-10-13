@@ -46,5 +46,23 @@
       "newNetworkStartsPerMinute": 80
     },
     "productionDeployed": true
+  },
+  "previousAreaPrefixRelease": {
+    "deploymentCommit": "8e2066d",
+    "deploymentUrl": "https://weather-dsiuee7yv-weather-9c1f.vercel.app",
+    "stableUrl": "https://weather-iota-five-83.vercel.app",
+    "productionSmoke": {
+      "page": "HTTP 200",
+      "radarApi": "HTTP 200"
+    },
+    "areaPrefixes": {
+      "build": "passed",
+      "dashboardViewportCases": 10,
+      "mockData": true,
+      "pageErrors": 0,
+      "productionPage": "HTTP 200",
+      "backendHealthProxy": "HTTP 200",
+      "pendingLineBranchCommit": "da7d053"
+    }
   }
 }

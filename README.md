@@ -200,3 +200,13 @@ P2 station evidence: GET /api/v1/rain-reference/status reports hourly collection
 
 
 P3-01: separate PM2.5/model air-quality API and bilingual dashboard card implemented. Source Open-Meteo/CAMS Global; European AQI explicitly labeled, epoch/GMT times, missing/stale handling and a bounded cache. See docs/P3_01_AIR_QUALITY_HANDOFF.md (P3_01_AIR_QUALITY_HANDOFF.md from docs). P2 remains active in quarantine with its reference-alignment and numerical-baseline gates open. P1 natural positive acceptance/handset verification remains open. Production release verified; see docs/P3_01_PRODUCTION_RELEASE.json.
+
+
+## Forecast Accuracy Data Integrity
+
+See [the data integrity checklist](docs/FORECAST_ACCURACY_DATA_INTEGRITY.md) before treating forecast accuracy metrics as trustworthy.
+
+
+## Branch and deployment workflow
+
+Use `main` for the deployable WeatherNow Beta. See [BRANCH_WORKFLOW.md](docs/BRANCH_WORKFLOW.md) for tests, production tracking, and branch cleanup.

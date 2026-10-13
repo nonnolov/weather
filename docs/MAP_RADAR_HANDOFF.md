@@ -56,3 +56,8 @@ Additional verification: radar_tile_cache_qa.cjs checks request deduplication, r
 
 ## Dashboard header simplification — 2026-10-12
 Removed the duplicate Forecast / PM2.5 / Map navigation row from the header in both languages and its unused CSS. The Map action in the current weather card remains. Header weather logo, area labels, LINE indicator, theme and language controls remain available.
+
+
+## Administrative area prefixes - 2026-10-12
+Header, current-weather card and Map title use a shared label formatter for subdistrict/district/province. Existing full or abbreviated prefixes are normalized without duplication; Bangkok uses its appropriate administrative labels. Build passed and the existing 10-viewport Dashboard suite passed with mocked data, no page errors or horizontal overflow.
+Frontend source 8e2066d deployed at https://weather-dsiuee7yv-weather-9c1f.vercel.app and aliased to https://weather-iota-five-83.vercel.app after candidate HTTP 200. Stable page and backend health proxy both returned HTTP 200. Previous Map deployment https://weather-pz2no1s30-weather-9c1f.vercel.app remains available for rollback. The same UI commit was cherry-picked into the pending LINE signup branch as da7d053; that branch remains undeployed.
