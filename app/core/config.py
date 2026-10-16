@@ -19,6 +19,7 @@ class Settings(BaseSettings):
     APP_ENV: str = "development"
     DEBUG: bool = True
     SECRET_KEY: str = "change-me"
+    ADMIN_API_KEY: str | None = None
     CORS_ORIGINS: str = "http://localhost:3000"
 
     # Providers
