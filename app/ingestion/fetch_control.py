@@ -13,7 +13,8 @@ from sqlalchemy import select, text
 from app.core.config import settings
 from app.models.forecast_fetch import ForecastFetchCache, ProviderRequestBudget
 from app.providers.base import (
-    ProviderForecastResult, NormalizedHourlyForecast, NormalizedDailyForecast,
+    NormalizedCurrentConditions, NormalizedDailyForecast,
+    NormalizedHourlyForecast, ProviderForecastResult,
 )
 
 
@@ -88,9 +89,14 @@ def encode_result(result):
 
 
 def decode_result(data):
+    current = data.get("current")
     return ProviderForecastResult(
         provider=data["provider"], retrieved_at=datetime.fromisoformat(data["retrieved_at"]),
         model_run_time=datetime.fromisoformat(data["model_run_time"]) if data["model_run_time"] else None,
+        current=NormalizedCurrentConditions(**{
+            **current,
+            "valid_time": datetime.fromisoformat(current["valid_time"]),
+        }) if current else None,
         hourly=[NormalizedHourlyForecast(**{**row, "valid_time": datetime.fromisoformat(row["valid_time"])}) for row in data["hourly"]],
         daily=[NormalizedDailyForecast(**{**row, "forecast_date": date.fromisoformat(row["forecast_date"]),
                "sunrise": datetime.fromisoformat(row["sunrise"]) if row["sunrise"] else None,

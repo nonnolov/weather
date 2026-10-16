@@ -9,7 +9,11 @@ from app.core.database import Base
 from app.core.config import settings
 from app.models.forecast_fetch import ProviderRequestBudget
 from app.ingestion.fetch_control import acquisition_scope, fetch_shared_forecast, reserve_requests, ForecastControlError
-from app.providers.base import ProviderForecastResult, NormalizedHourlyForecast
+from app.providers.base import (
+    NormalizedCurrentConditions,
+    NormalizedHourlyForecast,
+    ProviderForecastResult,
+)
 
 NOW = datetime(2026, 10, 11, 11, tzinfo=timezone.utc)
 
@@ -21,6 +25,11 @@ def location(lat=13.264196, lon=100.926522, **overrides):
 
 def provider():
     result = ProviderForecastResult(provider="open_meteo", retrieved_at=NOW, model_run_time=None,
+        current=NormalizedCurrentConditions(
+            valid_time=NOW, interval_seconds=900, temperature_2m=29.4,
+            apparent_temperature=33.1, relative_humidity_2m=74,
+            weather_code=2, wind_speed_10m=8.5, is_day=True,
+        ),
         hourly=[NormalizedHourlyForecast(valid_time=NOW + timedelta(hours=1), precipitation=4.9, precipitation_probability=92)],
         metadata={"timezone": "Asia/Bangkok"})
     return SimpleNamespace(fetch_forecast=AsyncMock(return_value=result))
@@ -65,6 +74,7 @@ async def test_reuse_preserves_retrieval_time_and_values(sessions):
     second = await fetch_shared_forecast(location(13.264470,100.925995),7,p,sessions,clock=lambda:NOW+timedelta(minutes=59))
     assert p.fetch_forecast.await_count == 1
     assert second.retrieved_at == first.retrieved_at == NOW
+    assert second.current == first.current
     assert second.hourly == first.hourly
     assert second.metadata["acquisition_cache_hit"] is True
     async with sessions() as db:

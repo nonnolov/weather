@@ -9,9 +9,15 @@ from sqlalchemy.dialects.sqlite import insert as sqlite_insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.location import Location
-from app.models.forecast import ForecastRun, HourlyForecast, DailyForecast
+from app.models.forecast import CurrentConditions, ForecastRun, HourlyForecast, DailyForecast
 from app.models.observation import Observation
-from app.providers.base import ProviderForecastResult, NormalizedHourlyForecast, NormalizedDailyForecast, ProviderObservationResult
+from app.providers.base import (
+    NormalizedCurrentConditions,
+    NormalizedDailyForecast,
+    NormalizedHourlyForecast,
+    ProviderForecastResult,
+    ProviderObservationResult,
+)
 from app.providers.registry import get_provider
 from app.core.config import settings
 
@@ -189,6 +195,9 @@ async def ingest_forecast_for_location(
     db.add(run)
     await db.flush()  # get run.id without committing
 
+    if result.current is not None:
+        db.add(_current_to_orm(run.id, result.current))
+
     # Persist hourly records
     for h in result.hourly:
         db.add(_hourly_to_orm(run.id, h))
@@ -199,6 +208,26 @@ async def ingest_forecast_for_location(
 
     await db.flush()
     return run
+
+
+def _current_to_orm(run_id: int, current: NormalizedCurrentConditions) -> CurrentConditions:
+    return CurrentConditions(
+        forecast_run_id=run_id,
+        valid_time=current.valid_time,
+        interval_seconds=current.interval_seconds,
+        temperature_2m=current.temperature_2m,
+        apparent_temperature=current.apparent_temperature,
+        relative_humidity_2m=current.relative_humidity_2m,
+        precipitation=current.precipitation,
+        rain=current.rain,
+        weather_code=current.weather_code,
+        cloud_cover=current.cloud_cover,
+        surface_pressure=current.surface_pressure,
+        wind_speed_10m=current.wind_speed_10m,
+        wind_direction_10m=current.wind_direction_10m,
+        wind_gusts_10m=current.wind_gusts_10m,
+        is_day=current.is_day,
+    )
 
 
 def _hourly_to_orm(run_id: int, h: NormalizedHourlyForecast) -> HourlyForecast:

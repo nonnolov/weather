@@ -96,6 +96,7 @@ async def get_user_forecast(
         select(ForecastRun)
         .where(ForecastRun.location_id == location.id)
         .options(
+            selectinload(ForecastRun.current_conditions),
             selectinload(ForecastRun.hourly_forecasts),
             selectinload(ForecastRun.daily_forecasts),
         )
@@ -162,6 +163,7 @@ def _forecast_run_detail(run: ForecastRun) -> ForecastRunDetail:
         retrieved_at=run.retrieved_at,
         model_run_time=run.model_run_time,
         forecast_days=run.forecast_days,
+        current=run.current_conditions,
         hourly=run.hourly_forecasts,
         daily=run.daily_forecasts,
     )

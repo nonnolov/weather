@@ -24,6 +24,7 @@ from app.core.database import Base, get_db
 from app.main import app
 from app.providers.base import (
     BaseWeatherProvider,
+    NormalizedCurrentConditions,
     NormalizedHourlyForecast,
     NormalizedDailyForecast,
     ProviderForecastResult,
@@ -125,6 +126,16 @@ class FakeWeatherProvider(BaseWeatherProvider):
             provider=self.name,
             retrieved_at=datetime(2024, 6, 1, 0, 0, 0, tzinfo=_utc),
             model_run_time=None,
+            current=NormalizedCurrentConditions(
+                valid_time=datetime(2024, 6, 1, 0, 15, 0, tzinfo=_utc),
+                interval_seconds=900,
+                temperature_2m=21.5,
+                apparent_temperature=22.0,
+                relative_humidity_2m=68.0,
+                weather_code=1,
+                wind_speed_10m=6.5,
+                is_day=True,
+            ),
             hourly=hourly,
             daily=daily,
             metadata={"timezone": "Asia/Tokyo"},

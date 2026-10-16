@@ -2,6 +2,27 @@ from datetime import datetime, date
 from pydantic import BaseModel, Field
 
 
+class CurrentConditionsRead(BaseModel):
+    id: int
+    forecast_run_id: int
+    valid_time: datetime
+    interval_seconds: int | None
+    temperature_2m: float | None
+    apparent_temperature: float | None
+    relative_humidity_2m: float | None
+    precipitation: float | None
+    rain: float | None
+    weather_code: int | None
+    cloud_cover: float | None
+    surface_pressure: float | None
+    wind_speed_10m: float | None
+    wind_direction_10m: float | None
+    wind_gusts_10m: float | None
+    is_day: bool | None
+
+    model_config = {"from_attributes": True}
+
+
 # ── Hourly ────────────────────────────────────────────────────────────────────
 
 class HourlyForecastRead(BaseModel):
@@ -69,6 +90,7 @@ class ForecastRunRead(BaseModel):
 
 
 class ForecastRunDetail(ForecastRunRead):
+    current: CurrentConditionsRead | None = None
     hourly: list[HourlyForecastRead] = Field(default_factory=list)
     daily: list[DailyForecastRead] = Field(default_factory=list)
 

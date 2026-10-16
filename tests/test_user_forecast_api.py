@@ -47,6 +47,7 @@ async def test_get_user_forecast_returns_latest_stored_run(client: AsyncClient, 
     assert response.status_code == 200
     assert response.json()["id"] == latest.id
     assert response.json()["location_id"] == location.id
+    assert response.json()["current"] is None
 
 
 @pytest.mark.asyncio

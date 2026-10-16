@@ -6,11 +6,27 @@ import httpx
 from app.core.config import settings
 from app.providers.base import (
     BaseWeatherProvider,
+    NormalizedCurrentConditions,
     NormalizedHourlyForecast,
     NormalizedDailyForecast,
     ProviderForecastResult,
     ProviderObservationResult,
 )
+
+_CURRENT_VARS = [
+    "temperature_2m",
+    "apparent_temperature",
+    "relative_humidity_2m",
+    "precipitation",
+    "rain",
+    "weather_code",
+    "cloud_cover",
+    "surface_pressure",
+    "wind_speed_10m",
+    "wind_direction_10m",
+    "wind_gusts_10m",
+    "is_day",
+]
 
 # Variables requested from the Open-Meteo hourly endpoint
 _HOURLY_VARS = [
@@ -80,6 +96,7 @@ class OpenMeteoProvider(BaseWeatherProvider):
         params = {
             "latitude": latitude,
             "longitude": longitude,
+            "current": ",".join(_CURRENT_VARS),
             "hourly": ",".join(_HOURLY_VARS),
             "daily": ",".join(_DAILY_VARS),
             "forecast_days": forecast_days,
@@ -106,6 +123,7 @@ class OpenMeteoProvider(BaseWeatherProvider):
             provider=self.name,
             retrieved_at=retrieved_at,
             model_run_time=None,  # Open-Meteo does not expose model run time
+            current=self._parse_current(raw),
             hourly=hourly,
             daily=daily,
             metadata={
@@ -152,6 +170,29 @@ class OpenMeteoProvider(BaseWeatherProvider):
         )
 
     # ── Private helpers ───────────────────────────────────────────────────────
+
+    def _parse_current(self, raw: dict[str, Any]) -> NormalizedCurrentConditions | None:
+        data = raw.get("current")
+        if not data or not data.get("time"):
+            return None
+
+        is_day = data.get("is_day")
+        return NormalizedCurrentConditions(
+            valid_time=self._parse_dt(data["time"], raw.get("utc_offset_seconds", 0)),
+            interval_seconds=data.get("interval"),
+            temperature_2m=data.get("temperature_2m"),
+            apparent_temperature=data.get("apparent_temperature"),
+            relative_humidity_2m=data.get("relative_humidity_2m"),
+            precipitation=data.get("precipitation"),
+            rain=data.get("rain"),
+            weather_code=data.get("weather_code"),
+            cloud_cover=data.get("cloud_cover"),
+            surface_pressure=data.get("surface_pressure"),
+            wind_speed_10m=data.get("wind_speed_10m"),
+            wind_direction_10m=data.get("wind_direction_10m"),
+            wind_gusts_10m=data.get("wind_gusts_10m"),
+            is_day=bool(is_day) if is_day is not None else None,
+        )
 
     def _parse_hourly(self, raw: dict[str, Any]) -> list[NormalizedHourlyForecast]:
         hourly_data = raw.get("hourly", {})

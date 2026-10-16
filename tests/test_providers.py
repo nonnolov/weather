@@ -38,6 +38,22 @@ OPEN_METEO_SAMPLE_RESPONSE = {
     "utc_offset_seconds": 32400,
     "timezone": "Asia/Tokyo",
     "timezone_abbreviation": "JST",
+    "current": {
+        "time": "2024-06-01T00:15",
+        "interval": 900,
+        "temperature_2m": 20.7,
+        "apparent_temperature": 19.2,
+        "relative_humidity_2m": 71.0,
+        "precipitation": 0.0,
+        "rain": 0.0,
+        "weather_code": 1,
+        "cloud_cover": 15.0,
+        "surface_pressure": 1012.8,
+        "wind_speed_10m": 5.5,
+        "wind_direction_10m": 185.0,
+        "wind_gusts_10m": 8.5,
+        "is_day": 0,
+    },
     "hourly": {
         "time": ["2024-06-01T00:00", "2024-06-01T01:00"],
         "temperature_2m": [20.5, 21.0],
@@ -107,6 +123,27 @@ async def test_open_meteo_fetch_parses_hourly() -> None:
     assert result.hourly[0].temperature_2m == 20.5
     assert result.hourly[1].temperature_2m == 21.0
     assert result.hourly[0].is_day is False
+
+
+@pytest.mark.asyncio
+async def test_open_meteo_fetch_requests_and_parses_current_conditions() -> None:
+    provider = OpenMeteoProvider()
+    mock_response = _make_mock_response(OPEN_METEO_SAMPLE_RESPONSE)
+
+    with patch("httpx.AsyncClient.get", new_callable=AsyncMock, return_value=mock_response) as get:
+        result = await provider.fetch_forecast(35.68, 139.69, forecast_days=2)
+
+    requested = set(get.call_args.kwargs["params"]["current"].split(","))
+    assert {
+        "temperature_2m", "apparent_temperature", "relative_humidity_2m",
+        "precipitation", "weather_code", "wind_speed_10m",
+    } <= requested
+    assert result.current is not None
+    assert result.current.valid_time == datetime(2024, 5, 31, 15, 15, tzinfo=timezone.utc)
+    assert result.current.interval_seconds == 900
+    assert result.current.temperature_2m == 20.7
+    assert result.current.relative_humidity_2m == 71.0
+    assert result.current.is_day is False
 
 
 @pytest.mark.asyncio

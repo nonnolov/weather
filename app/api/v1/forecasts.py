@@ -78,6 +78,7 @@ async def get_latest_forecast(
         select(ForecastRun)
         .where(ForecastRun.location_id == location_id)
         .options(
+            selectinload(ForecastRun.current_conditions),
             selectinload(ForecastRun.hourly_forecasts),
             selectinload(ForecastRun.daily_forecasts),
         )
@@ -99,6 +100,7 @@ async def get_latest_forecast(
         retrieved_at=run.retrieved_at,
         model_run_time=run.model_run_time,
         forecast_days=run.forecast_days,
+        current=run.current_conditions,
         hourly=run.hourly_forecasts,
         daily=run.daily_forecasts,
     )

@@ -1,4 +1,4 @@
-# Current master roadmap (P0-P7)
+# Current master roadmap (P0-P8)
 
 Audience-card release 2026-10-13 Asia/Bangkok: saved user GPS-location and unique browser totals are live as rounded header cards. API/cron SUCCESS, schema 0011, Vercel READY and public mobile/desktop checks passed. Counting begins at activation, without historical backfill. See AUDIENCE_COUNTERS_RELEASE.json.
 
@@ -16,8 +16,21 @@ Source: user Master prompt in the "ใช้ Remote Desktop" conversation, 2026-
 | P5 | Real Flood Data (optional by access) |
 | P6 | Unified Dashboard |
 | P7 | End-to-End Verification & Production Freeze |
+| P8 | Current Conditions & Forecast Clarity |
 
 Every phase must state Dependencies, Risks, Scope, Tests and verifiable Acceptance Criteria. A change of order requires evidence and an explained rationale. Review the current task before starting another.
+
+## P8 - Current Conditions & Forecast Clarity
+
+Status: local implementation and automated verification completed on 2026-10-16. Deployment and live-browser visual acceptance are not included. This phase does not alter GPS identity, LINE subscriptions, alert locations, schedules or rain-alert policy.
+
+- Dependencies: Open-Meteo current-condition fields, the immutable forecast-run ingestion path, and the existing responsive WeatherNow dashboard.
+- Scope: store the provider's current snapshot separately from hourly forecasts; expose it as nullable `current` data; add a bilingual current-conditions card showing provider time, temperature, apparent temperature, condition, humidity and wind; retain the existing large card as the next forecast hour and retain the 24-hour and 7-day views.
+- Risks: provider current data can be absent or stale; cached shared acquisitions can drop new fields; hourly data can be mistaken for observations; additional content can crowd narrow screens.
+- Tests: provider parsing and request parameters, persistence/API serialization, shared-cache round trip, backward-compatible missing-current behavior, migration upgrade/downgrade, backend regression, frontend type/lint/build and responsive checks at 360, 390, 430, 800 and desktop widths.
+- Acceptance criteria: current values come only from the provider `current` payload and never silently fall back to hourly data; absent current data has an explicit unavailable state; the next-hour card names and uses a strictly future hourly record; existing GPS, LINE, hourly and daily behavior remains intact; supported widths have no overlap or horizontal page overflow.
+
+Local evidence: 664 backend tests passed (168 environment-gated tests skipped), frontend lint and production build passed, and migration 0012 passed upgrade, downgrade to 0011 and re-upgrade on SQLite. The responsive breakpoints cover 360/390/430, 800 and desktop layouts in source, but live-browser visual acceptance remains pending because the available browser cannot reach the isolated localhost server.
 
 ## Current work status
 

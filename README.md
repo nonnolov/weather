@@ -193,7 +193,7 @@ The backend verifies the ID token with LINE; the frontend does not treat a brows
 
 ## Current master roadmap
 
-Current phase numbering is P0-P7, defined by the user Master prompt. See [MASTER_ROADMAP.md](docs/MASTER_ROADMAP.md) for scope, order and current verification status. P2 is Forecast Accuracy Evaluation & Improvement; the earlier Dashboard Phase 2 above is historical implementation numbering. P2 audited evaluation and open data/correction gates are recorded in [P2_01_EVALUATION_HANDOFF.md](docs/P2_01_EVALUATION_HANDOFF.md).
+Current phase numbering is P0-P8. See [MASTER_ROADMAP.md](docs/MASTER_ROADMAP.md) for scope, order and current verification status. P8 adds provider-reported current conditions while preserving the existing next-hour, 24-hour and 7-day forecasts. P2 is Forecast Accuracy Evaluation & Improvement; the earlier Dashboard Phase 2 above is historical implementation numbering. P2 audited evaluation and open data/correction gates are recorded in [P2_01_EVALUATION_HANDOFF.md](docs/P2_01_EVALUATION_HANDOFF.md).
 
 
 P2 station evidence: GET /api/v1/rain-reference/status reports hourly collection, missing values and explicit scoring blockers. Station fetches are separate from location observations and LINE decisions. See docs/P2_03_AUTOMATIC_COLLECTION_HANDOFF.md for setup, validation and rollback; an unverified feed does not produce an accuracy score.

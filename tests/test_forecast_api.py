@@ -56,6 +56,24 @@ async def test_get_latest_forecast(client: AsyncClient) -> None:
     assert resp.status_code == 200
     data = resp.json()
     assert data["location_id"] == location_id
+    assert data["current"] == {
+        "id": data["current"]["id"],
+        "forecast_run_id": data["id"],
+        "valid_time": "2024-06-01T00:15:00",
+        "interval_seconds": 900,
+        "temperature_2m": 21.5,
+        "apparent_temperature": 22.0,
+        "relative_humidity_2m": 68.0,
+        "precipitation": None,
+        "rain": None,
+        "weather_code": 1,
+        "cloud_cover": None,
+        "surface_pressure": None,
+        "wind_speed_10m": 6.5,
+        "wind_direction_10m": None,
+        "wind_gusts_10m": None,
+        "is_day": True,
+    }
     assert len(data["hourly"]) == 24
     assert len(data["daily"]) == 7
 

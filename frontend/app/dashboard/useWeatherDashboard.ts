@@ -2,7 +2,7 @@
 import {useEffect,useMemo,useState} from "react";
 import {useLineOnboarding} from "./useLineOnboarding";
 import {getLineForecast,setLineLocation,refreshLineForecast} from "../../lib/line";
-import {translations,nearestHourly,type Language} from "./format";
+import {translations,nextHourly,type Language} from "./format";
 import {
   ApiError,
   getHealth,
@@ -215,7 +215,7 @@ export function useWeatherDashboard() {
     }
   };
 
-  const summary = forecast ? nearestHourly(forecast.hourly) : undefined;
+  const summary = forecast ? nextHourly(forecast.hourly) : undefined;
 
   return {line,mapOpen,setMapOpen,chartTab,setChartTab,health,selectedId,forecast,location,gpsState,message,seedLoading,lineUserId,theme,setTheme,language,setLanguage,t,ux,isGpsBusy,busy,progress,sampleLocations,initializeLiff,handleGps,selectSeedLocation,summary};
 }

@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
 from app.models.location import Location
-from app.models.forecast import ForecastRun, HourlyForecast, DailyForecast
+from app.models.forecast import CurrentConditions, ForecastRun, HourlyForecast, DailyForecast
 from app.ingestion.service import ingest_forecast_for_location, IngestionError
 from app.providers.base import ProviderForecastResult, NormalizedHourlyForecast, NormalizedDailyForecast
 from tests.conftest import FakeWeatherProvider
@@ -62,6 +62,37 @@ async def test_ingest_creates_hourly_records(db_session: AsyncSession) -> None:
     )
     hourly = result.scalars().all()
     assert len(hourly) == 24  # FakeWeatherProvider returns 24 hourly records
+
+
+@pytest.mark.asyncio
+async def test_ingest_stores_provider_current_conditions(db_session: AsyncSession) -> None:
+    location = await _make_location(db_session)
+
+    with patch("app.ingestion.service.get_provider", return_value=FakeWeatherProvider()):
+        run = await ingest_forecast_for_location(db_session, location, forecast_days=7)
+
+    current = await db_session.scalar(
+        select(CurrentConditions).where(CurrentConditions.forecast_run_id == run.id)
+    )
+    assert current is not None
+    assert current.temperature_2m == 21.5
+    assert current.valid_time == datetime(2024, 6, 1, 0, 15)
+
+
+@pytest.mark.asyncio
+async def test_ingest_accepts_provider_without_current_conditions(db_session: AsyncSession) -> None:
+    location = await _make_location(db_session)
+    fake = FakeWeatherProvider()
+    result = await fake.fetch_forecast(0, 0, 7, "UTC")
+    result.current = None
+    fake.fetch_forecast = AsyncMock(return_value=result)
+
+    with patch("app.ingestion.service.get_provider", return_value=fake):
+        run = await ingest_forecast_for_location(db_session, location, forecast_days=7)
+
+    assert await db_session.scalar(
+        select(CurrentConditions).where(CurrentConditions.forecast_run_id == run.id)
+    ) is None
 
 
 @pytest.mark.asyncio

@@ -39,9 +39,45 @@ class ForecastRun(Base):
     daily_forecasts: Mapped[list["DailyForecast"]] = relationship(
         "DailyForecast", back_populates="forecast_run", cascade="all, delete-orphan"
     )
+    current_conditions: Mapped["CurrentConditions | None"] = relationship(
+        "CurrentConditions", back_populates="forecast_run", cascade="all, delete-orphan",
+        uselist=False,
+    )
 
     def __repr__(self) -> str:
         return f"<ForecastRun id={self.id} location_id={self.location_id} provider={self.provider!r}>"
+
+
+class CurrentConditions(Base):
+    """Provider current-conditions snapshot captured with a ForecastRun."""
+
+    __tablename__ = "current_conditions"
+
+    id: Mapped[int] = mapped_column(primary_key=True, index=True)
+    forecast_run_id: Mapped[int] = mapped_column(
+        ForeignKey("forecast_runs.id", ondelete="CASCADE"),
+        nullable=False,
+        unique=True,
+        index=True,
+    )
+    valid_time: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    interval_seconds: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    temperature_2m: Mapped[float | None] = mapped_column(Float, nullable=True)
+    apparent_temperature: Mapped[float | None] = mapped_column(Float, nullable=True)
+    relative_humidity_2m: Mapped[float | None] = mapped_column(Float, nullable=True)
+    precipitation: Mapped[float | None] = mapped_column(Float, nullable=True)
+    rain: Mapped[float | None] = mapped_column(Float, nullable=True)
+    weather_code: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    cloud_cover: Mapped[float | None] = mapped_column(Float, nullable=True)
+    surface_pressure: Mapped[float | None] = mapped_column(Float, nullable=True)
+    wind_speed_10m: Mapped[float | None] = mapped_column(Float, nullable=True)
+    wind_direction_10m: Mapped[float | None] = mapped_column(Float, nullable=True)
+    wind_gusts_10m: Mapped[float | None] = mapped_column(Float, nullable=True)
+    is_day: Mapped[bool | None] = mapped_column(Boolean, nullable=True)
+
+    forecast_run: Mapped["ForecastRun"] = relationship(
+        "ForecastRun", back_populates="current_conditions"
+    )
 
 
 class HourlyForecast(Base):

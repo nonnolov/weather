@@ -30,6 +30,25 @@ class NormalizedHourlyForecast:
 
 
 @dataclass
+class NormalizedCurrentConditions:
+    """Provider-agnostic snapshot of conditions at the provider timestamp."""
+    valid_time: datetime
+    interval_seconds: int | None = None
+    temperature_2m: float | None = None
+    apparent_temperature: float | None = None
+    relative_humidity_2m: float | None = None
+    precipitation: float | None = None
+    rain: float | None = None
+    weather_code: int | None = None
+    cloud_cover: float | None = None
+    surface_pressure: float | None = None
+    wind_speed_10m: float | None = None
+    wind_direction_10m: float | None = None
+    wind_gusts_10m: float | None = None
+    is_day: bool | None = None
+
+
+@dataclass
 class NormalizedDailyForecast:
     """Provider-agnostic daily forecast record."""
     forecast_date: date
@@ -56,6 +75,7 @@ class ProviderForecastResult:
     provider: str
     retrieved_at: datetime
     model_run_time: datetime | None
+    current: NormalizedCurrentConditions | None = None
     hourly: list[NormalizedHourlyForecast] = field(default_factory=list)
     daily: list[NormalizedDailyForecast] = field(default_factory=list)
     metadata: dict[str, Any] = field(default_factory=dict)
