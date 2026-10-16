@@ -82,6 +82,25 @@ async def test_reuse_preserves_retrieval_time_and_values(sessions):
 
 
 @pytest.mark.asyncio
+async def test_legacy_cache_without_current_is_refetched(sessions):
+    p = provider()
+    first = await fetch_shared_forecast(location(),7,p,sessions,clock=lambda:NOW)
+    async with sessions() as db:
+        from app.models.forecast_fetch import ForecastFetchCache
+        row = (await db.execute(select(ForecastFetchCache))).scalar_one()
+        payload = dict(row.payload)
+        payload["current"] = None
+        row.payload = payload
+        await db.commit()
+    second = await fetch_shared_forecast(
+        location(),7,p,sessions,clock=lambda:NOW+timedelta(minutes=5)
+    )
+    assert p.fetch_forecast.await_count == 2
+    assert second.current == first.current
+    assert second.metadata["acquisition_cache_hit"] is False
+
+
+@pytest.mark.asyncio
 async def test_expiry_calls_provider_again(sessions):
     p = provider()
     await fetch_shared_forecast(location(),7,p,sessions,clock=lambda:NOW)

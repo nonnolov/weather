@@ -118,8 +118,12 @@ async def fetch_shared_forecast(location, days, provider, sessions, *, clock=lam
             age = now - utc(row.fetched_at)
             if timedelta(0) <= age < timedelta(seconds=settings.FORECAST_REFRESH_SECONDS):
                 result = decode_result(row.payload)
-                result.metadata["acquisition_cache_hit"] = True
-                return result
+                # Cache entries written before current-conditions support are
+                # incomplete for the dashboard. Refresh them once instead of
+                # propagating current=None into new forecast runs.
+                if result.current is not None:
+                    result.metadata["acquisition_cache_hit"] = True
+                    return result
         if row is not None and row.retry_after is not None and now < utc(row.retry_after):
             raise ForecastControlError("Forecast retry cooling down")
         if row is None:
