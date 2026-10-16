@@ -12,6 +12,7 @@ from app.services.geocoding import (
     get_reverse_geocoder,
 )
 from app.services.maintenance_guard import require_nonproduction_maintenance
+from app.services.rate_limit import admin_maintenance_rate_limit
 
 router = APIRouter()
 
@@ -27,7 +28,10 @@ async def list_locations(db: AsyncSession = Depends(get_db)) -> list[Location]:
     "",
     response_model=LocationRead,
     status_code=status.HTTP_201_CREATED,
-    dependencies=[Depends(require_nonproduction_maintenance)],
+    dependencies=[
+        Depends(admin_maintenance_rate_limit),
+        Depends(require_nonproduction_maintenance),
+    ],
 )
 async def create_location(
     payload: LocationCreate,
@@ -52,7 +56,10 @@ async def create_location(
     "/from-gps",
     response_model=LocationRead,
     status_code=status.HTTP_201_CREATED,
-    dependencies=[Depends(require_nonproduction_maintenance)],
+    dependencies=[
+        Depends(admin_maintenance_rate_limit),
+        Depends(require_nonproduction_maintenance),
+    ],
 )
 async def create_location_from_gps(
     payload: LocationFromGps,
@@ -104,7 +111,10 @@ async def get_location(
 @router.patch(
     "/{location_id}",
     response_model=LocationRead,
-    dependencies=[Depends(require_nonproduction_maintenance)],
+    dependencies=[
+        Depends(admin_maintenance_rate_limit),
+        Depends(require_nonproduction_maintenance),
+    ],
 )
 async def update_location(
     location_id: int,
@@ -123,7 +133,10 @@ async def update_location(
 @router.delete(
     "/{location_id}",
     status_code=status.HTTP_204_NO_CONTENT,
-    dependencies=[Depends(require_nonproduction_maintenance)],
+    dependencies=[
+        Depends(admin_maintenance_rate_limit),
+        Depends(require_nonproduction_maintenance),
+    ],
 )
 async def delete_location(
     location_id: int,

@@ -11,6 +11,7 @@ from app.api.v1.line_onboarding import router as onboarding_router, apply_friend
 from pydantic import BaseModel
 
 from app.core.config import settings
+from app.services.rate_limit import line_auth_rate_limit
 
 
 logger = logging.getLogger(__name__)
@@ -72,7 +73,11 @@ async def line_webhook(request: Request, db: AsyncSession = Depends(get_db)) -> 
     return {"status": "ok", "user_ids": user_ids}
 
 
-@router.post("/auth", response_model=LineAuthResponse)
+@router.post(
+    "/auth",
+    response_model=LineAuthResponse,
+    dependencies=[Depends(line_auth_rate_limit)],
+)
 async def authenticate_line(request: LineAuthRequest) -> LineAuthResponse:
     """Verify a LIFF ID token with LINE and return the verified LINE user ID."""
     if not settings.LINE_LOGIN_CHANNEL_ID:

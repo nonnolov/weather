@@ -17,6 +17,11 @@ from app.services.line_identity import LineIdentity, require_line_identity, line
 from app.services.geocoding import ReverseGeocoder, get_reverse_geocoder
 from app.notifications.subscriptions import CONSENT_VERSION
 from app.api.v1.users import set_user_location_from_gps, get_user_forecast, refresh_user_forecast
+from app.services.rate_limit import (
+    gps_rate_limit,
+    forecast_refresh_rate_limit,
+    line_action_rate_limit,
+)
 router = APIRouter()
 
 def configured():
@@ -66,7 +71,10 @@ async def onboarding_config():
     return {"enabled": settings.LINE_SUBSCRIPTIONS_ENABLED and configured(),
             "add_friend_url": "https://line.me/R/ti/p/" + quote(account, safe="") if account else None}
 
-@router.get("/onboarding", dependencies=[Depends(feature_enabled)])
+@router.get(
+    "/onboarding",
+    dependencies=[Depends(feature_enabled), Depends(line_action_rate_limit)],
+)
 async def onboarding_status(identity: LineIdentity = Depends(require_line_identity), db: AsyncSession = Depends(get_db)):
     user = await locked_user(db, identity.user_id)
     friend = await line_friendship(identity)
@@ -78,7 +86,10 @@ async def onboarding_status(identity: LineIdentity = Depends(require_line_identi
         record.updated_at = datetime.now(timezone.utc)
     return await state(db, user, record, friend)
 
-@router.put("/subscription", dependencies=[Depends(feature_enabled)])
+@router.put(
+    "/subscription",
+    dependencies=[Depends(feature_enabled), Depends(line_action_rate_limit)],
+)
 async def update_subscription(payload: SubscriptionUpdate, identity: LineIdentity = Depends(require_line_identity), db: AsyncSession = Depends(get_db)):
     # Disabling must still work if the friendship service is down.
     user = await locked_user(db, identity.user_id)
@@ -105,7 +116,11 @@ async def update_subscription(payload: SubscriptionUpdate, identity: LineIdentit
     await db.flush()
     return await state(db, user, record, record.friend)
 
-@router.post("/location/from-gps", response_model=UserLocationRead, dependencies=[Depends(feature_enabled)])
+@router.post(
+    "/location/from-gps",
+    response_model=UserLocationRead,
+    dependencies=[Depends(feature_enabled), Depends(gps_rate_limit)],
+)
 async def verified_location(payload: LocationFromGps, identity: LineIdentity = Depends(require_line_identity), db: AsyncSession = Depends(get_db), geocoder: ReverseGeocoder = Depends(get_reverse_geocoder)):
     await locked_user(db, identity.user_id)
     result = await set_user_location_from_gps(payload, identity.user_id, db, geocoder)
@@ -119,7 +134,12 @@ async def verified_location(payload: LocationFromGps, identity: LineIdentity = D
 async def own_forecast(identity: LineIdentity = Depends(require_line_identity), db: AsyncSession = Depends(get_db)):
     return await get_user_forecast(identity.user_id, db)
 
-@router.post("/forecast/refresh", response_model=IngestResponse, status_code=201, dependencies=[Depends(feature_enabled)])
+@router.post(
+    "/forecast/refresh",
+    response_model=IngestResponse,
+    status_code=201,
+    dependencies=[Depends(feature_enabled), Depends(forecast_refresh_rate_limit)],
+)
 async def own_refresh(identity: LineIdentity = Depends(require_line_identity), db: AsyncSession = Depends(get_db)):
     return await refresh_user_forecast(identity.user_id, 7, db)
 

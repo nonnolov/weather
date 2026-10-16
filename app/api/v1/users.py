@@ -25,6 +25,7 @@ from app.services.geocoding import (
 
 
 from app.services.line_identity import protect_line_user_path
+from app.services.rate_limit import gps_rate_limit, forecast_refresh_rate_limit
 router = APIRouter(dependencies=[Depends(protect_line_user_path)])
 
 
@@ -32,6 +33,7 @@ router = APIRouter(dependencies=[Depends(protect_line_user_path)])
     "/{external_user_id}/location/from-gps",
     response_model=UserLocationRead,
     status_code=status.HTTP_200_OK,
+    dependencies=[Depends(gps_rate_limit)],
 )
 async def set_user_location_from_gps(
     payload: LocationFromGps,
@@ -116,6 +118,7 @@ async def get_user_forecast(
     "/{external_user_id}/forecast/refresh",
     response_model=IngestResponse,
     status_code=status.HTTP_201_CREATED,
+    dependencies=[Depends(forecast_refresh_rate_limit)],
 )
 async def refresh_user_forecast(
     external_user_id: str = Path(min_length=1, max_length=255),

@@ -14,6 +14,7 @@ from app.evaluation.audit import evaluate_location_audit
 from app.ingestion.service import ingest_forecast_for_location, IngestionError
 from app.ml.service import correct_forecast_run
 from app.services.maintenance_guard import require_nonproduction_maintenance
+from app.services.rate_limit import admin_maintenance_rate_limit
 
 router = APIRouter()
 
@@ -23,7 +24,10 @@ router = APIRouter()
     response_model=IngestResponse,
     status_code=status.HTTP_201_CREATED,
     tags=["ingestion"],
-    dependencies=[Depends(require_nonproduction_maintenance)],
+    dependencies=[
+        Depends(admin_maintenance_rate_limit),
+        Depends(require_nonproduction_maintenance),
+    ],
 )
 async def trigger_ingestion(
     location_id: int,
