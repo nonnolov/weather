@@ -8,8 +8,8 @@ export interface IngestResponse { forecast_run_id: number; location_id: number; 
 export interface LineAuthResponse { external_user_id: string; }
 
 export class ApiError extends Error { constructor(message: string, public readonly status: number) { super(message); this.name = "ApiError"; } }
-const apiUrl = (path: string) => `/api/backend${path}`;
-async function request<T>(path: string, options?: RequestInit): Promise<T> { const response = await fetch(apiUrl(path), options); if (!response.ok) throw new ApiError("Request failed (" + response.status + ")", response.status); return response.json() as Promise<T>; }
+export const apiUrl = (path: string) => `/api/backend${path}`;
+async function request<T>(path: string, options?: RequestInit): Promise<T> { const response = await fetch(apiUrl(path), {...options, headers:{...(path.startsWith('/api/v1/users/U') && typeof window !== 'undefined' && window.liff?.getAccessToken?.() ? {Authorization:'Bearer '+window.liff.getAccessToken()} : {}),...options?.headers}}); if (!response.ok) throw new ApiError("Request failed (" + response.status + ")", response.status); return response.json() as Promise<T>; }
 export function getHealth(signal?: AbortSignal): Promise<HealthResponse> { return request<HealthResponse>("/health", { signal }); }
 export function getLocations(signal?: AbortSignal): Promise<Location[]> { return request<Location[]>("/api/v1/locations", { signal }); }
 export function getLatestForecast(locationId: number, signal?: AbortSignal): Promise<ForecastRun> { return request<ForecastRun>("/api/v1/forecast/" + locationId, { signal }); }

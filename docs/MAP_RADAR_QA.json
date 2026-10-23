@@ -1,0 +1,50 @@
+{
+  "date": "2026-10-12",
+  "branch": "feature/map-radar-20261012",
+  "base": "4f44e7b",
+  "status": "passed",
+  "build": {
+    "typecheck": "passed",
+    "compilation": "passed",
+    "lint": "passed"
+  },
+  "tests": {
+    "radarContract": 16,
+    "dashboardViewports": 10,
+    "dashboardFlows": 12,
+    "mapScenarios": 10,
+    "total": 48
+  },
+  "runtimeDependencyAudit": {
+    "vulnerabilities": 0
+  },
+  "providerTiles": "mocked in browser tests",
+  "visualReview": [
+    "360 light",
+    "1440 dark"
+  ],
+  "gpsCallsFromMap": 0,
+  "backendWritesFromMap": 0,
+  "productionDeploy": true,
+  "preview": "http://localhost:3102",
+  "notes": [
+    "Focus returns to Map button on close",
+    "Immediate close after zoom verified",
+    "Original dirty worktree untouched",
+    "No GPS accuracy UI added"
+  ],
+  "radarCacheImprovement": {
+    "status": "passed",
+    "build": "passed",
+    "cacheCases": 8,
+    "mapBrowserCasesRerun": 10,
+    "providerNetwork": "mocked",
+    "limits": {
+      "images": 64,
+      "bytes": 8388608,
+      "ttlMinutes": 30,
+      "newNetworkStartsPerMinute": 80
+    },
+    "productionDeployed": true
+  }
+}

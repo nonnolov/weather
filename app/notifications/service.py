@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from sqlalchemy import func, select
+from sqlalchemy import func, select, true
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import settings
@@ -38,6 +38,9 @@ async def send_forecast_alert(
     """Send one deduplicated forecast alert. Return True when sent."""
     dedupe_key = f"forecast:{run.location_id}:{run.retrieved_at.date()}:{alert_kind}"
     await _lock_dedupe_key(db, dedupe_key, recipient_id)
+    from app.notifications.subscriptions import recipient_eligible
+    if not await recipient_eligible(db, recipient_id, lock=True, expected_location_id=run.location_id):
+        return False
     existing = await db.scalar(
         select(NotificationDelivery.id).where(
             NotificationDelivery.channel == "line",
@@ -75,7 +78,8 @@ async def send_forecast_alert(
 
 
 async def send_current_location_alerts(db: AsyncSession, client: LineClient) -> dict[str, int]:
-    users = list((await db.scalars(select(User).where(User.current_location_id.is_not(None)))).all())
+    from app.notifications.subscriptions import recipient_condition
+    users = list((await db.scalars(select(User).where(User.current_location_id.is_not(None), recipient_condition(legacy=true())))).all())
     sent = 0
     skipped = 0
     for user in users:

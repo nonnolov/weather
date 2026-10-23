@@ -7,6 +7,7 @@ from sqlalchemy import select, tuple_
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import settings
+from app.notifications.subscriptions import recipient_condition
 
 logger = logging.getLogger(__name__)
 _QUEUE = "intraday_preview_committed_runs"
@@ -41,7 +42,7 @@ async def _evaluate(sessions, queued):
         recipients = list((await reader.scalars(
             select(User.external_id).join(Location, Location.id == User.current_location_id)
             .where(User.current_location_id.in_(locations), Location.is_active.is_(True),
-                   User.external_id.startswith("U"))
+                   recipient_condition())
             .order_by(User.external_id).limit(MAX_RECIPIENTS + 1)
         )).all())
     # Release the discovery transaction before owned candidate/locking sessions.

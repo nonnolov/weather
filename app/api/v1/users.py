@@ -11,6 +11,7 @@ from app.core.database import get_db
 from app.models.forecast import DailyForecast, ForecastRun, HourlyForecast
 from app.models.location import Location
 from app.models.user import User
+from app.services.audience import record_member
 from app.schemas.forecast import ForecastRunDetail, IngestResponse
 from app.schemas.location import LocationFromGps
 from app.schemas.user import UserLocationRead
@@ -23,7 +24,8 @@ from app.services.geocoding import (
 )
 
 
-router = APIRouter()
+from app.services.line_identity import protect_line_user_path
+router = APIRouter(dependencies=[Depends(protect_line_user_path)])
 
 
 @router.post(
@@ -74,6 +76,7 @@ async def set_user_location_from_gps(
     else:
         user.current_location = location
     await db.flush()
+    await record_member(db, "location", str(location.id))
     await db.refresh(location)
     return UserLocationRead(external_user_id=user.external_id, location=location)
 

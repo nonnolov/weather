@@ -1,0 +1,57 @@
+{
+  "source": "095fbe8",
+  "apiDeployment": "c81ceedb-1595-4c03-8b2e-023add82aa5e",
+  "cronDeployment": "bb2bbc14-d8eb-4d38-903b-4d467f10485e",
+  "candidate": "https://weather-oabn6iqlo-weather-9c1f.vercel.app",
+  "stable": "https://weather-iota-five-83.vercel.app",
+  "signupEnabled": true,
+  "anonymousStatusHttp": 401,
+  "dailySendingPaused": true,
+  "intradaySendingPaused": true,
+  "realLineMessagesSent": 0,
+  "date": "2026-10-12",
+  "backendAuthCases": 39,
+  "mockedSignupBrowserCases": 15,
+  "frontendBuild": "passed",
+  "realAnonymousBrowser": {
+    "status": "passed",
+    "realSdk": true,
+    "actualUserLoginTested": false,
+    "lineMessagesSent": 0,
+    "results": [
+      {
+        "width": 360,
+        "signupVisible": true,
+        "loginButtonEnabled": true,
+        "realSdkInitialized": true,
+        "backendWrites": 0,
+        "pageErrors": 0
+      },
+      {
+        "width": 1440,
+        "signupVisible": true,
+        "loginButtonEnabled": true,
+        "realSdkInitialized": true,
+        "backendWrites": 0,
+        "pageErrors": 0
+      }
+    ]
+  },
+  "observedOriginalFailure": {
+    "idTokenVerifyUpstreamHttp": 400,
+    "accessTokenVerifyUpstreamHttp": 200,
+    "applicationStatusHttp": 401,
+    "exactConditionalCause": "not captured by original release logs"
+  },
+  "fixes": [
+    "Status uses server-verified access token without redundant cached ID-token check",
+    "Explicit retry renews external/in-app sessions or relaunches the LIFF app",
+    "Accept positive finite integer/fractional expiry per Number contract; continue rejecting expired/non-numeric/non-finite/bool values",
+    "Channel/required scopes and server-issued subject remain mandatory",
+    "Safe failure-category logging without credentials"
+  ],
+  "remainingAcceptance": [
+    "User retries real phone login and completes explicit consent",
+    "Resume sending after enrollment verification"
+  ]
+}

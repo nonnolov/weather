@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import date, datetime, timezone
 from zoneinfo import ZoneInfo
 
-from sqlalchemy import select
+from sqlalchemy import select, true
 from sqlalchemy.orm import selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -32,6 +32,9 @@ async def send_rain_alert(
 ) -> bool:
     """Send one daily rain alert or below-threshold summary per recipient/location."""
     await lock_rain_scope(db, recipient_id, run.location_id)
+    from app.notifications.subscriptions import recipient_eligible
+    if not await recipient_eligible(db, recipient_id, lock=True, expected_location_id=run.location_id):
+        return False
     location = await db.scalar(select(Location).where(Location.id == run.location_id))
     if location is None:
         return False
@@ -205,12 +208,13 @@ def _rain_evidence(
 async def refresh_and_send_rain_alerts(db: AsyncSession, client: LineClient) -> dict[str, int]:
     """Refresh each user location once, then send daily rain summaries."""
     from app.ingestion.service import IngestionError, ingest_forecast_for_location
+    from app.notifications.subscriptions import recipient_condition
 
     location_ids = list(
         (
             await db.scalars(
                 select(User.current_location_id)
-                .where(User.current_location_id.is_not(None))
+                .where(User.current_location_id.is_not(None), recipient_condition(legacy=true()))
                 .distinct()
             )
         ).all()
@@ -239,11 +243,12 @@ async def refresh_and_send_rain_alerts(db: AsyncSession, client: LineClient) -> 
 
 
 async def send_current_rain_alerts(db: AsyncSession, client: LineClient) -> dict[str, int]:
+    from app.notifications.subscriptions import recipient_condition
     users = list(
         (
             await db.execute(
                 select(User.external_id, User.current_location_id).where(
-                    User.current_location_id.is_not(None)
+                    User.current_location_id.is_not(None), recipient_condition(legacy=true())
                 )
             )
         ).all()

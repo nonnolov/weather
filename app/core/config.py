@@ -58,6 +58,8 @@ class Settings(BaseSettings):
     LINE_CHANNEL_SECRET: str | None = None
     LINE_LOGIN_CHANNEL_ID: str | None = None
     LINE_USER_IDS: str = ""
+    LINE_SUBSCRIPTIONS_ENABLED: bool = False
+    LINE_OFFICIAL_ACCOUNT_ID: str | None = None
     LINE_API_BASE_URL: str = "https://api.line.me"
 
     @model_validator(mode="after")
@@ -66,10 +68,13 @@ class Settings(BaseSettings):
             raise ValueError("SECRET_KEY must be changed in production")
         if self.APP_ENV == "production" and self.DEBUG:
             raise ValueError("DEBUG must be false in production")
+        if self.LINE_SUBSCRIPTIONS_ENABLED and not (self.LINE_LOGIN_CHANNEL_ID and self.LINE_CHANNEL_ACCESS_TOKEN and self.LINE_CHANNEL_SECRET and self.LINE_OFFICIAL_ACCOUNT_ID):
+            raise ValueError("LINE signup requires Login channel, Messaging token/secret and Weather account ID")
         if self.INTRADAY_SEND_ENABLED:
             recipients = [x.strip() for x in self.INTRADAY_SEND_RECIPIENT_IDS.split(",") if x.strip()]
             if (not self.INTRADAY_PREVIEW_SCHEDULER_ENABLED or not self.LINE_CHANNEL_ACCESS_TOKEN
-                    or not recipients or any(not x.startswith("U") for x in recipients)):
+                    or (not recipients and not self.LINE_SUBSCRIPTIONS_ENABLED)
+                    or any(not x.startswith("U") for x in recipients)):
                 raise ValueError("Live intraday requires scheduler, LINE token and explicit LINE recipients")
         return self
 

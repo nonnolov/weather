@@ -1,0 +1,71 @@
+{
+  "date": "2026-10-12 Asia/Bangkok",
+  "frontendSource": "fc88aad",
+  "backendSource": "095fbe8",
+  "cronSource": "9045131",
+  "apiDeployment": "6371dff5-2417-48f4-aeb0-8864a0c4b8e9",
+  "cronDeployment": "a656632f-72c7-4b67-9d3f-dceb7845729e",
+  "railwayDeploymentsStatus": "SUCCESS",
+  "candidate": "https://weather-1kqsp13ed-weather-9c1f.vercel.app",
+  "stable": "https://weather-iota-five-83.vercel.app",
+  "dailyStartCommand": "python -m app.notifications.cli",
+  "dailyCronUtc": "0 23 * * *",
+  "dailyLocalTime": "06:00 Asia/Bangkok",
+  "dailySendingPaused": false,
+  "intradaySendingPaused": false,
+  "signupEnabled": true,
+  "intradaySendEnabled": true,
+  "intradaySchedulerEnabled": true,
+  "intradayPolicyVersion": "intraday-v2-candidate",
+  "intradayPollDelaySeconds": 900,
+  "intradayStartupDelaySeconds": 60,
+  "firstIntradayCycle": {
+    "status": "complete",
+    "eligibleLocations": 1,
+    "processedRecipients": 1,
+    "sent": 0,
+    "skipped": 1,
+    "reason": "no_baseline",
+    "observedAt": "2026-10-12T22:34:59+07:00"
+  },
+  "baselinePolicy": "Only accepted daily or supported intraday messages are baselines. First daily send is still pending; no bootstrap message was manually sent.",
+  "backendTestsPassed": 41,
+  "postgresTestsSkipped": 13,
+  "mockedBrowserCasesPassed": 18,
+  "frontendBuild": "passed",
+  "publicBundleErrorAndPostFixVerified": true,
+  "anonymousStatusHttp": 401,
+  "scheduledAcceptanceCheck": "2026-10-13T06:10:00+07:00",
+  "actualDailyDeliveryVerified": false,
+  "handsetReceiptVerified": false,
+  "manualLineMessagesTriggered": 0,
+  "rollback": {
+    "apiVariable": "INTRADAY_SEND_ENABLED=false",
+    "dailyCommand": "python -c \"print('Daily LINE delivery paused for signup verification')\"",
+    "note": "Use compatible current builds; preserve migration 0010 and consent records."
+  },
+  "realAnonymousBrowserSmoke": {
+    "status": "passed",
+    "realSdk": true,
+    "actualUserLoginTested": false,
+    "lineMessagesSent": 0,
+    "results": [
+      {
+        "width": 360,
+        "signupVisible": true,
+        "loginButtonEnabled": true,
+        "realSdkInitialized": true,
+        "backendWrites": 0,
+        "pageErrors": 0
+      },
+      {
+        "width": 1440,
+        "signupVisible": true,
+        "loginButtonEnabled": true,
+        "realSdkInitialized": true,
+        "backendWrites": 0,
+        "pageErrors": 0
+      }
+    ]
+  }
+}
