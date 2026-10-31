@@ -8,6 +8,27 @@ with the smallest complete change, existing project patterns, and existing
 libraries. Keep replies concise; report material limits and checks actually run.
 The user does not need to mention Ponytail in each prompt.
 
+## Default response style: Caveman
+
+For coding tasks and their progress reports, also read
+`.agents/skills/caveman/SKILL.md`. Use its standard concise voice automatically;
+the user does not need to request it each time. Reply in the user's language
+(Thai in this project conversation). Keep explanations readable and preserve
+technical facts, uncertainty, negations, numbers, units, commands, paths, errors,
+and test results. Never promise a fixed token reduction.
+
+Caveman controls chat prose. Ponytail controls implementation scope; selective
+Superpowers controls the workflow. Keep persisted code, comments, documentation,
+commit messages, and PR descriptions in normal clear prose. Give full sentences
+when explaining risky actions, ordered instructions, or user confusion. Requests
+for a detailed explanation override compression for that answer. Honor an
+explicit request to stop Caveman for the rest of the session.
+
+Only standard Caveman is installed. Its references to ultracave, megacave, or
+compression skills do not install those variants. If requested, report their
+absence instead of pretending to activate them. No hook-backed mode tracking is
+configured; status must reflect the conversation, not an inferred stored value.
+
 ## Selective Superpowers
 
 Use the following repository skills only when their conditions apply. This is
